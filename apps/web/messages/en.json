@@ -1,0 +1,29 @@
+{
+  "app": {
+    "name": "SkillLink LK",
+    "tagline": "Find verified skilled professionals near you within minutes."
+  },
+  "lang": { "label": "Language", "si": "සිංහල", "ta": "தமிழ்", "en": "English" },
+  "home": {
+    "chooseCategory": "Choose a service",
+    "near": "Serving Kandy district",
+    "tagline": "Find a verified professional near you, in minutes.",
+    "signIn": "Sign in",
+    "providerCta": "Work as a provider",
+    "providerCtaSub": "Get jobs near you. Sign in, get verified, start earning.",
+    "loading": "Loading services…",
+    "error": "Could not load services. Is the API running?"
+  },
+  "errors": {
+    "internal": "Something went wrong. Please try again.",
+    "auth": {
+      "phoneInvalid": "Enter a valid Sri Lankan mobile number (+94…).",
+      "otpInvalid": "That code is invalid or expired.",
+      "rateLimit": "Too many attempts. Please wait a few minutes.",
+      "languageInvalid": "Unsupported language.",
+      "noToken": "Please sign in.",
+      "tokenInvalid": "Your session expired. Please sign in again.",
+      "forbidden": "You don't have access to this."
+    }
+  }
+}

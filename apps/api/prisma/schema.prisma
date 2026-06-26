@@ -1,0 +1,307 @@
+// SkillLink LK — Prisma schema mirroring the skilllink database (db/migrations/001_init.sql).
+// Geo columns (geography) are unsupported scalar types in Prisma; we map them as
+// Unsupported(...) so Prisma manages every other column, and we use raw SQL
+// (ST_DWithin / ST_Distance) for matching — see src/matching.
+//
+// To regenerate from the live DB:  npm run prisma:pull  (then review)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum user_role {
+  customer
+  provider
+  admin
+}
+
+enum app_language {
+  si
+  ta
+  en
+}
+
+enum provider_status {
+  pending
+  approved
+  rejected
+  suspended
+}
+
+model districts {
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name_en     String
+  name_si     String
+  name_ta     String
+  center      Unsupported("geography(Point, 4326)")
+  boundary    Unsupported("geography(Polygon, 4326)")?
+  is_active   Boolean     @default(false)
+  launched_at DateTime?   @db.Timestamptz(6)
+  created_at  DateTime    @default(now()) @db.Timestamptz(6)
+
+  users     users[]
+  providers providers[]
+  bookings  bookings[]
+}
+
+model users {
+  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  phone        String       @unique
+  // Multi-role model: the effective role SET is DERIVED, not stored here —
+  // customer (always) + provider (iff a providers row exists) + admin (iff role='admin').
+  // This column is retained only as the admin flag; do not write 'provider' to it.
+  role         user_role    @default(customer)
+  language     app_language @default(en)
+  firebase_uid String?      @unique
+  district_id  String?      @db.Uuid
+  is_active    Boolean      @default(true)
+  created_at   DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime     @default(now()) @db.Timestamptz(6)
+
+  district          districts?         @relation(fields: [district_id], references: [id])
+  customer_profile  customer_profiles?
+  provider          providers?
+}
+
+model sessions {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id            String    @db.Uuid
+  refresh_token_hash String
+  expires_at         DateTime  @db.Timestamptz(6)
+  revoked_at         DateTime? @db.Timestamptz(6)
+  created_at         DateTime  @default(now()) @db.Timestamptz(6)
+}
+
+model customer_profiles {
+  user_id          String  @id @db.Uuid
+  full_name        String?
+  default_location Unsupported("geography(Point, 4326)")?
+  default_address  String?
+  district_id      String? @db.Uuid
+  email            String?
+
+  user users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model categories {
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  parent_id  String? @db.Uuid
+  key        String  @unique
+  name_en    String
+  name_si    String
+  name_ta    String
+  is_active  Boolean @default(true)
+  sort_order Int     @default(0)
+
+  parent              categories?           @relation("subcategories", fields: [parent_id], references: [id])
+  children            categories[]          @relation("subcategories")
+  provider_categories provider_categories[]
+}
+
+model providers {
+  user_id              String          @id @db.Uuid
+  business_name        String?
+  status               provider_status @default(pending)
+  base_location        Unsupported("geography(Point, 4326)")?
+  district_id          String?         @db.Uuid
+  is_available         Boolean         @default(false)
+  rating_avg           Decimal         @default(0.0) @db.Decimal(2, 1)
+  rating_count         Int             @default(0)
+  avg_response_seconds Int             @default(0)
+  years_experience     Int?
+  working_days         String?
+  working_hours        String?
+  emergency_service    Boolean         @default(false)
+  created_at           DateTime        @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime        @default(now()) @db.Timestamptz(6)
+
+  user                users                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  district            districts?            @relation(fields: [district_id], references: [id])
+  service_areas       service_areas[]
+  provider_categories provider_categories[]
+  verifications       verifications[]
+}
+
+model service_areas {
+  id            String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider_id   String @db.Uuid
+  center        Unsupported("geography(Point, 4326)")
+  radius_meters Int
+
+  provider providers @relation(fields: [provider_id], references: [user_id], onDelete: Cascade)
+}
+
+enum verification_type {
+  nic
+  selfie
+  certificate
+  police_clearance
+}
+
+enum verification_status {
+  pending
+  approved
+  rejected
+}
+
+model verifications {
+  id          String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider_id String              @db.Uuid
+  type        verification_type
+  media_url   String
+  status      verification_status @default(pending)
+  reviewed_by String?             @db.Uuid
+  reason      String?
+  reviewed_at DateTime?           @db.Timestamptz(6)
+  created_at  DateTime            @default(now()) @db.Timestamptz(6)
+
+  provider providers @relation(fields: [provider_id], references: [user_id], onDelete: Cascade)
+}
+
+model provider_categories {
+  provider_id String @db.Uuid
+  category_id String @db.Uuid
+
+  provider providers  @relation(fields: [provider_id], references: [user_id], onDelete: Cascade)
+  category categories @relation(fields: [category_id], references: [id], onDelete: Cascade)
+
+  @@id([provider_id, category_id])
+}
+
+enum booking_status {
+  requested
+  matched
+  accepted
+  rejected
+  in_progress
+  completed
+  cancelled
+}
+
+model bookings {
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customer_id      String         @db.Uuid
+  provider_id      String?        @db.Uuid
+  category_id      String         @db.Uuid
+  district_id      String?        @db.Uuid
+  description      String?
+  location         Unsupported("geography(Point, 4326)")
+  status           booking_status @default(requested)
+  price_cents      Int?
+  commission_cents Int?
+  solar_specs      Json?
+  created_at       DateTime @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime @default(now()) @db.Timestamptz(6)
+
+  district      districts?      @relation(fields: [district_id], references: [id])
+  booking_media booking_media[]
+  conversation  conversations?
+}
+
+enum media_kind {
+  photo
+  video
+  completion_photo
+}
+
+model booking_media {
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  booking_id String     @db.Uuid
+  kind       media_kind
+  url        String
+
+  booking bookings @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+}
+
+model conversations {
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  booking_id String     @unique @db.Uuid
+  booking    bookings   @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  messages   messages[]
+}
+
+model messages {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  conversation_id String        @db.Uuid
+  sender_id       String        @db.Uuid
+  body            String
+  created_at      DateTime      @default(now()) @db.Timestamptz(6)
+
+  conversation conversations @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+}
+
+enum payment_provider {
+  payhere
+  genie
+}
+
+enum payment_status {
+  pending
+  paid
+  failed
+  refunded
+}
+
+model payments {
+  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  booking_id       String           @unique @db.Uuid
+  provider         payment_provider
+  amount_cents     Int
+  commission_cents Int
+  status           payment_status   @default(pending)
+  gateway_ref      String?
+  idempotency_key  String?          @unique
+  created_at       DateTime         @default(now()) @db.Timestamptz(6)
+}
+
+model reviews {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  booking_id        String   @unique @db.Uuid
+  customer_id       String   @db.Uuid
+  provider_id       String   @db.Uuid
+  rating            Int
+  comment           String?
+  provider_response String?
+  created_at        DateTime @default(now()) @db.Timestamptz(6)
+}
+
+enum dispute_status {
+  open
+  resolved
+}
+
+model disputes {
+  id          String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  booking_id  String         @db.Uuid
+  opened_by   String         @db.Uuid
+  status      dispute_status @default(open)
+  resolution  String?
+  resolved_by String?        @db.Uuid
+  created_at  DateTime       @default(now()) @db.Timestamptz(6)
+}
+
+model notifications {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String    @db.Uuid
+  type       String
+  title      String
+  body       String?
+  link       String?
+  read_at    DateTime? @db.Timestamptz(6)
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+}
+
+model audit_log {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actor_id   String?  @db.Uuid
+  action     String
+  entity     String
+  entity_id  String?  @db.Uuid
+  meta       Json?
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+}

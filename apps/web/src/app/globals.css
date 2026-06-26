@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --max-w: 480px;
+}
+
+body {
+  @apply bg-gray-50 text-gray-900 antialiased dark:bg-gray-950 dark:text-gray-100;
+}
+
+/* Dark-aware form controls so we don't repeat dark: on every input. */
+.dark input,
+.dark textarea,
+.dark select {
+  @apply border-gray-600 bg-gray-800 text-gray-100 placeholder:text-gray-500;
+}
+
+/* Chat bubbles + neutral chips adapt in dark mode. */
+.dark .bg-gray-50 { @apply bg-gray-700; }

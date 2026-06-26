@@ -1,0 +1,34 @@
+# dependencies
+node_modules/
+.pnp/
+
+# builds
+dist/
+.next/
+out/
+build/
+
+# env & secrets
+.env
+.env.local
+.env.*.local
+*.pem
+
+# logs
+*.log
+npm-debug.log*
+
+# prisma
+apps/api/prisma/*.db
+
+# os / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# test
+coverage/
+playwright-report/
+test-results/

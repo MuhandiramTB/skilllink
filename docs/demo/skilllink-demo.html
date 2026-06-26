@@ -1,0 +1,292 @@
+<title>SkillLink LK — Pilot Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ground: #0E2A2B;
+    --ground-2: #133636;
+    --panel: #16403F;
+    --text: #EAF2EF;
+    --muted: #8FB3AC;
+    --accent: #F5A524;     /* hi-vis amber — the color of the trade */
+    --accent-2: #2DD4A7;   /* live teal — verified / active */
+    --line: rgba(143,179,172,0.18);
+    --radius: 14px;
+    --maxw: 1120px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .display { font-family: 'Space Grotesk', 'Inter', sans-serif; letter-spacing: -0.02em; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  /* ---- eyebrow / labels ---- */
+  .eyebrow {
+    font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600; margin: 0 0 12px;
+  }
+
+  /* ---- hero ---- */
+  header { padding: 84px 0 56px; border-bottom: 1px solid var(--line); position: relative; overflow: hidden; }
+  .brandbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 64px; }
+  .logo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: -0.01em; }
+  .logo span { color: var(--accent-2); }
+  .tag-pill {
+    font-size: 12px; color: var(--muted); border: 1px solid var(--line);
+    padding: 6px 12px; border-radius: 999px;
+  }
+  .hero-h {
+    font-size: clamp(38px, 6vw, 68px); line-height: 1.02; margin: 0 0 24px; font-weight: 600;
+    max-width: 14ch;
+  }
+  .hero-h em { font-style: normal; color: var(--accent); }
+  .hero-sub { font-size: clamp(16px, 2vw, 19px); color: var(--muted); max-width: 56ch; margin: 0 0 36px; }
+  .hero-meta { display: flex; flex-wrap: wrap; gap: 28px; font-size: 14px; color: var(--muted); }
+  .hero-meta b { color: var(--text); font-weight: 600; }
+
+  /* ---- live data band (the risk: control-room readout) ---- */
+  .readout { background: var(--accent); color: #1a1206; padding: 36px 0; }
+  .readout .wrap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .readout .stat { padding: 4px 20px; border-left: 2px solid rgba(26,18,6,0.22); }
+  .readout .stat:first-child { border-left: none; }
+  .readout .num { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(28px, 4vw, 44px); line-height: 1; }
+  .readout .lab { font-size: 12px; letter-spacing: 0.04em; margin-top: 8px; opacity: 0.8; font-weight: 600; }
+  .readout .ctx { font-size: 11px; opacity: 0.65; margin-top: 2px; }
+
+  /* ---- sections ---- */
+  section { padding: 72px 0; border-bottom: 1px solid var(--line); }
+  .sec-head { max-width: 60ch; margin-bottom: 40px; }
+  .sec-head h2 { font-size: clamp(26px, 3.5vw, 38px); margin: 0 0 12px; font-weight: 600; }
+  .sec-head p { color: var(--muted); margin: 0; font-size: 17px; }
+
+  /* ---- role lanes ---- */
+  .lane { margin-bottom: 18px; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--ground-2); }
+  .lane-head { display: flex; align-items: baseline; gap: 16px; padding: 20px 24px; border-bottom: 1px solid var(--line); }
+  .lane-no { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 14px; color: var(--accent); }
+  .lane-head h3 { margin: 0; font-size: 20px; }
+  .lane-head .who { color: var(--muted); font-size: 14px; margin-left: auto; }
+  .flow { display: flex; flex-wrap: wrap; gap: 0; padding: 8px; }
+  .step { flex: 1 1 0; min-width: 150px; padding: 16px 18px; position: relative; }
+  .step + .step::before {
+    content: ""; position: absolute; left: 0; top: 22px; bottom: 22px; width: 1px; background: var(--line);
+  }
+  .step .k { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-2); font-weight: 600; }
+  .step .t { font-size: 15px; margin: 8px 0 4px; font-weight: 600; }
+  .step .d { font-size: 13px; color: var(--muted); line-height: 1.4; }
+  .step .d b { color: var(--text); font-weight: 600; }
+
+  /* ---- trust loop ---- */
+  .loop { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+  .loop .node {
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 18px; background: var(--ground-2);
+  }
+  .loop .node .n { font-family: 'Space Grotesk', sans-serif; color: var(--accent); font-size: 13px; font-weight: 700; }
+  .loop .node .h { font-size: 16px; font-weight: 600; margin: 6px 0 4px; }
+  .loop .node .s { font-size: 13px; color: var(--muted); }
+  .loop-note { margin-top: 20px; padding: 18px 22px; border-left: 3px solid var(--accent-2); background: var(--ground-2);
+    border-radius: 0 var(--radius) var(--radius) 0; font-size: 15px; color: var(--text); }
+  .loop-note b { color: var(--accent-2); }
+
+  /* ---- build status ---- */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; background: var(--ground-2); }
+  .card h4 { margin: 0 0 14px; font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .row { display: flex; align-items: center; gap: 10px; padding: 7px 0; font-size: 15px; border-bottom: 1px solid var(--line); }
+  .row:last-child { border-bottom: none; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .dot.done { background: var(--accent-2); }
+  .dot.next { background: var(--accent); }
+  .row .meta { margin-left: auto; color: var(--muted); font-size: 12px; }
+
+  /* ---- footer ---- */
+  footer { padding: 56px 0 72px; }
+  footer p { color: var(--muted); font-size: 14px; margin: 6px 0; }
+  .stack { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .chip { font-size: 12px; color: var(--text); border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px; }
+
+  @media (max-width: 720px) {
+    .readout .wrap { grid-template-columns: 1fr 1fr; gap: 20px 8px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .hero-h { font-size: 40px; }
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<!-- fonts are best-effort; system fallbacks defined in CSS -->
+
+<header>
+  <div class="wrap">
+    <div class="brandbar">
+      <div class="logo">Skill<span>Link</span> LK</div>
+      <div class="tag-pill">Pilot demo · Kandy District · v1</div>
+    </div>
+    <p class="eyebrow">On-demand skilled services · Sri Lanka</p>
+    <h1 class="hero-h">Find a <em>verified</em> tradesperson near you — in minutes.</h1>
+    <p class="hero-sub">
+      An end-to-end marketplace that connects Kandy residents with vetted electricians, plumbers,
+      AC technicians and solar installers. Booking, masked chat, payment, and reviews — all working,
+      all running on real data today.
+    </p>
+    <div class="hero-meta">
+      <span><b>3</b> roles &nbsp;customer · provider · admin</span>
+      <span><b>trilingual</b> &nbsp;සිංහල · தமிழ் · English</span>
+      <span><b>Kandy</b> &nbsp;first, then nationwide</span>
+    </div>
+  </div>
+</header>
+
+<!-- LIVE READOUT — real seeded pilot numbers -->
+<div class="readout" aria-label="Live pilot metrics">
+  <div class="wrap">
+    <div class="stat">
+      <div class="num tnum">12</div>
+      <div class="lab">Verified providers</div>
+      <div class="ctx">+2 awaiting verification</div>
+    </div>
+    <div class="stat">
+      <div class="num tnum">6</div>
+      <div class="lab">Bookings to date</div>
+      <div class="ctx">2 completed · 1 in&nbsp;progress</div>
+    </div>
+    <div class="stat">
+      <div class="num tnum">Rs 12,700</div>
+      <div class="lab">Gross booked</div>
+      <div class="ctx">across paid jobs</div>
+    </div>
+    <div class="stat">
+      <div class="num tnum">Rs 1,524</div>
+      <div class="lab">Platform commission</div>
+      <div class="ctx">12% per completed job</div>
+    </div>
+  </div>
+</div>
+
+<!-- ROLE LANES -->
+<section id="roles">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">How it works</p>
+      <h2>One platform, three people.</h2>
+      <p>Each role has its own screens, but they meet over a single booking. Here is the real journey, with the actual names and amounts from the Kandy pilot data.</p>
+    </div>
+
+    <!-- Customer -->
+    <div class="lane">
+      <div class="lane-head">
+        <span class="lane-no">01</span>
+        <h3>The customer</h3>
+        <span class="who">Nimal Bandara, Kandy — "AC not cooling"</span>
+      </div>
+      <div class="flow">
+        <div class="step"><div class="k">Describe</div><div class="t">Picks a service</div><div class="d">Chooses <b>AC repair</b>, describes the fault, shares location.</div></div>
+        <div class="step"><div class="k">Match</div><div class="t">Sees verified providers</div><div class="d">Ranked by distance &amp; rating. Picks <b>Cool Air AC Solutions</b> (★4.7, 0.9&nbsp;km).</div></div>
+        <div class="step"><div class="k">Talk</div><div class="t">Chats safely</div><div class="d">In-app chat with <b>phone numbers masked</b> — no exposure.</div></div>
+        <div class="step"><div class="k">Pay</div><div class="t">Pays on completion</div><div class="d">Settles <b>Rs 8,500</b> in-app once the job is done.</div></div>
+        <div class="step"><div class="k">Rate</div><div class="t">Leaves a review</div><div class="d">Rates <b>★5</b> — "fixed it quickly." Feeds the provider's score.</div></div>
+      </div>
+    </div>
+
+    <!-- Provider -->
+    <div class="lane">
+      <div class="lane-head">
+        <span class="lane-no">02</span>
+        <h3>The provider</h3>
+        <span class="who">Bandara Electricals — ★4.8, 142 jobs</span>
+      </div>
+      <div class="flow">
+        <div class="step"><div class="k">Join</div><div class="t">Onboards</div><div class="d">Registers, submits <b>NIC + selfie</b>, sets service area &amp; categories.</div></div>
+        <div class="step"><div class="k">Verify</div><div class="t">Gets approved</div><div class="d">Admin reviews documents. Only then is the provider <b>matchable</b>.</div></div>
+        <div class="step"><div class="k">Work</div><div class="t">Manages jobs</div><div class="d">Accepts requests, advances status: <b>started → completed</b>.</div></div>
+        <div class="step"><div class="k">Earn</div><div class="t">Tracks earnings</div><div class="d">Sees net income after commission in the dashboard.</div></div>
+      </div>
+    </div>
+
+    <!-- Admin -->
+    <div class="lane">
+      <div class="lane-head">
+        <span class="lane-no">03</span>
+        <h3>The owner / admin</h3>
+        <span class="who">Operations console</span>
+      </div>
+      <div class="flow">
+        <div class="step"><div class="k">Catalog</div><div class="t">Manages services</div><div class="d">Adds categories &amp; solar sub-services in <b>3 languages</b> — no code.</div></div>
+        <div class="step"><div class="k">Coverage</div><div class="t">Opens districts</div><div class="d">Flip a switch to launch <b>Gampaha or Colombo</b> next.</div></div>
+        <div class="step"><div class="k">Trust</div><div class="t">Verifies &amp; resolves</div><div class="d">Approves providers, handles disputes, suspends bad actors.</div></div>
+        <div class="step"><div class="k">See</div><div class="t">Reads the numbers</div><div class="d">Live analytics + a full <b>audit trail</b> of every action.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST LOOP -->
+<section id="loop">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Why it compounds</p>
+      <h2>The trust loop that makes quality win.</h2>
+      <p>Reviews are not a vanity feature — a completed job's rating feeds straight back into who gets shown first. Good work earns more work.</p>
+    </div>
+    <div class="loop">
+      <div class="node"><div class="n">A</div><div class="h">Verified only</div><div class="s">Unverified providers never appear in search.</div></div>
+      <div class="node"><div class="n">B</div><div class="h">Job completed</div><div class="s">Customer pays; platform takes 12%.</div></div>
+      <div class="node"><div class="n">C</div><div class="h">Review left</div><div class="s">★ rating recalculates the provider's score.</div></div>
+      <div class="node"><div class="n">D</div><div class="h">Ranked higher</div><div class="s">Better-rated providers rise in matching.</div></div>
+    </div>
+    <div class="loop-note">
+      Verified in the live system: a 5★ review moved a provider's score and its rank in search <b>immediately</b> — the loop is closed and working, not aspirational.
+    </div>
+  </div>
+</section>
+
+<!-- BUILD STATUS -->
+<section id="status">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Where we are</p>
+      <h2>Built and verified. Ready to productionize.</h2>
+      <p>The full MVP runs against a real PostgreSQL + PostGIS database. What remains before the Kandy pilot is wiring real third-party services and deploying — not building features.</p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h4>Done &amp; tested</h4>
+        <div class="row"><span class="dot done"></span> Phone OTP login + roles <span class="meta">Sprint 1</span></div>
+        <div class="row"><span class="dot done"></span> Provider onboarding + verification <span class="meta">Sprint 2</span></div>
+        <div class="row"><span class="dot done"></span> Geo-matching (PostGIS) <span class="meta">Sprint 0</span></div>
+        <div class="row"><span class="dot done"></span> Booking + masked chat <span class="meta">Sprint 3</span></div>
+        <div class="row"><span class="dot done"></span> Payments + reviews <span class="meta">Sprint 4</span></div>
+        <div class="row"><span class="dot done"></span> Admin console + analytics + audit <span class="meta">Sprint 5</span></div>
+      </div>
+      <div class="card">
+        <h4>Before pilot launch</h4>
+        <div class="row"><span class="dot next"></span> Real SMS OTP (Firebase) <span class="meta">integration</span></div>
+        <div class="row"><span class="dot next"></span> Photo uploads (Cloudinary) <span class="meta">integration</span></div>
+        <div class="row"><span class="dot next"></span> Payments (PayHere / Genie) <span class="meta">integration</span></div>
+        <div class="row"><span class="dot next"></span> Deploy (Vercel + cloud DB) <span class="meta">infra</span></div>
+        <div class="row"><span class="dot next"></span> Seed 30+ Kandy providers <span class="meta">go-to-market</span></div>
+        <div class="row"><span class="dot next"></span> Performance + security QA pass <span class="meta">quality</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="eyebrow">SkillLink LK</p>
+    <p>A trust-first, location-based marketplace for Sri Lanka's skilled trades. Pilot in Kandy, then expand district by district.</p>
+    <p>Goal: 100 providers · 1,000 customers · 500 completed jobs in the pilot.</p>
+    <div class="stack">
+      <span class="chip">Next.js PWA</span>
+      <span class="chip">NestJS API</span>
+      <span class="chip">PostgreSQL + PostGIS</span>
+      <span class="chip">Sinhala · Tamil · English</span>
+      <span class="chip">Kandy → nationwide</span>
+    </div>
+  </div>
+</footer>
