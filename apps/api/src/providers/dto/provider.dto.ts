@@ -4,6 +4,7 @@ import {
   IsArray,
   IsBoolean,
   IsIn,
+  IsInt,
   IsLatitude,
   IsLongitude,
   IsNumber,
@@ -45,4 +46,8 @@ export class AvailabilityDto {
 export class VerificationDecisionDto {
   @IsIn(['approve', 'reject']) decision!: 'approve' | 'reject';
   @IsOptional() @IsString() reason?: string;
+}
+
+export class WalletTopupDto {
+  @IsInt() @Min(1) amountCents!: number;
 }

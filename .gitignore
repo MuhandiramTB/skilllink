@@ -32,3 +32,7 @@ Thumbs.db
 coverage/
 playwright-report/
 test-results/
+.playwright/
+# Playwright/E2E screenshot output folders (e.g. apps/web/audit-shots, *-shots)
+*-shots/
+playwright/.cache/

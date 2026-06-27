@@ -2,26 +2,26 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { getSession, homeForMode } from '@/lib/session';
 import { adminApi, type Analytics } from '@/lib/admin-api';
-import { Card, StatCard, Spinner, EmptyState, ErrorBanner } from '@/components/ui';
+import { Card, StatCard, Money, Spinner, EmptyState, ErrorBanner } from '@/components/ui';
 
-function lkr(cents: number) {
-  return `LKR ${(cents / 100).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
-const QUICK_LINKS: { label: string; path: string }[] = [
-  { label: 'Users', path: '/admin/users' },
-  { label: 'Verifications', path: '/admin/verifications' },
-  { label: 'Disputes', path: '/admin/disputes' },
-  { label: 'Payments', path: '/admin/payments' },
-  { label: 'Audit log', path: '/admin/audit' },
-  { label: 'Categories', path: '/admin/categories' },
-  { label: 'Districts', path: '/admin/districts' },
+// label = key in the `nav` namespace (already translated for the sidebar).
+const QUICK_LINKS: { navKey: string; path: string }[] = [
+  { navKey: 'users', path: '/admin/users' },
+  { navKey: 'providers', path: '/admin/verifications' },
+  { navKey: 'disputes', path: '/admin/disputes' },
+  { navKey: 'payments', path: '/admin/payments' },
+  { navKey: 'auditLog', path: '/admin/audit' },
+  { navKey: 'categories', path: '/admin/categories' },
+  { navKey: 'districts', path: '/admin/districts' },
 ];
 
 export default function AdminDashboard() {
   const locale = (useParams().locale as string) ?? 'en';
+  const t = useTranslations('dash');
+  const tNav = useTranslations('nav');
   const [data, setData] = useState<Analytics | null>(null);
   const [err, setErr] = useState('');
 
@@ -44,33 +44,33 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-xl font-bold">Admin overview</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Platform health at a glance.</p>
+        <h1 className="font-display text-xl font-bold">{t('adminOverview')}</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{t('platformHealth')}</p>
       </div>
 
       {err && <ErrorBanner message={err} />}
 
       {data === null && !err ? (
-        <Spinner label="Loading analytics…" />
+        <Spinner label={t('loadingAnalytics')} />
       ) : data ? (
         <>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatCard label="Total bookings" value={data.bookings.total} tone="primary" />
-            <StatCard label="Completed" value={data.bookings.completed} tone="success" />
-            <StatCard label="Gross revenue" value={lkr(data.revenue.grossCents)} />
-            <StatCard label="Commission earned" value={lkr(data.revenue.commissionCents)} tone="success" />
-            <StatCard label="Approved providers" value={data.providers.approved} />
-            <StatCard label="Pending verifications" value={data.providers.pending} tone="danger" />
-            <StatCard label="Customers" value={data.customers} />
-            <StatCard label="Active districts" value={data.activeDistricts} />
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            <StatCard label={t('totalBookings')} value={data.bookings.total} tone="primary" />
+            <StatCard label={t('completed')} value={data.bookings.completed} tone="success" />
+            <StatCard label={t('grossRevenue')} value={<Money cents={data.revenue.grossCents} />} />
+            <StatCard label={t('commissionEarned')} value={<Money cents={data.revenue.commissionCents} />} tone="success" />
+            <StatCard label={t('approvedProviders')} value={data.providers.approved} />
+            <StatCard label={t('pendingVerifications')} value={data.providers.pending} tone="danger" />
+            <StatCard label={t('customers')} value={data.customers} />
+            <StatCard label={t('activeDistricts')} value={data.activeDistricts} />
           </div>
 
           <section>
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Bookings by status
+              {t('bookingsByStatus')}
             </h2>
             {byStatus.length === 0 ? (
-              <EmptyState>No bookings yet.</EmptyState>
+              <EmptyState>{t('noBookingsYet')}</EmptyState>
             ) : (
               <Card>
                 <ul className="space-y-2">
@@ -95,12 +95,12 @@ export default function AdminDashboard() {
 
           <section>
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Manage
+              {t('manage')}
             </h2>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {QUICK_LINKS.map((l) => (
                 <a key={l.path} href={`/${locale}${l.path}`}>
-                  <Card className="text-center text-sm font-medium transition hover:border-primary">{l.label}</Card>
+                  <Card className="text-center text-sm font-medium transition hover:border-primary">{tNav(l.navKey)}</Card>
                 </a>
               ))}
             </div>

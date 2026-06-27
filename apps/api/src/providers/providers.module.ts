@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ProvidersController, AdminVerificationController } from './providers.controller';
 import { ProvidersService } from './providers.service';
 import { VerificationService } from './verification.service';
+import { WalletService } from './wallet.service';
 import { MediaUploader, MockMediaUploader } from './media/media-uploader';
 import { AuditService } from '../admin/audit.service';
 import { AdminGuard } from '../admin/admin.guard';
@@ -14,11 +15,13 @@ import { AuthModule } from '../auth/auth.module';
   providers: [
     ProvidersService,
     VerificationService,
+    WalletService,
     AuditService,
     AdminGuard,
     JwtAuthGuard,
     // mock by default; CloudinaryUploader drops in later via env
     { provide: MediaUploader, useClass: MockMediaUploader },
   ],
+  exports: [WalletService],
 })
 export class ProvidersModule {}

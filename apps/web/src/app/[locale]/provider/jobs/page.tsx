@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { bookingApi, type BookingListItem } from '@/lib/booking-api';
-import { getToken } from '@/lib/admin-api';
-import { Button, Card, Spinner, EmptyState, ErrorBanner, StatusBadge } from '@/components/ui';
+import { getToken } from '@/lib/session';
+import { Button, Card, Spinner, EmptyState, ErrorBanner, StatusBadge, PageHeader } from '@/components/ui';
 
 export default function ProviderJobsPage() {
   const locale = (useParams().locale as string) ?? 'en';
+  const t = useTranslations('dash');
   const [jobs, setJobs] = useState<BookingListItem[] | null>(null);
   const [err, setErr] = useState('');
 
@@ -25,37 +27,42 @@ export default function ProviderJobsPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <a href={`/${locale}/provider`} className="text-sm text-primary hover:underline">← Dashboard</a>
-      <h1 className="text-xl font-semibold">My Jobs</h1>
+    <div className="space-y-5">
+      <PageHeader title={t('myJobs')} subtitle={t('myJobsSubtitle')} />
       {err && <ErrorBanner message={err} />}
       {!jobs && !err && <Spinner />}
-      {jobs && jobs.length === 0 && !err && <EmptyState>No jobs assigned yet.</EmptyState>}
-      {jobs && jobs.map((j) => (
-        <Card key={j.id} className="space-y-2">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium capitalize">{j.categoryKey?.replace(/[._]/g, ' ') ?? 'Service'}</p>
-              <p className="text-xs text-gray-500">{j.description || '—'}</p>
-            </div>
-            <StatusBadge status={j.status} />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {j.status === 'matched' && (
-              <>
-                <Button variant="success" onClick={() => act(j.id, () => bookingApi.respond(j.id, 'accept'))}>Accept</Button>
-                <Button variant="danger" onClick={() => act(j.id, () => bookingApi.respond(j.id, 'reject'))}>Reject</Button>
-              </>
-            )}
-            {j.status === 'accepted' && (
-              <Button onClick={() => act(j.id, () => bookingApi.advance(j.id, 'in_progress'))}>Start job</Button>
-            )}
-            {j.status === 'in_progress' && (
-              <Button variant="success" onClick={() => act(j.id, () => bookingApi.advance(j.id, 'completed'))}>Mark complete</Button>
-            )}
-          </div>
-        </Card>
-      ))}
+      {jobs && jobs.length === 0 && !err && <EmptyState>{t('noJobsAssigned')}</EmptyState>}
+      {jobs && jobs.length > 0 && (
+        <div className="space-y-4">
+          {jobs.map((j) => (
+            <Card key={j.id} className="space-y-4 rounded-2xl">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate font-medium capitalize">{j.categoryKey?.replace(/[._]/g, ' ') ?? t('service')}</p>
+                  <p className="mt-0.5 truncate text-xs text-gray-500">{j.description || '—'}</p>
+                </div>
+                <StatusBadge status={j.status} />
+              </div>
+              {(j.status === 'matched' || j.status === 'accepted' || j.status === 'in_progress') && (
+                <div className="flex flex-wrap gap-2">
+                  {j.status === 'matched' && (
+                    <>
+                      <Button variant="success" onClick={() => act(j.id, () => bookingApi.respond(j.id, 'accept'))}>{t('accept')}</Button>
+                      <Button variant="danger" onClick={() => act(j.id, () => bookingApi.respond(j.id, 'reject'))}>{t('reject')}</Button>
+                    </>
+                  )}
+                  {j.status === 'accepted' && (
+                    <Button onClick={() => act(j.id, () => bookingApi.advance(j.id, 'in_progress'))}>{t('startJob')}</Button>
+                  )}
+                  {j.status === 'in_progress' && (
+                    <Button variant="success" onClick={() => act(j.id, () => bookingApi.advance(j.id, 'completed'))}>{t('markComplete')}</Button>
+                  )}
+                </div>
+              )}
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

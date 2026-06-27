@@ -7,6 +7,7 @@ import type { RequestUser } from '../auth/guards/jwt-auth.guard';
 import {
   AssignDto,
   CreateBookingDto,
+  QuoteDto,
   RespondDto,
   SendMessageDto,
   UpdateStatusDto,
@@ -63,6 +64,18 @@ export class BookingsController {
   @Post(':id/cancel')
   cancel(@CurrentUser() u: RequestUser, @Param('id') id: string) {
     return this.bookings.cancel(u.userId, id);
+  }
+
+  /** Spec 11 Req 1: provider sets/updates the quote. */
+  @Patch(':id/quote')
+  quote(@CurrentUser() u: RequestUser, @Param('id') id: string, @Body() dto: QuoteDto) {
+    return this.bookings.setQuote(u.userId, id, dto.amountCents);
+  }
+
+  /** Spec 11 Req 2: customer accepts the quote. */
+  @Post(':id/accept-quote')
+  acceptQuote(@CurrentUser() u: RequestUser, @Param('id') id: string) {
+    return this.bookings.acceptQuote(u.userId, id);
   }
 
   @Get(':id/messages')

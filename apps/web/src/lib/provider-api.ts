@@ -49,7 +49,14 @@ export const providerApi = {
   earnings: () => req<{ totalNetCents: number; paidJobs: number }>(`/providers/me/earnings`),
   setDetails: (d: { yearsExperience?: number; workingDays?: string; workingHours?: string; emergencyService?: boolean }) =>
     req(`/providers/me/details`, { method: 'PATCH', body: JSON.stringify(d) }),
+  // Spec 11: provider wallet (commission balance for cash jobs).
+  wallet: () => req<WalletSummary>(`/providers/me/wallet`),
+  topup: (amountCents: number) =>
+    req<WalletSummary>(`/providers/me/wallet/topup`, { method: 'POST', body: JSON.stringify({ amountCents }) }),
 };
+
+export interface WalletLedgerEntry { id: string; type: string; amount_cents: number; booking_id: string | null; note: string | null; created_at: string }
+export interface WalletSummary { balanceCents: number; ledger: WalletLedgerEntry[] }
 
 export interface ProviderMe {
   status: string;

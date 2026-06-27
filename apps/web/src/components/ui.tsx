@@ -94,8 +94,53 @@ export function StatCard({
   };
   return (
     <Card>
-      <div className={`text-2xl font-bold tabular-nums ${toneCls[tone]}`}>{value}</div>
-      <div className="mt-1 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{label}</div>
+      {/* Numbers/money: scale a touch with viewport and never clip — break the LKR
+          prefix to its own line rather than truncating the amount. */}
+      <div className={`text-xl font-bold leading-tight tabular-nums sm:text-2xl ${toneCls[tone]}`}>{value}</div>
+      <div className="mt-1 text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{label}</div>
     </Card>
   );
 }
+
+/** Format integer cents as a non-wrapping LKR amount for StatCard values. */
+export function Money({ cents }: { cents: number }) {
+  const v = (cents / 100).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return <span className="whitespace-nowrap">LKR {v}</span>;
+}
+
+/** Consistent page title + optional subtitle, used at the top of every page. */
+export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
+  return (
+    <header className="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h1 className="font-display text-2xl font-bold">{title}</h1>
+        {subtitle && <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>}
+      </div>
+      {action}
+    </header>
+  );
+}
+
+/** A titled content block (uppercase section label + card body). */
+export function Section({ title, children, className = '' }: { title?: string; children: ReactNode; className?: string }) {
+  return (
+    <section className={`space-y-3 ${className}`}>
+      {title && <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{title}</h2>}
+      {children}
+    </section>
+  );
+}
+
+/** Uniform text input — matches the polished form fields elsewhere. */
+export function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-sm font-medium">{label}</span>
+      {children}
+      {hint && <span className="mt-1 block text-xs text-gray-400">{hint}</span>}
+    </label>
+  );
+}
+
+export const inputCls =
+  'w-full rounded-base border px-3 py-2.5 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:border-gray-600 dark:bg-gray-900';

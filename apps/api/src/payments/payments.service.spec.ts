@@ -22,7 +22,9 @@ describe('PaymentsService (Req 1–3)', () => {
         update: jest.fn().mockResolvedValue({}),
       },
     };
-    return { svc: new PaymentsService(prisma as never, gateway), prisma };
+    const wallet = { debitCommission: jest.fn().mockResolvedValue(undefined) };
+    const rewards = { awardBookingCompletion: jest.fn().mockResolvedValue({ awarded: true, points: 0 }) };
+    return { svc: new PaymentsService(prisma as never, gateway, wallet as never, rewards as never), prisma };
   }
 
   it('computes 12% commission and net (Req 2)', async () => {

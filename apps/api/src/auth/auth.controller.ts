@@ -73,11 +73,19 @@ export class AuthController {
     return this.auth.me(user.userId);
   }
 
-  /** Customer registration: name + district + language (+ optional email). */
+  /** Update profile (partial): name / district / language / email / avatar. */
   @Patch('profile')
   @UseGuards(JwtAuthGuard)
   updateProfile(@CurrentUser() user: RequestUser, @Body() dto: UpdateProfileDto) {
     return this.auth.updateProfile(user.userId, dto);
+  }
+
+  /** Presign an avatar upload; client stores the returned fileUrl via PATCH /profile. */
+  @Post('profile/avatar/presign')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  avatarPresign(@CurrentUser() user: RequestUser) {
+    return this.auth.avatarPresign(user.userId);
   }
 
   /** Switch active dashboard mode (must be a role the account holds). Issues a fresh token. */

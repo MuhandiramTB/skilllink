@@ -1,9 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { adminApi, type Dispute } from '@/lib/admin-api';
+import { Button, Card, EmptyState, ErrorBanner, StatusBadge, PageHeader } from '@/components/ui';
 
 export default function AdminDisputesPage() {
+  const t = useTranslations('admin');
   const [disputes, setDisputes] = useState<Dispute[]>([]);
   const [err, setErr] = useState('');
 
@@ -13,27 +16,43 @@ export default function AdminDisputesPage() {
   useEffect(() => { void load(); }, []);
 
   async function resolve(id: string) {
-    const resolution = prompt('Resolution note?') ?? '';
+    const resolution = prompt(t('disputes.resolutionPrompt')) ?? '';
     if (resolution.length < 3) return;
     try { await adminApi.resolveDispute(id, resolution); await load(); } catch (e) { setErr((e as Error).message); }
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold">Disputes</h1>
-      {err && <p className="rounded-base bg-red-50 p-2 text-sm text-danger">{err}</p>}
-      {disputes.length === 0 && <p className="text-sm text-gray-500">No open disputes.</p>}
-      <ul className="space-y-2">
-        {disputes.map((d) => (
-          <li key={d.id} className="flex items-center justify-between rounded-base border bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
-            <div>
-              <p className="text-sm">Booking <code>{d.booking_id.slice(0, 8)}</code></p>
-              <p className="text-xs text-gray-500">{d.resolution}</p>
-            </div>
-            <button onClick={() => resolve(d.id)} className="rounded-base bg-primary px-3 py-1 text-sm text-white">Resolve</button>
-          </li>
-        ))}
-      </ul>
+    <div className="space-y-5">
+      <PageHeader title={t('disputes.title')} subtitle={t('disputes.subtitle')} />
+
+      {err && <ErrorBanner message={err} />}
+      {disputes.length === 0 && !err && <EmptyState>{t('disputes.empty')}</EmptyState>}
+
+      {disputes.length > 0 && (
+        <ul className="space-y-3">
+          {disputes.map((d) => (
+            <li key={d.id}>
+              <Card className="rounded-2xl">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-2 text-sm font-medium">
+                      {t('disputes.booking')} <code className="tabular-nums text-gray-600 dark:text-gray-400">{d.booking_id.slice(0, 8)}</code>
+                      <StatusBadge status={d.status} />
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500">{d.resolution ?? t('disputes.noResolution')}</p>
+                  </div>
+                  <Button
+                    onClick={() => resolve(d.id)}
+                    className="min-h-[44px] w-full sm:w-auto"
+                  >
+                    {t('disputes.resolve')}
+                  </Button>
+                </div>
+              </Card>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

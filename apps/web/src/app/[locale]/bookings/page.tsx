@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { bookingApi, type BookingListItem } from '@/lib/booking-api';
-import { getToken } from '@/lib/admin-api';
-import { Card, Spinner, EmptyState, ErrorBanner, StatusBadge } from '@/components/ui';
-import { BottomNav } from '@/components/BottomNav';
+import { getToken } from '@/lib/session';
+import { Card, Spinner, EmptyState, ErrorBanner, StatusBadge, PageHeader } from '@/components/ui';
 
 export default function BookingsListPage() {
   const locale = (useParams().locale as string) ?? 'en';
+  const t = useTranslations('dash');
   const [items, setItems] = useState<BookingListItem[] | null>(null);
   const [err, setErr] = useState('');
 
@@ -18,25 +19,30 @@ export default function BookingsListPage() {
   }, [locale]);
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold">My Bookings</h1>
+    <div className="space-y-5">
+      <PageHeader title={t('myBookings')} subtitle={t('myBookingsSubtitle')} />
       {err && <ErrorBanner message={err} />}
       {!items && !err && <Spinner />}
       {items && items.length === 0 && !err && (
-        <EmptyState>No bookings yet. <a href={`/${locale}`} className="text-primary underline">Browse services →</a></EmptyState>
+        <EmptyState>{t('noBookingsBrowse')} <a href={`/${locale}/book`} className="text-primary underline">{t('browseServices')}</a></EmptyState>
       )}
-      {items && items.map((b) => (
-        <a key={b.id} href={`/${locale}/bookings/${b.id}`}>
-          <Card className="flex items-center justify-between hover:border-primary">
-            <div>
-              <p className="font-medium capitalize">{b.categoryKey?.replace(/[._]/g, ' ') ?? 'Service'}</p>
-              <p className="text-xs text-gray-500">{b.description || '—'} · {new Date(b.created_at).toLocaleDateString()}</p>
-            </div>
-            <StatusBadge status={b.status} />
-          </Card>
-        </a>
-      ))}
-      <BottomNav role="customer" />
+      {items && items.length > 0 && (
+        <div className="space-y-4">
+          {items.map((b) => (
+            <a key={b.id} href={`/${locale}/bookings/${b.id}`} className="block">
+              <Card className="flex items-center justify-between gap-3 rounded-2xl transition hover:border-primary hover:shadow-md">
+                <div className="min-w-0">
+                  <p className="truncate font-medium capitalize">{b.categoryKey?.replace(/[._]/g, ' ') ?? t('service')}</p>
+                  <p className="mt-0.5 truncate text-xs text-gray-500">
+                    {b.description || '—'} · {new Date(b.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+                <StatusBadge status={b.status} />
+              </Card>
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

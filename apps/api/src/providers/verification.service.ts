@@ -29,12 +29,37 @@ export class VerificationService {
     const providerIds = [...byProvider.keys()];
     const providers = await this.prisma.providers.findMany({
       where: { user_id: { in: providerIds } },
-      select: { user_id: true, business_name: true, status: true },
+      select: {
+        user_id: true, business_name: true, status: true,
+        rating_avg: true, rating_count: true, years_experience: true,
+        working_days: true, working_hours: true, emergency_service: true,
+        user: {
+          select: {
+            phone: true, created_at: true,
+            customer_profile: { select: { full_name: true, email: true } },
+            district: { select: { name_en: true } },
+          },
+        },
+        provider_categories: { select: { category: { select: { name_en: true } } } },
+      },
     });
     return providers.map((p) => ({
       providerId: p.user_id,
       businessName: p.business_name,
       status: p.status,
+      // full details for the admin to review the application
+      fullName: p.user?.customer_profile?.full_name ?? null,
+      phone: p.user?.phone ?? null,
+      email: p.user?.customer_profile?.email ?? null,
+      district: p.user?.district?.name_en ?? null,
+      ratingAvg: Number(p.rating_avg ?? 0),
+      ratingCount: p.rating_count,
+      yearsExperience: p.years_experience,
+      workingDays: p.working_days,
+      workingHours: p.working_hours,
+      emergencyService: p.emergency_service,
+      categories: p.provider_categories.map((pc) => pc.category.name_en),
+      appliedAt: p.user?.created_at ?? null,
       documents: byProvider.get(p.user_id) ?? [],
     }));
   }

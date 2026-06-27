@@ -2,23 +2,25 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { bookingApi, type Booking, type Message } from '@/lib/booking-api';
-import { getToken } from '@/lib/admin-api';
-import { Button, Card, Spinner, ErrorBanner, SuccessBanner, StatusBadge } from '@/components/ui';
+import { getToken, getSession } from '@/lib/session';
+import { Button, Card, Spinner, ErrorBanner, SuccessBanner, StatusBadge, PageHeader, Money, Field, inputCls } from '@/components/ui';
 
 export default function BookingDetailPage() {
   const p = useParams();
   const id = p.id as string;
   const locale = (p.locale as string) ?? 'en';
+  const t = useTranslations('dash');
   const [booking, setBooking] = useState<Booking | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [chat, setChat] = useState('');
   const [err, setErr] = useState('');
   const [msg, setMsg] = useState('');
-  const [paid, setPaid] = useState(false);
+  const [settled, setSettled] = useState(false);
   const [reviewed, setReviewed] = useState(false);
-  const [amount, setAmount] = useState('100');
   const [stars, setStars] = useState('5');
+  const [price, setPrice] = useState('');
 
   function fail(e: unknown) { setErr((e as Error).message); }
 
@@ -37,11 +39,19 @@ export default function BookingDetailPage() {
     if (!chat.trim()) return;
     try { await bookingApi.sendMessage(id, chat); setChat(''); setMessages(await bookingApi.messages(id)); } catch (e) { fail(e); }
   }
-  async function pay() {
-    try {
-      const p = await bookingApi.pay(id, Math.round(Number(amount) * 100));
-      setPaid(true); setMsg(`Paid LKR ${amount} (commission LKR ${(p.commissionCents / 100).toFixed(2)}).`);
-    } catch (e) { fail(e); }
+  async function saveQuote() {
+    setErr('');
+    const amount = Number(price);
+    if (!amount || amount <= 0) return;
+    try { await bookingApi.quote(id, Math.round(amount * 100)); setMsg(t('quoteSaved')); await load(); } catch (e) { fail(e); }
+  }
+  async function acceptQuote() {
+    setErr('');
+    try { await bookingApi.acceptQuote(id); setMsg(t('quoteAccepted')); await load(); } catch (e) { fail(e); }
+  }
+  async function settle(method: 'cash' | 'in_app') {
+    setErr('');
+    try { await bookingApi.settle(id, method); setSettled(true); setMsg(t('paymentSettled')); } catch (e) { fail(e); }
   }
   async function leaveReview() {
     try { await bookingApi.review(id, Number(stars), 'Reviewed via app'); setReviewed(true); } catch (e) { fail(e); }
@@ -53,62 +63,108 @@ export default function BookingDetailPage() {
   if (err && !booking) return <ErrorBanner message={err} />;
   if (!booking) return <Spinner />;
 
+  const me = getSession()?.userId;
+  const isProvider = !!me && booking.providerId === me;
+  const quoteStatus = booking.quoteStatus ?? 'none';
   const canCancel = ['requested', 'matched', 'accepted'].includes(booking.status);
+  // Provider can quote once a job is assigned (matched/accepted) and not yet accepted by the customer.
+  const canQuote = isProvider && ['matched', 'accepted'].includes(booking.status) && quoteStatus !== 'accepted';
 
   return (
-    <div className="space-y-4">
-      <a href={`/${locale}/bookings`} className="text-sm text-primary hover:underline">← My bookings</a>
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Booking</h1>
-        <StatusBadge status={booking.status} />
-      </div>
+    <div className="mx-auto max-w-2xl space-y-5">
+      <a href={`/${locale}/bookings`} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">{t('backToMyBookings')}</a>
+      <PageHeader title={t('booking')} action={<StatusBadge status={booking.status} />} />
       {err && <ErrorBanner message={err} />}
       {msg && <SuccessBanner message={msg} />}
 
-      <Card>
-        <p className="text-sm text-gray-600">{booking.description || 'No description'}</p>
-        {canCancel && <Button variant="ghost" className="mt-3" onClick={cancel}>Cancel booking</Button>}
+      <Card className="rounded-2xl">
+        <p className="text-sm font-medium uppercase tracking-wide text-gray-400">{t('details')}</p>
+        <p className="mt-1.5 text-sm text-gray-700 dark:text-gray-300">{booking.description || t('noDescription')}</p>
+        {canCancel && <Button variant="ghost" className="mt-4" onClick={cancel}>{t('cancelBooking')}</Button>}
       </Card>
+
+      {/* Quote — provider sets a price; customer accepts it. */}
+      {canQuote && (
+        <Card className="space-y-3 rounded-2xl">
+          <h2 className="font-semibold">{t('setYourPrice')}</h2>
+          {quoteStatus === 'quoted' && booking.priceCents != null && (
+            <p className="text-sm text-gray-600 dark:text-gray-300">{t('currentQuote')}: <Money cents={booking.priceCents} /></p>
+          )}
+          <Field label={t('yourPrice')} hint={t('setYourPriceHint')}>
+            <div className="flex items-center gap-2">
+              <span className="rounded-base border bg-gray-50 px-3 py-2.5 text-sm font-medium text-gray-600 dark:border-gray-600 dark:bg-gray-900">LKR</span>
+              <input value={price} onChange={(e) => setPrice(e.target.value)} inputMode="numeric" className={`${inputCls} max-w-[10rem]`} />
+              <Button onClick={saveQuote}>{t('saveQuote')}</Button>
+            </div>
+          </Field>
+        </Card>
+      )}
+
+      {/* Customer view of the quote — accept it before the provider starts. */}
+      {!isProvider && quoteStatus === 'quoted' && booking.status !== 'completed' && (
+        <Card className="space-y-3 rounded-2xl border-l-4 border-l-primary">
+          <h2 className="font-semibold">{t('quoteSection')}</h2>
+          {booking.priceCents != null && (
+            <p className="text-lg font-semibold"><span className="text-sm font-normal text-gray-500">{t('quotedPrice')}: </span><Money cents={booking.priceCents} /></p>
+          )}
+          <Button onClick={acceptQuote}>{t('acceptQuote')}</Button>
+        </Card>
+      )}
+
+      {/* Customer waiting for a quote. */}
+      {!isProvider && quoteStatus === 'none' && ['matched', 'accepted'].includes(booking.status) && (
+        <Card className="rounded-2xl">
+          <p className="text-sm text-gray-500 dark:text-gray-400">{t('awaitingQuote')}</p>
+        </Card>
+      )}
 
       {/* Chat — available once a provider is assigned */}
       {booking.status !== 'requested' && (
-        <Card>
-          <div className="mb-2 flex items-center justify-between">
-            <h2 className="font-medium">Chat <span className="text-xs font-normal text-gray-400">(numbers masked)</span></h2>
-            <button onClick={() => bookingApi.messages(id).then(setMessages)} className="text-xs text-primary">Refresh</button>
+        <Card className="rounded-2xl">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="font-semibold">{t('chat')} <span className="text-xs font-normal text-gray-400">{t('numbersMasked')}</span></h2>
+            <button onClick={() => bookingApi.messages(id).then(setMessages)} className="text-xs font-medium text-primary hover:underline">{t('refresh')}</button>
           </div>
-          <ul className="mb-2 max-h-48 space-y-1 overflow-y-auto text-sm">
-            {messages.length === 0 && <li className="text-xs text-gray-400">No messages yet.</li>}
-            {messages.map((m, i) => <li key={i} className="rounded bg-gray-50 px-2 py-1">{m.body}</li>)}
+          <ul className="mb-3 max-h-60 space-y-1.5 overflow-y-auto text-sm">
+            {messages.length === 0 && <li className="py-4 text-center text-xs text-gray-400">{t('noMessages')}</li>}
+            {messages.map((m, i) => (
+              <li key={`${m.created_at}-${i}`} className="rounded-base bg-gray-50 px-3 py-2 dark:bg-gray-700">{m.body}</li>
+            ))}
           </ul>
           <div className="flex gap-2">
-            <input value={chat} onChange={(e) => setChat(e.target.value)} className="flex-1 rounded-base border px-2 py-1" placeholder="Message…" />
-            <Button onClick={send}>Send</Button>
+            <input value={chat} onChange={(e) => setChat(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') send(); }}
+              className={inputCls} placeholder={t('typeMessage')} />
+            <Button onClick={send}>{t('send')}</Button>
           </div>
         </Card>
       )}
 
-      {/* Pay + review on completion */}
-      {booking.status === 'completed' && (
-        <Card className="space-y-3">
-          <h2 className="font-medium">Job complete</h2>
-          {!paid ? (
-            <div className="flex items-center gap-2">
-              <span className="text-sm">LKR</span>
-              <input value={amount} onChange={(e) => setAmount(e.target.value)} className="w-24 rounded-base border px-2 py-1" />
-              <Button variant="success" onClick={pay}>Pay</Button>
+      {/* Pay + review on completion (customer). Settle the agreed price as cash or in-app. */}
+      {booking.status === 'completed' && !isProvider && (
+        <Card className="space-y-4 rounded-2xl border-l-4 border-l-success">
+          <h2 className="font-semibold">{t('jobComplete')}</h2>
+          {booking.priceCents != null && (
+            <p className="text-lg font-semibold"><span className="text-sm font-normal text-gray-500">{t('agreedPrice')}: </span><Money cents={booking.priceCents} /></p>
+          )}
+          {!settled ? (
+            <div className="flex flex-wrap gap-2">
+              <Button variant="success" onClick={() => settle('in_app')}>{t('payInApp')}</Button>
+              <Button variant="ghost" onClick={() => settle('cash')}>{t('payCash')}</Button>
             </div>
-          ) : <SuccessBanner message="Payment complete." />}
+          ) : <SuccessBanner message={t('pointsEarnedNote')} />}
 
-          {paid && !reviewed && (
-            <div className="flex items-center gap-2">
-              <select value={stars} onChange={(e) => setStars(e.target.value)} className="rounded-base border px-2 py-1">
-                {[5, 4, 3, 2, 1].map((s) => <option key={s} value={s}>{s} ★</option>)}
-              </select>
-              <Button onClick={leaveReview}>Leave review</Button>
+          {settled && !reviewed && (
+            <div>
+              <p className="mb-1.5 block text-sm font-medium">{t('rateProvider')}</p>
+              <div className="flex items-center gap-2">
+                <select value={stars} onChange={(e) => setStars(e.target.value)} className={`${inputCls} max-w-[7rem]`}>
+                  {[5, 4, 3, 2, 1].map((s) => <option key={s} value={s}>{s} ★</option>)}
+                </select>
+                <Button onClick={leaveReview}>{t('leaveReview')}</Button>
+              </div>
             </div>
           )}
-          {reviewed && <SuccessBanner message={`Thanks for your review! ★${stars}`} />}
+          {reviewed && <SuccessBanner message={t('reviewThanks', { stars })} />}
         </Card>
       )}
     </div>

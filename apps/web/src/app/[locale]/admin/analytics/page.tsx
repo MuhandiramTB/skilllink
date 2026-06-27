@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { adminApi, type Analytics } from '@/lib/admin-api';
-
-const lkr = (cents: number) => `LKR ${(cents / 100).toLocaleString()}`;
+import { PageHeader, Card, StatCard, Money, Spinner, EmptyState, ErrorBanner } from '@/components/ui';
 
 export default function AdminAnalyticsPage() {
+  const t = useTranslations('admin');
   const [a, setA] = useState<Analytics | null>(null);
   const [err, setErr] = useState('');
 
@@ -13,29 +14,59 @@ export default function AdminAnalyticsPage() {
     adminApi.analytics().then(setA).catch((e) => setErr((e as Error).message));
   }, []);
 
-  if (err) return <p className="rounded-base bg-red-50 p-2 text-sm text-danger">{err}</p>;
-  if (!a) return <p className="text-sm text-gray-500">Loading…</p>;
-
-  const Stat = ({ label, value }: { label: string; value: string | number }) => (
-    <div className="rounded-base border bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-      <p className="text-2xl font-semibold text-primary">{value}</p>
-      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
-    </div>
-  );
+  const byStatus = a ? Object.entries(a.bookings.byStatus) : [];
+  const maxStatus = byStatus.reduce((m, [, n]) => Math.max(m, n), 0) || 1;
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold">Analytics</h1>
-      <div className="grid grid-cols-2 gap-3">
-        <Stat label="Total bookings" value={a.bookings.total} />
-        <Stat label="Completed jobs" value={a.bookings.completed} />
-        <Stat label="Gross revenue" value={lkr(a.revenue.grossCents)} />
-        <Stat label="Commission earned" value={lkr(a.revenue.commissionCents)} />
-        <Stat label="Approved providers" value={a.providers.approved} />
-        <Stat label="Pending providers" value={a.providers.pending} />
-        <Stat label="Customers" value={a.customers} />
-        <Stat label="Active districts" value={a.activeDistricts} />
-      </div>
+    <div className="space-y-6">
+      <PageHeader title={t('analytics.title')} subtitle={t('analytics.subtitle')} />
+
+      {err && <ErrorBanner message={err} />}
+
+      {!a && !err ? (
+        <Spinner label={t('analytics.loading')} />
+      ) : a ? (
+        <>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            <StatCard label={t('analytics.totalBookings')} value={a.bookings.total} tone="primary" />
+            <StatCard label={t('analytics.completedJobs')} value={a.bookings.completed} tone="success" />
+            <StatCard label={t('analytics.grossRevenue')} value={<Money cents={a.revenue.grossCents} />} />
+            <StatCard label={t('analytics.commissionEarned')} value={<Money cents={a.revenue.commissionCents} />} tone="success" />
+            <StatCard label={t('analytics.approvedProviders')} value={a.providers.approved} />
+            <StatCard label={t('analytics.pendingProviders')} value={a.providers.pending} tone="danger" />
+            <StatCard label={t('analytics.customers')} value={a.customers} />
+            <StatCard label={t('analytics.activeDistricts')} value={a.activeDistricts} />
+          </div>
+
+          <section>
+            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              {t('analytics.bookingsByStatus')}
+            </h2>
+            {byStatus.length === 0 ? (
+              <EmptyState>{t('analytics.empty')}</EmptyState>
+            ) : (
+              <Card className="rounded-2xl">
+                <ul className="space-y-2">
+                  {byStatus.map(([status, count]) => (
+                    <li key={status}>
+                      <div className="mb-1 flex items-center justify-between text-xs">
+                        <span className="capitalize">{status.replace(/_/g, ' ')}</span>
+                        <span className="font-medium tabular-nums">{count}</span>
+                      </div>
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
+                        <div
+                          className="h-full rounded-full bg-primary"
+                          style={{ width: `${(count / maxStatus) * 100}%` }}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            )}
+          </section>
+        </>
+      ) : null}
     </div>
   );
 }

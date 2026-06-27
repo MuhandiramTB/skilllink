@@ -151,33 +151,85 @@ export class AuthService {
     return { accessToken, roles, mode: 'provider' };
   }
 
-  async me(userId: string): Promise<PublicUser & { profileComplete: boolean }> {
+  async me(userId: string): Promise<
+    PublicUser & {
+      profileComplete: boolean;
+      fullName: string | null;
+      email: string | null;
+      districtId: string | null;
+      avatarUrl: string | null;
+      createdAt: Date;
+    }
+  > {
     const row = await this.prisma.users.findUniqueOrThrow({
       where: { id: userId },
       include: { customer_profile: true },
     });
     const roles = await this.deriveRoles(userId);
+    const p = row.customer_profile;
     return {
       id: row.id,
       phone: row.phone,
       roles,
       mode: this.defaultMode(roles),
       language: row.language,
-      profileComplete: !!row.customer_profile?.full_name,
+      profileComplete: !!p?.full_name,
+      fullName: p?.full_name ?? null,
+      email: p?.email ?? null,
+      districtId: p?.district_id ?? null,
+      avatarUrl: p?.avatar_url ?? null,
+      createdAt: row.created_at,
     };
   }
 
-  /** Customer registration (spec 10, Req 2): name + district + language (+ optional email). */
+  /**
+   * Update profile. All fields optional so the profile page can do partial saves
+   * (e.g. just the avatar, or just the name). Registration still sends the full set.
+   */
   async updateProfile(
     userId: string,
-    data: { fullName: string; districtId: string; language: 'si' | 'ta' | 'en'; email?: string },
-  ): Promise<PublicUser & { profileComplete: boolean }> {
-    await this.prisma.users.update({ where: { id: userId }, data: { language: data.language, district_id: data.districtId } });
+    data: {
+      fullName?: string;
+      districtId?: string;
+      language?: 'si' | 'ta' | 'en';
+      email?: string;
+      avatarUrl?: string;
+    },
+  ) {
+    if (data.language || data.districtId) {
+      await this.prisma.users.update({
+        where: { id: userId },
+        data: {
+          ...(data.language ? { language: data.language } : {}),
+          ...(data.districtId ? { district_id: data.districtId } : {}),
+        },
+      });
+    }
+    // Only write profile fields that were provided (undefined = leave unchanged).
+    const set = {
+      ...(data.fullName !== undefined ? { full_name: data.fullName } : {}),
+      ...(data.districtId !== undefined ? { district_id: data.districtId } : {}),
+      ...(data.email !== undefined ? { email: data.email || null } : {}),
+      ...(data.avatarUrl !== undefined ? { avatar_url: data.avatarUrl || null } : {}),
+    };
     await this.prisma.customer_profiles.upsert({
       where: { user_id: userId },
-      create: { user_id: userId, full_name: data.fullName, district_id: data.districtId, email: data.email ?? null },
-      update: { full_name: data.fullName, district_id: data.districtId, email: data.email ?? null },
+      create: { user_id: userId, ...set },
+      update: set,
     });
     return this.me(userId);
+  }
+
+  /**
+   * Presign an avatar upload. v1 returns deterministic mock URLs (Cloudinary wiring
+   * pending), mirroring the provider-document flow — the client stores fileUrl via
+   * updateProfile after the (future) PUT completes.
+   */
+  async avatarPresign(userId: string): Promise<{ uploadUrl: string; fileUrl: string }> {
+    const stamp = userId.slice(0, 8);
+    return {
+      uploadUrl: `https://mock-upload.local/avatar/${userId}`,
+      fileUrl: `https://mock-cdn.local/avatar/${stamp}-avatar.jpg`,
+    };
   }
 }

@@ -6,10 +6,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { RewardsService } from '../rewards/rewards.service';
 
 @Injectable()
 export class ReviewsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly rewards: RewardsService,
+  ) {}
 
   /** Req 1: leave a review (completed-only, once) + recalc provider aggregate. */
   async create(customerId: string, bookingId: string, rating: number, comment?: string) {
@@ -32,6 +36,8 @@ export class ReviewsService {
       data: { booking_id: bookingId, customer_id: customerId, provider_id: providerId, rating, comment: comment ?? null },
     });
     await this.recalc(providerId);
+    // Spec 11 Req 6.2: award the customer +20 reward points (idempotent per booking).
+    await this.rewards.awardReview(customerId, bookingId);
     return { id: review.id, rating: review.rating };
   }
 

@@ -2,12 +2,14 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsIn,
+  IsInt,
   IsLatitude,
   IsLongitude,
   IsObject,
   IsOptional,
   IsString,
   IsUUID,
+  Min,
   MinLength,
   ValidateNested,
 } from 'class-validator';
@@ -43,4 +45,8 @@ export class UpdateStatusDto {
 
 export class SendMessageDto {
   @IsString() @MinLength(1) body!: string;
+}
+
+export class QuoteDto {
+  @IsInt() @Min(1) amountCents!: number;
 }

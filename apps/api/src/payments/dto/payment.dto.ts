@@ -1,8 +1,13 @@
-import { IsInt, IsObject, IsString, IsUUID, Min, MinLength } from 'class-validator';
+import { IsIn, IsInt, IsObject, IsString, IsUUID, Min, MinLength } from 'class-validator';
 
 export class InitiatePaymentDto {
   @IsUUID() bookingId!: string;
   @IsInt() @Min(1) amountCents!: number;
+}
+
+export class SettleDto {
+  @IsUUID() bookingId!: string;
+  @IsIn(['cash', 'in_app']) method!: 'cash' | 'in_app';
 }
 
 export class WebhookDto {

@@ -64,9 +64,17 @@ export const adminApi = {
     req<AdminCategory>(`/admin/categories/${id}`, { method: 'PATCH', body: JSON.stringify(c) }),
   deactivateCategory: (id: string) =>
     req<AdminCategory>(`/admin/categories/${id}`, { method: 'DELETE' }),
+  deleteCategory: (id: string) =>
+    req<{ id: string; deleted: boolean }>(`/admin/categories/${id}/hard`, { method: 'DELETE' }),
   listDistricts: () => req<AdminDistrict[]>(`/admin/districts`),
+  createDistrict: (d: { name_en: string; name_si: string; name_ta: string; is_active?: boolean }) =>
+    req<AdminDistrict>(`/admin/districts`, { method: 'POST', body: JSON.stringify(d) }),
   setDistrictActive: (id: string, is_active: boolean) =>
     req<AdminDistrict>(`/admin/districts/${id}`, { method: 'PATCH', body: JSON.stringify({ is_active }) }),
+  updateDistrict: (id: string, d: { name_en?: string; name_si?: string; name_ta?: string }) =>
+    req<AdminDistrict>(`/admin/districts/${id}`, { method: 'PATCH', body: JSON.stringify(d) }),
+  deleteDistrict: (id: string) =>
+    req<{ id: string; deleted: boolean }>(`/admin/districts/${id}`, { method: 'DELETE' }),
   verificationQueue: () => req<VerificationQueueItem[]>(`/admin/verifications?status=pending`),
   decideVerification: (providerId: string, decision: 'approve' | 'reject', reason?: string) =>
     req(`/admin/providers/${providerId}/verification`, { method: 'PATCH', body: JSON.stringify({ decision, reason }) }),
@@ -129,5 +137,17 @@ export interface VerificationQueueItem {
   providerId: string;
   businessName: string | null;
   status: string;
+  fullName: string | null;
+  phone: string | null;
+  email: string | null;
+  district: string | null;
+  ratingAvg: number;
+  ratingCount: number;
+  yearsExperience: number | null;
+  workingDays: string | null;
+  workingHours: string | null;
+  emergencyService: boolean;
+  categories: string[];
+  appliedAt: string | null;
   documents: { id: string; type: string; media_url: string }[];
 }

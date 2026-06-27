@@ -108,6 +108,10 @@ export class BookingsService {
   async updateStatus(providerId: string, bookingId: string, status: 'in_progress' | 'completed') {
     const b = await this.assignedToProvider(providerId, bookingId);
     this.assertTransition(b.status as BookingStatus, status);
+    // Spec 11 Req 2.4: a provider may only start a job once the quote is accepted.
+    if (status === 'in_progress' && b.quote_status !== 'accepted') {
+      throw new BadRequestException({ code: 'QUOTE_NOT_ACCEPTED', message: 'errors.booking.quoteNotAccepted' });
+    }
     const res = await this.setStatus(bookingId, status);
     if (status === 'completed') {
       await this.notifier.notify({
@@ -116,6 +120,32 @@ export class BookingsService {
       });
     }
     return res;
+  }
+
+  /** Spec 11 Req 1: provider sets/updates a quote (status matched|accepted). */
+  async setQuote(providerId: string, bookingId: string, amountCents: number) {
+    const b = await this.assignedToProvider(providerId, bookingId);
+    if (b.status !== 'matched' && b.status !== 'accepted') {
+      throw new BadRequestException({ code: 'VALIDATION_ERROR', message: 'errors.booking.quoteNotAllowed' });
+    }
+    await this.prisma.bookings.update({
+      where: { id: bookingId },
+      data: { price_cents: amountCents, quote_status: 'quoted', updated_at: new Date() },
+    });
+    return { id: bookingId, priceCents: amountCents, quoteStatus: 'quoted' };
+  }
+
+  /** Spec 11 Req 2: customer accepts a quoted booking they own. */
+  async acceptQuote(customerId: string, bookingId: string) {
+    const b = await this.ownedByCustomer(customerId, bookingId);
+    if (b.quote_status !== 'quoted') {
+      throw new BadRequestException({ code: 'NO_QUOTE', message: 'errors.booking.noQuote' });
+    }
+    await this.prisma.bookings.update({
+      where: { id: bookingId },
+      data: { quote_status: 'accepted', updated_at: new Date() },
+    });
+    return { id: bookingId, quoteStatus: 'accepted' };
   }
 
   /** Req 5.2: customer cancels (from requested/matched/accepted). */
@@ -171,6 +201,8 @@ export class BookingsService {
       categoryId: b.category_id,
       description: b.description,
       providerId: b.provider_id,
+      quoteStatus: b.quote_status, // none | quoted | accepted
+      priceCents: b.price_cents,
       solarSpecs: b.solar_specs,
       media: b.booking_media,
       createdAt: b.created_at,

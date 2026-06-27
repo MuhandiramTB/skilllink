@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, usePathname } from 'next/navigation';
 import { getSession, onAuthChange } from '@/lib/session';
-import { ModeSwitch } from '@/components/ModeSwitch';
-import { HeaderAuth } from '@/components/HeaderAuth';
 import { Spinner } from '@/components/ui';
 
 /**
@@ -38,16 +36,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  return (
-    <div>
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b pb-4 dark:border-gray-700">
-        <span className="font-display text-lg font-bold text-primary">SkillLink LK</span>
-        <div className="flex flex-wrap items-center gap-3">
-          <ModeSwitch />
-          <HeaderAuth />
-        </div>
-      </div>
-      {children}
-    </div>
-  );
+  // No second header here — the global shell owns the top bar (logo + mode switch)
+  // and the bottom tab bar. The dashboard layout now only guards + renders content.
+  return <>{children}</>;
 }

@@ -36,10 +36,12 @@ export class SetLanguageDto {
 }
 
 export class UpdateProfileDto {
-  @IsString() @MinLength(2) fullName!: string;
-  @IsString() @MinLength(1) districtId!: string;
-  @IsIn(['si', 'ta', 'en']) language!: 'si' | 'ta' | 'en';
+  // All optional → supports partial profile edits (avatar-only, name-only, etc.).
+  @IsOptional() @IsString() @MinLength(2) fullName?: string;
+  @IsOptional() @IsString() @MinLength(1) districtId?: string;
+  @IsOptional() @IsIn(['si', 'ta', 'en']) language?: 'si' | 'ta' | 'en';
   @IsOptional() @IsString() email?: string;
+  @IsOptional() @IsString() avatarUrl?: string;
 }
 
 export class SetModeDto {

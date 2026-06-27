@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, usePathname } from 'next/navigation';
 import { getSession } from '@/lib/session';
-import { AdminSidebar } from '@/components/AdminSidebar';
 
 /**
- * Admin shell — grouped left sidebar (desktop) / drawer (mobile) + content.
- * The hidden /admin/login page is exempt (it IS the sign-in). Otherwise: redirect
- * to /admin/login if not signed in, bounce non-admins home. API enforces role=admin.
+ * Admin route guard. Navigation (the role-aware sidebar / mobile drawer / bottom tabs)
+ * is owned by the global app shell, so this layout only enforces access: the hidden
+ * /admin/login page is exempt; otherwise redirect to /admin/login if signed out and
+ * bounce non-admins home. The API independently enforces role=admin.
  */
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const locale = (useParams().locale as string) ?? 'en';
@@ -27,10 +27,5 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (isLoginPage) return <>{children}</>;
   if (!authed) return null;
 
-  return (
-    <div className="md:flex md:gap-6">
-      <AdminSidebar />
-      <div className="min-w-0 flex-1 py-2 md:py-0">{children}</div>
-    </div>
-  );
+  return <>{children}</>;
 }

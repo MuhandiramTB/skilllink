@@ -10,6 +10,16 @@ body {
   @apply bg-gray-50 text-gray-900 antialiased dark:bg-gray-950 dark:text-gray-100;
 }
 
+/* Mobile-first: form controls must be >=16px or iOS Safari zooms the page on focus.
+   Applies on touch/small screens; desktop can use the smaller text-sm where set. */
+@media (max-width: 767px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
 /* Dark-aware form controls so we don't repeat dark: on every input. */
 .dark input,
 .dark textarea,

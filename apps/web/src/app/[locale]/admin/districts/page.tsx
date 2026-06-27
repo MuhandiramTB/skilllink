@@ -1,11 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { adminApi, type AdminDistrict } from '@/lib/admin-api';
+import { PageHeader, Card, Button, Spinner, EmptyState, ErrorBanner, SuccessBanner } from '@/components/ui';
+import { TrilingualNames, useTrilingual } from '@/components/TrilingualNames';
+import { IconButton, ConfirmModal } from '@/components/IconButton';
 
 export default function AdminDistrictsPage() {
-  const [districts, setDistricts] = useState<AdminDistrict[]>([]);
+  const t = useTranslations('admin');
+  const [districts, setDistricts] = useState<AdminDistrict[] | null>(null);
   const [err, setErr] = useState('');
+  const [ok, setOk] = useState('');
+  const [busy, setBusy] = useState(false);
+  const names = useTrilingual();
+  const editNames = useTrilingual();
+  const [editing, setEditing] = useState<string | null>(null);
+  const [confirmTarget, setConfirmTarget] = useState<AdminDistrict | null>(null);
 
   async function load() {
     try { setDistricts(await adminApi.listDistricts()); }
@@ -13,36 +24,130 @@ export default function AdminDistrictsPage() {
   }
   useEffect(() => { void load(); }, []);
 
+  function openEdit(d: AdminDistrict) {
+    setErr(''); setOk(''); editNames.reset();
+    editNames.setEn(d.name_en); editNames.setSi(d.name_si ?? d.name_en); editNames.setTa(d.name_ta ?? d.name_en);
+    setEditing(d.id);
+  }
+  async function saveEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editing || editNames.en.trim().length < 1) { setErr(t('districts.errEnterName')); return; }
+    setBusy(true);
+    try {
+      await adminApi.updateDistrict(editing, {
+        name_en: editNames.en.trim(),
+        name_si: editNames.si.trim() || editNames.en.trim(),
+        name_ta: editNames.ta.trim() || editNames.en.trim(),
+      });
+      setEditing(null); setOk(t('districts.renamed')); await load();
+    } catch (e) { setErr((e as Error).message); }
+    finally { setBusy(false); }
+  }
+
+  async function add(e: React.FormEvent) {
+    e.preventDefault(); setErr(''); setOk('');
+    if (names.en.trim().length < 1) { setErr(t('districts.errEnterName')); return; }
+    setBusy(true);
+    try {
+      await adminApi.createDistrict({ name_en: names.en.trim(), name_si: names.si.trim() || names.en.trim(), name_ta: names.ta.trim() || names.en.trim() });
+      names.reset(); setOk(t('districts.districtAdded')); await load();
+    } catch (e) { setErr((e as Error).message); }
+    finally { setBusy(false); }
+  }
+
   async function toggle(d: AdminDistrict) {
     try { await adminApi.setDistrictActive(d.id, !d.is_active); await load(); }
     catch (e) { setErr((e as Error).message); }
   }
 
-  return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold">Districts (Coverage)</h1>
-      <p className="text-sm text-gray-600">
-        v1 launches in <b>Kandy</b>. Activate another district to expand — providers there
-        become matchable immediately.
-      </p>
-      {err && <p className="rounded-base bg-red-50 p-2 text-sm text-danger">{err}</p>}
+  async function doRemove() {
+    const d = confirmTarget;
+    if (!d) return;
+    setConfirmTarget(null); setErr(''); setOk('');
+    try { await adminApi.deleteDistrict(d.id); setOk(t('districts.deleted')); await load(); }
+    catch (e) { setErr((e as Error).message); }
+  }
 
-      <ul className="divide-y rounded-base border bg-white dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800">
-        {districts.map((d) => (
-          <li key={d.id} className="flex items-center justify-between px-4 py-3">
-            <span className="font-medium">
-              {d.name_en}
-              {d.is_active && <span className="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-xs text-success">Active</span>}
-            </span>
-            <button
-              onClick={() => toggle(d)}
-              className={`rounded-base px-3 py-1 text-sm font-medium ${d.is_active ? 'bg-gray-100 text-gray-700' : 'bg-primary text-white'}`}
+  return (
+    <div className="space-y-5">
+      <PageHeader
+        title={t('districts.title')}
+        subtitle={t('districts.subtitle')}
+      />
+
+      <Card className="space-y-4 rounded-2xl">
+        <h2 className="font-semibold">{t('districts.addDistrict')}</h2>
+        <form onSubmit={add} className="space-y-4">
+          <TrilingualNames state={names} autoFocus placeholder="e.g. Gampaha" />
+          <Button disabled={busy} className="w-full sm:w-auto">{busy ? t('districts.adding') : t('districts.addDistrictButton')}</Button>
+        </form>
+      </Card>
+
+      <Card className="rounded-2xl bg-amber-50 text-sm text-amber-900 dark:bg-amber-900/20 dark:text-amber-200">
+        {t('districts.launchNote')}
+      </Card>
+
+      {ok && <SuccessBanner message={ok} />}
+      {err && <ErrorBanner message={err} />}
+
+      {districts === null && !err ? (
+        <Spinner label={t('districts.loading')} />
+      ) : districts && districts.length === 0 ? (
+        <EmptyState>{t('districts.empty')}</EmptyState>
+      ) : (
+        // Mobile-first: each district is a stacked row-card with one full-size toggle
+        // button (>=44px) instead of a cramped inline link.
+        <ul className="space-y-2">
+          {districts?.map((d) => (
+            <li
+              key={d.id}
+              className="rounded-2xl border bg-white p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800"
             >
-              {d.is_active ? 'Deactivate' : 'Activate'}
-            </button>
-          </li>
-        ))}
-      </ul>
+              {editing === d.id ? (
+                <form onSubmit={saveEdit} className="space-y-4">
+                  <TrilingualNames state={editNames} autoFocus placeholder="e.g. Gampaha" />
+                  <div className="flex gap-2">
+                    <Button disabled={busy}>{busy ? t('districts.adding') : t('districts.save')}</Button>
+                    <Button type="button" variant="ghost" onClick={() => setEditing(null)}>{t('categories.cancel')}</Button>
+                  </div>
+                </form>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <p className="min-w-0 flex-1 truncate font-medium">{d.name_en}</p>
+                  <span
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
+                      d.is_active ? 'bg-green-100 text-success' : 'bg-gray-100 text-gray-500'
+                    }`}
+                  >
+                    {d.is_active ? t('districts.active') : t('districts.inactive')}
+                  </span>
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    <IconButton icon="edit" label={t('districts.edit')} onClick={() => openEdit(d)} />
+                    <IconButton
+                      icon={d.is_active ? 'deactivate' : 'activate'}
+                      label={d.is_active ? t('districts.deactivate') : t('districts.activate')}
+                      tone={d.is_active ? 'default' : 'primary'}
+                      onClick={() => toggle(d)}
+                    />
+                    <IconButton icon="trash" label={t('districts.delete')} tone="danger" onClick={() => setConfirmTarget(d)} />
+                  </div>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <ConfirmModal
+        open={confirmTarget !== null}
+        title={t('districts.deleteTitle')}
+        message={t('districts.confirmDelete')}
+        confirmLabel={t('districts.delete')}
+        cancelLabel={t('districts.confirmCancel')}
+        onConfirm={doRemove}
+        onCancel={() => setConfirmTarget(null)}
+        danger
+      />
     </div>
   );
 }

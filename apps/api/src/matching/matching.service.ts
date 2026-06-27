@@ -21,6 +21,8 @@ export class MatchingService {
   private readonly wProximity = Number(process.env.MATCH_W_PROXIMITY ?? 0.5);
   private readonly wRating = Number(process.env.MATCH_W_RATING ?? 0.3);
   private readonly wResponse = Number(process.env.MATCH_W_RESPONSE ?? 0.2);
+  // Spec 11 Req 4.4: exclude providers whose wallet is below the threshold (owe too much).
+  private readonly walletMinCents = Number(process.env.WALLET_MIN_CENTS ?? -200000);
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -64,6 +66,7 @@ export class MatchingService {
           WHERE d.id = p.district_id AND d.is_active = true
         )
         AND ST_DWithin(sa.center, customer.pt, sa.radius_meters)
+        AND p.wallet_balance_cents >= $8
       ORDER BY score DESC
       LIMIT $7
       `,
@@ -74,6 +77,7 @@ export class MatchingService {
       this.wResponse,
       categoryKey,
       limit,
+      this.walletMinCents,
     );
 
     return rows.map((r) => ({

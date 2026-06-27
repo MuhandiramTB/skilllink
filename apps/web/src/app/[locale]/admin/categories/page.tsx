@@ -1,14 +1,26 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { adminApi, type AdminCategory } from '@/lib/admin-api';
+import { PageHeader, Card, Button, Field, inputCls, ErrorBanner, SuccessBanner } from '@/components/ui';
+import { IconButton, ConfirmModal } from '@/components/IconButton';
 
-const EMPTY = { key: '', name_en: '', name_si: '', name_ta: '', parent_id: '' };
+/** Slugify an English name into a valid category key (lowercase, _ separated). */
+function toKey(name: string) {
+  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+}
 
 export default function AdminCategoriesPage() {
+  const t = useTranslations('admin');
   const [cats, setCats] = useState<AdminCategory[]>([]);
-  const [form, setForm] = useState({ ...EMPTY });
+  const [name, setName] = useState('');
+  const [parentId, setParentId] = useState(''); // '' = top-level; else parent id → sub-service
+  const [editing, setEditing] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [confirmTarget, setConfirmTarget] = useState<AdminCategory | null>(null);
   const [err, setErr] = useState('');
+  const [ok, setOk] = useState('');
   const [busy, setBusy] = useState(false);
 
   async function load() {
@@ -18,19 +30,21 @@ export default function AdminCategoriesPage() {
   useEffect(() => { void load(); }, []);
 
   const tops = cats.filter((c) => !c.parent_id);
+  const subsByParent = (id: string) => cats.filter((c) => c.parent_id === id);
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
-    setErr(''); setBusy(true);
+    setErr(''); setOk('');
+    const n = name.trim();
+    if (!n) { setErr(t('categories.errEnterName')); return; }
+    const parent = tops.find((c) => c.id === parentId);
+    const key = parent ? `${parent.key}.${toKey(n)}` : toKey(n);
+    if (!key) { setErr(t('categories.errDeriveKey')); return; }
+    setBusy(true);
     try {
-      await adminApi.createCategory({
-        key: form.key,
-        name_en: form.name_en,
-        name_si: form.name_si,
-        name_ta: form.name_ta,
-        parent_id: form.parent_id || undefined,
-      });
-      setForm({ ...EMPTY });
+      // Si/Ta names + the internal key are generated silently — admin only types the name.
+      await adminApi.createCategory({ key, name_en: n, name_si: n, name_ta: n, parent_id: parentId || undefined });
+      setName(''); setOk(t('categories.serviceAdded'));
       await load();
     } catch (e) { setErr((e as Error).message); }
     finally { setBusy(false); }
@@ -44,48 +58,142 @@ export default function AdminCategoriesPage() {
     } catch (e) { setErr((e as Error).message); }
   }
 
+  async function doRemove() {
+    const c = confirmTarget;
+    if (!c) return;
+    setConfirmTarget(null); setErr(''); setOk('');
+    try {
+      await adminApi.deleteCategory(c.id);
+      setOk(t('categories.deleted'));
+      await load();
+    } catch (e) { setErr((e as Error).message); }
+  }
+
+  function openEdit(c: AdminCategory) { setErr(''); setOk(''); setEditName(c.name_en); setEditing(c.id); }
+  async function saveEdit(e: React.FormEvent) {
+    e.preventDefault();
+    const n = editName.trim();
+    if (!editing || !n) { setErr(t('categories.errEnterName')); return; }
+    setBusy(true);
+    try {
+      await adminApi.updateCategory(editing, { name_en: n, name_si: n, name_ta: n });
+      setEditing(null); setOk(t('categories.renamed'));
+      await load();
+    } catch (e) { setErr((e as Error).message); }
+    finally { setBusy(false); }
+  }
+
+  const editRow = (
+    <form onSubmit={saveEdit} className="flex flex-wrap items-center gap-2">
+      <input autoFocus value={editName} onChange={(e) => setEditName(e.target.value)} className={`${inputCls} min-w-0 flex-1`} />
+      <Button disabled={busy}>{t('categories.save')}</Button>
+      <Button type="button" variant="ghost" onClick={() => setEditing(null)}>{t('categories.cancel')}</Button>
+    </form>
+  );
+
   return (
     <div className="space-y-5">
-      <h1 className="text-xl font-semibold">Categories &amp; Sub-services</h1>
-      {err && <p className="rounded-base bg-red-50 p-2 text-sm text-danger">{err}</p>}
+      <PageHeader title={t('categories.title')} subtitle={t('categories.subtitle')} />
+      {ok && <SuccessBanner message={ok} />}
+      {err && <ErrorBanner message={err} />}
 
-      <form onSubmit={add} className="space-y-2 rounded-base border bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-        <h2 className="font-medium">Add new</h2>
-        <input className="w-full rounded-base border px-3 py-2" placeholder="key (e.g. pest_control or solar.monitoring)"
-          value={form.key} onChange={(e) => setForm({ ...form, key: e.target.value })} required />
-        <div className="grid grid-cols-3 gap-2">
-          <input className="rounded-base border px-2 py-2" placeholder="English" value={form.name_en} onChange={(e) => setForm({ ...form, name_en: e.target.value })} required />
-          <input className="rounded-base border px-2 py-2" placeholder="සිංහල" value={form.name_si} onChange={(e) => setForm({ ...form, name_si: e.target.value })} required />
-          <input className="rounded-base border px-2 py-2" placeholder="தமிழ்" value={form.name_ta} onChange={(e) => setForm({ ...form, name_ta: e.target.value })} required />
-        </div>
-        <select className="w-full rounded-base border px-2 py-2" value={form.parent_id} onChange={(e) => setForm({ ...form, parent_id: e.target.value })}>
-          <option value="">— top-level category —</option>
-          {tops.map((t) => <option key={t.id} value={t.id}>under: {t.name_en}</option>)}
-        </select>
-        <button disabled={busy} className="rounded-base bg-primary px-4 py-2 font-medium text-white disabled:opacity-50">
-          {busy ? 'Adding…' : 'Add category'}
-        </button>
-      </form>
+      {/* Simple add: just a name + where it goes. */}
+      <Card className="space-y-4 rounded-2xl">
+        <h2 className="font-semibold">{t('categories.addService')}</h2>
+        <form onSubmit={add} className="space-y-4 sm:flex sm:items-end sm:gap-3 sm:space-y-0">
+          <Field label={t('categories.name')}>
+            <input autoFocus value={name} onChange={(e) => setName(e.target.value)} className={inputCls} placeholder="e.g. Electrician" />
+          </Field>
+          <Field label={t('categories.type')}>
+            <select value={parentId} onChange={(e) => setParentId(e.target.value)} className={`${inputCls} max-w-full`}>
+              <option value="">{t('categories.topLevel')}</option>
+              {tops.length > 0 && (
+                <optgroup label={t('categories.subServiceGroup')}>
+                  {tops.map((top) => <option key={top.id} value={top.id}>{top.name_en}</option>)}
+                </optgroup>
+              )}
+            </select>
+          </Field>
+          <Button disabled={busy} className="w-full sm:w-auto">{busy ? t('categories.adding') : t('categories.addServiceButton')}</Button>
+        </form>
+      </Card>
 
-      <table className="w-full text-sm">
-        <thead><tr className="border-b text-left text-gray-500">
-          <th className="py-2">Key</th><th>English</th><th>Active</th><th></th>
-        </tr></thead>
-        <tbody>
-          {cats.map((c) => (
-            <tr key={c.id} className="border-b">
-              <td className="py-2">{c.parent_id ? '↳ ' : ''}<code>{c.key}</code></td>
-              <td>{c.name_en}</td>
-              <td>{c.is_active ? <span className="text-xs font-medium text-success">Active</span> : <span className="text-xs text-gray-400">Hidden</span>}</td>
-              <td className="text-right">
-                <button onClick={() => toggle(c)} className="text-xs text-primary hover:underline">
-                  {c.is_active ? 'Deactivate' : 'Activate'}
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* Tree: categories with their sub-services nested — rename / activate. */}
+      <div className="space-y-3">
+        {tops.map((cat) => {
+          const subs = subsByParent(cat.id);
+          return (
+            <Card key={cat.id} className="space-y-3 rounded-2xl">
+              {editing === cat.id ? editRow : (
+                <div className="flex items-center gap-2">
+                  <p className="min-w-0 flex-1 truncate font-semibold">{cat.name_en}</p>
+                  <StatusPill active={cat.is_active} t={t} />
+                  <RowActions c={cat} t={t} onEdit={openEdit} onToggle={toggle} onDelete={setConfirmTarget} />
+                </div>
+              )}
+
+              {subs.length > 0 && (
+                <ul className="space-y-2 border-t pt-3 dark:border-gray-700">
+                  {subs.map((sub) => (
+                    <li key={sub.id} className="rounded-base bg-gray-50 px-3 py-2 dark:bg-gray-700/40">
+                      {editing === sub.id ? editRow : (
+                        <div className="flex items-center gap-2">
+                          <p className="min-w-0 flex-1 truncate text-sm font-medium">↳ {sub.name_en}</p>
+                          <StatusPill active={sub.is_active} t={t} />
+                          <RowActions c={sub} t={t} onEdit={openEdit} onToggle={toggle} onDelete={setConfirmTarget} small />
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
+          );
+        })}
+      </div>
+
+      <ConfirmModal
+        open={confirmTarget !== null}
+        title={t('categories.deleteTitle')}
+        message={t('categories.confirmDelete')}
+        confirmLabel={t('categories.delete')}
+        cancelLabel={t('categories.confirmCancel')}
+        onConfirm={doRemove}
+        onCancel={() => setConfirmTarget(null)}
+        danger
+      />
+    </div>
+  );
+}
+
+function StatusPill({ active, t }: { active: boolean; t: (k: string) => string }) {
+  return (
+    <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${active ? 'bg-green-100 text-success' : 'bg-gray-100 text-gray-500'}`}>
+      {active ? t('categories.active') : t('categories.hidden')}
+    </span>
+  );
+}
+
+/** Icon-only row actions: edit · activate/deactivate · delete, each with a tooltip. */
+function RowActions({ c, t, onEdit, onToggle, onDelete, small }: {
+  c: AdminCategory;
+  t: (k: string) => string;
+  onEdit: (c: AdminCategory) => void;
+  onToggle: (c: AdminCategory) => void;
+  onDelete: (c: AdminCategory) => void;
+  small?: boolean;
+}) {
+  return (
+    <div className="flex shrink-0 items-center gap-1.5">
+      <IconButton icon="edit" label={t('categories.edit')} onClick={() => onEdit(c)} small={small} />
+      <IconButton
+        icon={c.is_active ? 'deactivate' : 'activate'}
+        label={c.is_active ? t('categories.deactivate') : t('categories.activate')}
+        tone={c.is_active ? 'default' : 'primary'}
+        onClick={() => onToggle(c)}
+        small={small}
+      />
+      <IconButton icon="trash" label={t('categories.delete')} tone="danger" onClick={() => onDelete(c)} small={small} />
     </div>
   );
 }

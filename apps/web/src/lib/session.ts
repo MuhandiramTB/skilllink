@@ -123,16 +123,88 @@ export async function fetchDistricts(): Promise<District[]> {
   return b.data ?? [];
 }
 
-/** Current account: roles, mode, and whether the customer profile is complete. */
-export async function fetchMe(): Promise<{ roles: Role[]; mode: Role; profileComplete: boolean } | null> {
+export interface Me {
+  id: string;
+  phone: string;
+  roles: Role[];
+  mode: Role;
+  language: 'si' | 'ta' | 'en';
+  profileComplete: boolean;
+  fullName: string | null;
+  email: string | null;
+  districtId: string | null;
+  avatarUrl: string | null;
+  createdAt: string;
+}
+
+/** Current account: full profile for the account page (and routing checks). */
+export async function fetchMe(): Promise<Me | null> {
   const r = await fetch(`${API_URL}/auth/me`, authed());
   const b = await r.json().catch(() => ({ error: true }));
   if (!r.ok || b.error) return null;
-  return { roles: b.data.roles, mode: b.data.mode, profileComplete: b.data.profileComplete };
+  return b.data as Me;
 }
 
-export async function saveProfile(data: { fullName: string; districtId: string; language: 'si' | 'ta' | 'en'; email?: string }) {
+/** Partial profile update — pass only the fields you're changing. */
+export async function saveProfile(data: Partial<{
+  fullName: string;
+  districtId: string;
+  language: 'si' | 'ta' | 'en';
+  email: string;
+  avatarUrl: string;
+}>) {
   return unwrap(
     await fetch(`${API_URL}/auth/profile`, { method: 'PATCH', ...authed(), body: JSON.stringify(data) }),
   );
+}
+
+/**
+ * Downscale + compress a picked image to a small square data URL (cover-cropped).
+ * ~160px JPEG keeps it well under a few KB so it stores cleanly in the DB and loads
+ * instantly with no network request. Swap this for a Cloudinary upload later by
+ * replacing the body of uploadAvatar — the rest of the app is unaffected.
+ */
+function fileToAvatarDataUrl(file: File, size = 160): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const objUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objUrl);
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) { reject(new Error('Canvas unavailable')); return; }
+      // cover-crop: scale so the shorter side fills, center the overflow
+      const scale = Math.max(size / img.width, size / img.height);
+      const w = img.width * scale, h = img.height * scale;
+      ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+      resolve(canvas.toDataURL('image/jpeg', 0.82));
+    };
+    img.onerror = () => { URL.revokeObjectURL(objUrl); reject(new Error('Could not read image')); };
+    img.src = objUrl;
+  });
+}
+
+/**
+ * Process the picked image to a compact data URL, persist it, and broadcast the
+ * change so the header avatar refreshes live. Returns the stored data URL.
+ */
+export async function uploadAvatar(file: File): Promise<string> {
+  const dataUrl = await fileToAvatarDataUrl(file);
+  await saveProfile({ avatarUrl: dataUrl });
+  emitAuthChange(); // header/profile re-read immediately
+  return dataUrl;
+}
+
+/** Clear the avatar and broadcast the change. */
+export async function removeAvatar(): Promise<void> {
+  await saveProfile({ avatarUrl: '' });
+  emitAuthChange();
+}
+
+/** Sign out everywhere (revokes all refresh sessions server-side), then clear locally. */
+export async function logoutAllDevices(): Promise<void> {
+  await fetch(`${API_URL}/auth/logout`, { method: 'POST', ...authed(), body: JSON.stringify({ allDevices: true }) }).catch(() => {});
+  clearToken();
 }

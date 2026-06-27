@@ -2,22 +2,24 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { getSession, homeForMode } from '@/lib/session';
-import { providerApi, type ProviderMe } from '@/lib/provider-api';
+import { providerApi, type ProviderMe, type WalletSummary } from '@/lib/provider-api';
 import { bookingApi, type BookingListItem } from '@/lib/booking-api';
-import { Button, Card, StatCard, StatusBadge, Spinner, EmptyState, ErrorBanner } from '@/components/ui';
-
-function lkr(cents: number) {
-  return `LKR ${(cents / 100).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
+import { Button, Card, StatCard, Money, StatusBadge, Spinner, EmptyState, ErrorBanner, SuccessBanner, inputCls } from '@/components/ui';
 
 export default function ProviderDashboard() {
   const locale = (useParams().locale as string) ?? 'en';
+  const t = useTranslations('dash');
   const [me, setMe] = useState<ProviderMe | null>(null);
   const [earnings, setEarnings] = useState<{ totalNetCents: number; paidJobs: number } | null>(null);
   const [jobs, setJobs] = useState<BookingListItem[] | null>(null);
   const [err, setErr] = useState('');
   const [savingAvail, setSavingAvail] = useState(false);
+  const [wallet, setWallet] = useState<WalletSummary | null>(null);
+  const [topupAmount, setTopupAmount] = useState('');
+  const [toppingUp, setToppingUp] = useState(false);
+  const [walletMsg, setWalletMsg] = useState('');
 
   useEffect(() => {
     const s = getSession();
@@ -33,7 +35,26 @@ export default function ProviderDashboard() {
       .then(([m, e]) => { setMe(m); setEarnings(e); })
       .catch((e) => setErr((e as Error).message));
     bookingApi.providerJobs().then(setJobs).catch((e) => setErr((e as Error).message));
+    // Wallet failure shouldn't break the dashboard — show inline only.
+    providerApi.wallet().then(setWallet).catch(() => {});
   }, [locale]);
+
+  async function topUp() {
+    const amount = Number(topupAmount);
+    if (!amount || amount <= 0) return;
+    setToppingUp(true);
+    setWalletMsg('');
+    try {
+      const w = await providerApi.topup(Math.round(amount * 100));
+      setWallet(w);
+      setTopupAmount('');
+      setWalletMsg(t('topUpSuccess'));
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setToppingUp(false);
+    }
+  }
 
   async function toggleAvailability() {
     if (!me) return;
@@ -56,37 +77,37 @@ export default function ProviderDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-xl font-bold">Provider dashboard</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">{me?.businessName ?? 'Your services'}</p>
+        <h1 className="font-display text-xl font-bold">{t('providerTitle')}</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{me?.businessName ?? t('yourServices')}</p>
       </div>
 
       {err && <ErrorBanner message={err} />}
 
       {me === null && earnings === null && !err ? (
-        <Spinner label="Loading your profile…" />
+        <Spinner label={t('loadingProfile')} />
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <Card>
               <div className="text-sm"><StatusBadge status={me?.status ?? 'pending'} /></div>
-              <div className="mt-1 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Status</div>
+              <div className="mt-1 text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('status')}</div>
             </Card>
-            <StatCard label="Rating" value={(me?.ratingAvg ?? 0).toFixed(1)} tone="primary" />
-            <StatCard label="Paid jobs" value={earnings?.paidJobs ?? 0} />
-            <StatCard label="Net earnings" value={lkr(earnings?.totalNetCents ?? 0)} tone="success" />
+            <StatCard label={t('rating')} value={(me?.ratingAvg ?? 0).toFixed(1)} tone="primary" />
+            <StatCard label={t('paidJobs')} value={earnings?.paidJobs ?? 0} />
+            <StatCard label={t('netEarnings')} value={<Money cents={earnings?.totalNetCents ?? 0} />} tone="success" />
           </div>
 
           <section>
             <Card>
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <div className="font-medium">Availability</div>
+                  <div className="font-medium">{t('availability')}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
                     {approved
                       ? me?.isAvailable
-                        ? 'You are visible to new job requests.'
-                        : 'You are hidden from new job requests.'
-                      : 'Available once your account is approved.'}
+                        ? t('availabilityVisible')
+                        : t('availabilityHidden')
+                      : t('availabilityPending')}
                   </div>
                 </div>
                 <Button
@@ -94,17 +115,48 @@ export default function ProviderDashboard() {
                   disabled={!approved || savingAvail}
                   onClick={toggleAvailability}
                 >
-                  {savingAvail ? 'Saving…' : me?.isAvailable ? 'Available' : 'Unavailable'}
+                  {savingAvail ? t('saving') : me?.isAvailable ? t('available') : t('unavailable')}
                 </Button>
               </div>
             </Card>
           </section>
 
+          {wallet && (
+            <section>
+              <Card className={wallet.balanceCents < 0 ? 'border-l-4 border-l-danger' : ''}>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('walletBalance')}</div>
+                    <div className={`text-xl font-bold tabular-nums sm:text-2xl ${wallet.balanceCents < 0 ? 'text-danger' : 'text-gray-900 dark:text-gray-100'}`}>
+                      <Money cents={wallet.balanceCents} />
+                    </div>
+                  </div>
+                  <div className="flex items-end gap-2">
+                    <div>
+                      <label className="mb-1 block text-[11px] font-medium text-gray-500 dark:text-gray-400">{t('topUpAmount')}</label>
+                      <input
+                        value={topupAmount}
+                        onChange={(e) => setTopupAmount(e.target.value)}
+                        inputMode="numeric"
+                        className={`${inputCls} max-w-[8rem]`}
+                      />
+                    </div>
+                    <Button disabled={toppingUp} onClick={topUp}>{toppingUp ? t('toppingUp') : t('topUp')}</Button>
+                  </div>
+                </div>
+                {wallet.balanceCents < 0 && (
+                  <p className="mt-3 rounded-base bg-amber-50 p-2 text-sm text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">{t('owesCommission')}</p>
+                )}
+                {walletMsg && <div className="mt-3"><SuccessBanner message={walletMsg} /></div>}
+              </Card>
+            </section>
+          )}
+
           {verificationIncomplete && (
             <a href={`/${locale}/provider/register`}>
               <Card className="border-amber-300 transition hover:border-primary dark:border-amber-700">
                 <div className="text-sm font-medium text-amber-800 dark:text-amber-300">
-                  Complete your verification to start receiving jobs →
+                  {t('completeVerification')}
                 </div>
               </Card>
             </a>
@@ -112,10 +164,10 @@ export default function ProviderDashboard() {
 
           <section>
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Verification
+              {t('verification')}
             </h2>
             {me && me.verifications.length === 0 ? (
-              <EmptyState>No verification documents submitted yet.</EmptyState>
+              <EmptyState>{t('noVerificationDocs')}</EmptyState>
             ) : (
               <ul className="space-y-2">
                 {me?.verifications.map((v) => (
@@ -134,12 +186,12 @@ export default function ProviderDashboard() {
 
           <section>
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Job requests
+              {t('jobRequests')}
             </h2>
             {jobs === null && !err ? (
-              <Spinner label="Loading jobs…" />
+              <Spinner label={t('loadingJobs')} />
             ) : jobs && jobs.length === 0 ? (
-              <EmptyState>No job requests yet.</EmptyState>
+              <EmptyState>{t('noJobRequests')}</EmptyState>
             ) : (
               <ul className="space-y-2">
                 {jobs?.map((j) => (
@@ -148,7 +200,7 @@ export default function ProviderDashboard() {
                       <Card className="transition hover:border-primary">
                         <div className="flex items-center justify-between gap-3">
                           <div className="min-w-0">
-                            <div className="truncate font-medium">{j.categoryKey ?? 'Service'}</div>
+                            <div className="truncate font-medium">{j.categoryKey ?? t('service')}</div>
                             <div className="text-xs text-gray-500 dark:text-gray-400">
                               {new Date(j.created_at).toLocaleDateString()}
                             </div>

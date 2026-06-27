@@ -10,6 +10,7 @@ import { ProvidersModule } from './providers/providers.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { PaymentsModule } from './payments/payments.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { RewardsModule } from './rewards/rewards.module';
 import { AdminOpsModule } from './admin-ops/admin-ops.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
@@ -27,6 +28,7 @@ import { APP_GUARD } from '@nestjs/core';
     BookingsModule,
     PaymentsModule,
     ReviewsModule,
+    RewardsModule,
     AdminOpsModule,
     NotificationsModule,
     CategoriesModule,

@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ProvidersService } from './providers.service';
 import { VerificationService } from './verification.service';
+import { WalletService } from './wallet.service';
 import { MediaUploader } from './media/media-uploader';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../admin/admin.guard';
@@ -13,6 +14,7 @@ import {
   ServiceAreaDto,
   SetCategoriesDto,
   VerificationDecisionDto,
+  WalletTopupDto,
 } from './dto/provider.dto';
 
 @Controller('providers')
@@ -20,7 +22,22 @@ export class ProvidersController {
   constructor(
     private readonly providers: ProvidersService,
     private readonly uploader: MediaUploader,
+    private readonly wallet: WalletService,
   ) {}
+
+  /** Req 4.5: provider wallet balance + ledger. */
+  @Get('me/wallet')
+  @UseGuards(JwtAuthGuard)
+  walletSummary(@CurrentUser() u: RequestUser) {
+    return this.wallet.summary(u.userId);
+  }
+
+  /** Req 4.3: provider tops up their wallet (mock top-up). */
+  @Post('me/wallet/topup')
+  @UseGuards(JwtAuthGuard)
+  walletTopup(@CurrentUser() u: RequestUser, @Body() dto: WalletTopupDto) {
+    return this.wallet.topup(u.userId, dto.amountCents);
+  }
 
   @Post()
   @UseGuards(JwtAuthGuard)

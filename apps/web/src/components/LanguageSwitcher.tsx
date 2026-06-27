@@ -11,13 +11,13 @@ export function LanguageSwitcher() {
   const pathname = usePathname();
 
   return (
-    <label className="flex items-center gap-2 text-sm">
+    <label className="flex items-center">
       <span className="sr-only">{t('label')}</span>
       <select
         aria-label={t('label')}
         value={locale}
         onChange={(e) => router.replace(pathname, { locale: e.target.value })}
-        className="rounded-base border px-2 py-1"
+        className="h-9 rounded-base border bg-transparent px-2 text-sm text-gray-600 dark:border-gray-600 dark:text-gray-300"
       >
         {routing.locales.map((l) => (
           <option key={l} value={l}>

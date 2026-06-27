@@ -12,7 +12,8 @@ describe('ReviewsService (Req 1)', () => {
       },
       providers: { update: jest.fn().mockResolvedValue({}) },
     };
-    return { svc: new ReviewsService(prisma as never), prisma };
+    const rewards = { awardReview: jest.fn().mockResolvedValue({ awarded: true, points: 20 }) };
+    return { svc: new ReviewsService(prisma as never, rewards as never), prisma, rewards };
   }
 
   it('creates a review on a completed booking + recalcs provider rating (Req 1.4)', async () => {

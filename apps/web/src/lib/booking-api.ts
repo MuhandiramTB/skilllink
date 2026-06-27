@@ -43,6 +43,8 @@ export interface Booking {
   status: string;
   providerId: string | null;
   description: string | null;
+  quoteStatus?: 'none' | 'quoted' | 'accepted';
+  priceCents?: number | null;
 }
 export interface Message { sender_id: string; body: string; created_at: string }
 
@@ -70,6 +72,15 @@ export const bookingApi = {
   pay: (bookingId: string, amountCents: number) =>
     req<{ paymentId: string; amountCents: number; commissionCents: number; netCents: number; redirectUrl: string }>(
       `/payments/initiate`, { method: 'POST', body: JSON.stringify({ bookingId, amountCents }) }),
+  // Spec 11: provider quotes a price; customer accepts; settle cash or in-app.
+  quote: (id: string, amountCents: number) =>
+    req<{ id: string; priceCents: number; quoteStatus: string }>(
+      `/bookings/${id}/quote`, { method: 'PATCH', body: JSON.stringify({ amountCents }) }),
+  acceptQuote: (id: string) =>
+    req<{ id: string; quoteStatus: string }>(`/bookings/${id}/accept-quote`, { method: 'POST' }),
+  settle: (bookingId: string, method: 'cash' | 'in_app') =>
+    req<{ paymentId: string; status: string; method: string; commissionCents: number; netCents: number }>(
+      `/payments/settle`, { method: 'POST', body: JSON.stringify({ bookingId, method }) }),
   review: (bookingId: string, rating: number, comment: string) =>
     req(`/bookings/${bookingId}/review`, { method: 'POST', body: JSON.stringify({ rating, comment }) }),
   respond: (id: string, action: 'accept' | 'reject') =>
