@@ -1,0 +1,44 @@
+# ============================================================================
+# Koyeb deployment for the SkillLink API (NestJS). Card-free free tier.
+# Builds apps/api/Dockerfile from the repo root. The web frontend is hosted
+# separately on Vercel (see vercel.json); the database is on Neon.
+# Configure in the Koyeb dashboard, or via the Koyeb CLI with this as reference.
+# Docs: https://www.koyeb.com/docs
+# ============================================================================
+services:
+  - name: skilllink-api
+    type: web
+    instance_type: free # the free "nano" instance — no card required
+    regions:
+      - sin # Singapore — closest free region to Sri Lanka (or 'fra')
+    ports:
+      - port: 4000
+        protocol: http
+    # Koyeb routes the public HTTPS URL to this path for health-gated rollouts.
+    health_checks:
+      - protocol: http
+        port: 4000
+        path: /api/v1/health
+    # Build the API image from the monorepo Dockerfile.
+    git:
+      branch: main
+      build:
+        type: dockerfile
+        dockerfile: apps/api/Dockerfile
+        # build context is the repo root (Dockerfile references the workspace)
+    env:
+      - key: NODE_ENV
+        value: production
+      - key: API_PORT
+        value: '4000'
+      - key: AUTH_VERIFIER
+        value: mock # set 'firebase' + creds for real OTP later
+      # --- secrets: set these as Koyeb Secrets in the dashboard, not inline ---
+      - key: DATABASE_URL
+        secret: skilllink-database-url # = your Neon connection string (?sslmode=require)
+      - key: JWT_ACCESS_SECRET
+        secret: skilllink-jwt-secret # a long random string you generate
+      - key: PAYMENT_MOCK_SECRET
+        secret: skilllink-pay-secret # another random string
+      - key: CORS_ORIGIN
+        value: 'https://CHANGE-ME.vercel.app' # set to your Vercel web URL after deploy

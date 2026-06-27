@@ -3,11 +3,12 @@
 **Project:** SkillLink LK (Next.js + NestJS + PostgreSQL/PostGIS)
 
 ## Live production URLs (HTTPS)
-> Fill these in after running the Render Blueprint (see `SETUP-DEPLOY.md`).
+> Stack: **Vercel** (web) + **Koyeb** (API) + **Neon** (Postgres) — all free, no card.
+> Fill these in after deploying (see `DEPLOY-STEPS.md`).
 
-- **Web (frontend):** https://skilllink-web.onrender.com
-- **API (backend):**  https://skilllink-api.onrender.com/api/v1
-- **Health check:**   https://skilllink-api.onrender.com/api/v1/health
+- **Web (frontend):** https://skilllink-<you>.vercel.app
+- **API (backend):**  https://skilllink-api-<you>.koyeb.app/api/v1
+- **Health check:**   https://skilllink-api-<you>.koyeb.app/api/v1/health
 
 ## Demo admin login
 - Phone: `+94770000000` · OTP: any 6 digits (dev mock verifier)
