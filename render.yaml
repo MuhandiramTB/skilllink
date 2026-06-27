@@ -1,18 +1,11 @@
 # ============================================================================
 # Render Blueprint (infra-as-code) — SkillLink LK.
-# Render reads this on connect and provisions: a managed Postgres, the API web
-# service, and the Next.js web service. All get free auto-HTTPS + a *.onrender.com
-# URL. Health checks drive Render's zero-downtime (blue-green) rollouts.
+# Render provisions the API + Next.js web services (free auto-HTTPS, blue-green
+# rollouts via health checks). The DATABASE lives on NEON (free Postgres, no
+# 90-day expiry, supports PostGIS) — NOT on Render — for the longest-lasting free
+# setup. You paste the Neon connection string into the API's DATABASE_URL env var.
 # Docs: https://render.com/docs/blueprint-spec
 # ============================================================================
-databases:
-  - name: skilllink-db
-    plan: free
-    databaseName: skilllink
-    user: skilllink
-    # NOTE: enable PostGIS once after first deploy via the Render DB shell:
-    #   CREATE EXTENSION IF NOT EXISTS postgis;  CREATE EXTENSION IF NOT EXISTS pgcrypto;
-    # then run db/migrations/*.sql in order.
 
 services:
   # ---- API (NestJS) ----
@@ -31,9 +24,8 @@ services:
       - key: AUTH_VERIFIER
         value: mock # set to 'firebase' + add creds for real OTP
       - key: DATABASE_URL
-        fromDatabase:
-          name: skilllink-db
-          property: connectionString
+        sync: false # paste your Neon connection string here in the Render dashboard
+        # e.g. postgresql://user:pass@ep-xxx.region.aws.neon.tech/skilllink?sslmode=require
       - key: JWT_ACCESS_SECRET
         generateValue: true # Render generates a strong secret (satisfies the boot guard)
       - key: PAYMENT_MOCK_SECRET
