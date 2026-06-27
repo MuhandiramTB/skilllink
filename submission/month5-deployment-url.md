@@ -6,9 +6,9 @@
 > Stack: **Vercel** (web) + **Azure Container Apps** (API) + **Neon** (Postgres).
 > Fill these in after deploying (see `AZURE-STEPS.md`).
 
-- **Web (frontend):** https://skilllink-<you>.vercel.app
-- **API (backend):**  https://skilllink-api.<hash>.southeastasia.azurecontainerapps.io/api/v1
-- **Health check:**   https://skilllink-api.<hash>.southeastasia.azurecontainerapps.io/api/v1/health
+- **API (backend):**  https://skilllink-api.whitesand-ba9ed9eb.southeastasia.azurecontainerapps.io/api/v1  ✅ LIVE
+- **Health check:**   https://skilllink-api.whitesand-ba9ed9eb.southeastasia.azurecontainerapps.io/api/v1/health  ✅ healthy
+- **Web (frontend):** https://skilllink-web-dusky.vercel.app  ✅ LIVE
 
 ## Demo admin login
 - Phone: `+94770000000` · OTP: any 6 digits (dev mock verifier)
