@@ -102,6 +102,31 @@ Render's default rollout **is** blue-green: it builds the new version, waits for
 
 ---
 
+## Production-only bugs found by running the container (and fixed)
+
+These passed `npm run dev` but broke the real Docker build — the value of testing the image:
+
+1. **`jose` v6 is ESM-only** → `ERR_REQUIRE_ESM` under the CommonJS NestJS build (`node dist/main.js`). Fixed by pinning **`jose@^4`** (ships CommonJS). Would have crash-looped on Render too.
+2. **Prisma + Alpine OpenSSL** → `Error loading shared library libssl…`. Alpine ships OpenSSL 3; fixed by declaring `binaryTargets = ["native","linux-musl-openssl-3.0.x"]` in `schema.prisma` + `apk add openssl` in the image.
+3. **Missing `public/` dir** → the web Dockerfile `COPY .../public` failed. Added `apps/web/public/.gitkeep`.
+4. **Prod boot-guard vs mock auth** → `NODE_ENV=production` (correctly) forbids the mock verifier. For local simulation, compose sets `NODE_ENV=development`; real prod (`render.yaml`) uses `production` + `AUTH_VERIFIER=firebase`.
+
+## Monitoring screenshot (`monitoring.png`)
+
+Two easy sources, both shown to work locally:
+- **`docker stats`** — per-container CPU/memory (e.g. api 44MB, web 38MB, db 65MB).
+- **Health endpoint** `GET /api/v1/health` → `{ status, uptime, checks: { database, memory } }`.
+- On Render: the service **Metrics** tab (CPU/mem/response-time) and **Logs** tab (structured JSON) — screenshot either.
+
+## First-run DB setup (container)
+After `docker compose up`, the DB volume is empty — enable extensions + run migrations:
+```bash
+# extensions come with the postgis image; run migrations + seeds:
+for f in db/migrations/*.sql; do docker compose exec -T db psql -U skilllink -d skilllink -f - < "$f"; done
+docker compose exec -T db psql -U skilllink -d skilllink -f - < db/seeds/001_seed_kandy_and_categories.sql
+docker compose exec -T db psql -U skilllink -d skilllink -f - < db/seeds/003_seed_admin.sql
+```
+
 ## Quick reference
 
 | Task | Command |
