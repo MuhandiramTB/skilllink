@@ -1,6 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { SignJWT, jwtVerify } from 'jose';
 import { createHash, randomBytes } from 'crypto';
+
+// `jose` v6 is ESM-only; this NestJS build is CommonJS. A normal `import('jose')`
+// gets down-leveled by TS to require() (which throws ERR_REQUIRE_ESM at runtime),
+// so we use an un-transpiled dynamic import via Function to load it natively.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const importJose = (): Promise<any> => (new Function('return import("jose")')() as Promise<any>);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let josePromise: Promise<any> | null = null;
+const jose = () => (josePromise ??= importJose());
 
 export type Role = 'customer' | 'provider' | 'admin';
 
@@ -37,6 +45,7 @@ export class TokenService {
   }
 
   async signAccessToken(claims: AccessClaims): Promise<string> {
+    const { SignJWT } = await jose();
     return new SignJWT({ roles: claims.roles, mode: claims.mode })
       .setProtectedHeader({ alg: 'HS256' })
       .setSubject(claims.sub)
@@ -46,6 +55,7 @@ export class TokenService {
   }
 
   async verifyAccessToken(token: string): Promise<AccessClaims> {
+    const { jwtVerify } = await jose();
     const { payload } = await jwtVerify(token, this.accessSecret, {
       algorithms: ['HS256'],
     });
