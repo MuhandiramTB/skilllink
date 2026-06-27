@@ -89,20 +89,43 @@ jobs:
           cache-to: type=gha,mode=max
 
   # --------------------------------------------------------------------------
-  deploy:
+  # OPTIONAL API auto-deploy to Azure Container Apps (build → push to ACR → roll
+  # the app, health-gated = blue-green). SKIPS automatically unless these repo
+  # secrets are set: AZURE_CREDENTIALS, ACR_NAME, ACA_NAME, ACA_RESOURCE_GROUP.
+  # Until then, deploy the API manually with `./deploy-api.ps1` (one command).
+  # The web auto-deploys via Vercel's own GitHub integration regardless.
+  deploy-api:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    env:
+      # 'true' only when the Azure credential secret is configured; gates the job.
+      AZURE_CONFIGURED: ${{ secrets.AZURE_CREDENTIALS != '' && 'true' || 'false' }}
     steps:
-      - name: Trigger Render deploy (blue-green via Render)
-        # Render does a zero-downtime rollout: it brings the new instance up and
-        # only switches traffic once its health check passes (blue-green). The
-        # deploy hook URL is stored as a repo secret.
+      - uses: actions/checkout@v4
+
+      - name: Azure login
+        if: ${{ env.AZURE_CONFIGURED == 'true' }}
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build, push to ACR, and update the Container App
+        env:
+          ACR_NAME: ${{ secrets.ACR_NAME }}
+          ACA_NAME: ${{ secrets.ACA_NAME }}
+          ACA_RG: ${{ secrets.ACA_RESOURCE_GROUP }}
+          SHA: ${{ github.sha }}
         run: |
-          if [ -n "${{ secrets.RENDER_DEPLOY_HOOK_API }}" ]; then
-            curl -fsSL -X POST "${{ secrets.RENDER_DEPLOY_HOOK_API }}"
-            curl -fsSL -X POST "${{ secrets.RENDER_DEPLOY_HOOK_WEB }}"
-            echo "Render deploys triggered."
-          else
-            echo "No RENDER_DEPLOY_HOOK set — skipping (configure in repo secrets)."
+          if [ "$AZURE_CONFIGURED" != "true" ]; then
+            echo "Azure secrets not set — skipping API auto-deploy. (Set AZURE_CREDENTIALS, ACR_NAME, ACA_NAME, ACA_RESOURCE_GROUP.)"
+            exit 0
           fi
+          az acr login --name "$ACR_NAME"
+          IMAGE="${ACR_NAME}.azurecr.io/skilllink-api:${SHA}"
+          docker build -f apps/api/Dockerfile -t "$IMAGE" -t "${ACR_NAME}.azurecr.io/skilllink-api:latest" .
+          docker push "$IMAGE"
+          docker push "${ACR_NAME}.azurecr.io/skilllink-api:latest"
+          # Roll the container app to the new image (Azure does a health-gated swap).
+          az containerapp update --name "$ACA_NAME" --resource-group "$ACA_RG" --image "$IMAGE"
+          echo "API deployed: $IMAGE"
