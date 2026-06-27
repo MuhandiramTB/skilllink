@@ -4,8 +4,10 @@ module.exports = {
   rootDir: 'src',
   testRegex: '.*\\.spec\\.ts$',
   transform: { '^.+\\.(t|j)s$': 'ts-jest' },
-  // jose v6 is ESM-only; allow Jest to transform it instead of ignoring node_modules.
-  transformIgnorePatterns: ['/node_modules/(?!jose)'],
+  // Force NODE_ENV=development before any source loads so the production
+  // boot-guards (secret checks in TokenService / MockPaymentGateway) don't fire
+  // under CI (which sets NODE_ENV=test).
+  setupFiles: ['<rootDir>/../test/jest.setup.js'],
   collectCoverageFrom: ['**/*.(t|j)s'],
   coverageDirectory: '../coverage',
   testEnvironment: 'node',
