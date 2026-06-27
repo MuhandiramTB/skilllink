@@ -4,7 +4,6 @@
 # Run:  docker compose up --build
 # Then: web http://localhost:3000 · api http://localhost:4000/api/v1/health
 # ============================================================================
-version: '3.8'
 
 services:
   db:
