@@ -26,7 +26,10 @@ services:
       context: .
       dockerfile: apps/api/Dockerfile
     environment:
-      NODE_ENV: production
+      # Local prod-like simulation. NODE_ENV stays 'development' so the mock auth
+      # verifier is allowed (the prod boot-guard forbids mock when NODE_ENV=production).
+      # Real production (render.yaml) sets NODE_ENV=production + AUTH_VERIFIER=firebase.
+      NODE_ENV: ${NODE_ENV:-development}
       DATABASE_URL: postgresql://skilllink:${DB_PASSWORD:-devpass}@db:5432/skilllink
       API_PORT: '4000'
       AUTH_VERIFIER: ${AUTH_VERIFIER:-mock}
