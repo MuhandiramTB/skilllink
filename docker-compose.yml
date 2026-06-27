@@ -1,0 +1,69 @@
+# ============================================================================
+# SkillLink LK — local production-like multi-container stack.
+#   web (Next.js) → api (NestJS) → db (PostgreSQL + PostGIS)
+# Run:  docker compose up --build
+# Then: web http://localhost:3000 · api http://localhost:4000/api/v1/health
+# ============================================================================
+version: '3.8'
+
+services:
+  db:
+    image: postgis/postgis:15-3.4-alpine # PostGIS — the app uses geography columns
+    environment:
+      POSTGRES_USER: skilllink
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-devpass}
+      POSTGRES_DB: skilllink
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U skilllink -d skilllink']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [app-network]
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://skilllink:${DB_PASSWORD:-devpass}@db:5432/skilllink
+      API_PORT: '4000'
+      AUTH_VERIFIER: ${AUTH_VERIFIER:-mock}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-dev-access-secret-change-me}
+      PAYMENT_MOCK_SECRET: ${PAYMENT_MOCK_SECRET:-dev-pay-secret}
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - '4000:4000'
+    depends_on:
+      db:
+        condition: service_healthy # wait for Postgres to accept connections
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:4000/api/v1/health']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks: [app-network]
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        # Baked into the browser bundle at build time.
+        NEXT_PUBLIC_API_URL: http://localhost:4000/api/v1
+    ports:
+      - '3000:3000'
+    depends_on:
+      - api
+    networks: [app-network]
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge

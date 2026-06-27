@@ -1,0 +1,104 @@
+name: CI/CD Pipeline
+
+# Runs on pushes to main/develop and PRs to main.
+#  test  → typecheck + unit tests + lint (every push/PR)
+#  build → build & push web+api Docker images to GHCR        (main only)
+#  deploy→ trigger Render deploy via deploy hook             (main only)
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }} # e.g. muhandiramtb/skilllink
+
+jobs:
+  # --------------------------------------------------------------------------
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies (workspaces)
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run prisma:generate
+
+      - name: Typecheck API
+        run: npx tsc --noEmit -p apps/api/tsconfig.json
+
+      - name: Typecheck Web
+        run: npx tsc --noEmit -p apps/web/tsconfig.json
+
+      - name: Unit tests (API)
+        run: npm test --workspace apps/api
+
+      - name: Lint
+        run: npm run lint --workspaces --if-present
+        continue-on-error: true # don't fail the pipeline on style-only lint nits
+
+  # --------------------------------------------------------------------------
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write # push to GHCR
+    strategy:
+      matrix:
+        app: [api, web] # build both images in parallel
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push ${{ matrix.app }}
+        uses: docker/build-push-action@v5
+        with:
+          context: . # repo root — Dockerfiles reference the monorepo
+          file: apps/${{ matrix.app }}/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.app }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.app }}:${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # --------------------------------------------------------------------------
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Trigger Render deploy (blue-green via Render)
+        # Render does a zero-downtime rollout: it brings the new instance up and
+        # only switches traffic once its health check passes (blue-green). The
+        # deploy hook URL is stored as a repo secret.
+        run: |
+          if [ -n "${{ secrets.RENDER_DEPLOY_HOOK_API }}" ]; then
+            curl -fsSL -X POST "${{ secrets.RENDER_DEPLOY_HOOK_API }}"
+            curl -fsSL -X POST "${{ secrets.RENDER_DEPLOY_HOOK_WEB }}"
+            echo "Render deploys triggered."
+          else
+            echo "No RENDER_DEPLOY_HOOK set — skipping (configure in repo secrets)."
+          fi

@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { EnvelopeInterceptor } from './common/envelope.interceptor';
 import { AllExceptionsFilter } from './common/all-exceptions.filter';
+import { AppLogger, winstonLogger } from './common/logger';
 
 /** Fail fast on misconfiguration before the server ever accepts a request. */
 function assertProdConfig() {
@@ -26,7 +27,8 @@ function assertProdConfig() {
 
 async function bootstrap() {
   assertProdConfig();
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  app.useLogger(new AppLogger()); // structured JSON logs in prod
 
   // Security headers (OWASP baseline).
   app.use(helmet());
@@ -47,7 +49,6 @@ async function bootstrap() {
 
   const port = Number(process.env.API_PORT ?? 4000);
   await app.listen(port);
-  // eslint-disable-next-line no-console
-  console.log(`SkillLink API listening on http://localhost:${port}/api/v1`);
+  winstonLogger.info(`SkillLink API listening on http://localhost:${port}/api/v1`, { context: 'Bootstrap' });
 }
 bootstrap();

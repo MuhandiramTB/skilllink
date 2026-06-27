@@ -1,0 +1,58 @@
+# ============================================================================
+# Render Blueprint (infra-as-code) — SkillLink LK.
+# Render reads this on connect and provisions: a managed Postgres, the API web
+# service, and the Next.js web service. All get free auto-HTTPS + a *.onrender.com
+# URL. Health checks drive Render's zero-downtime (blue-green) rollouts.
+# Docs: https://render.com/docs/blueprint-spec
+# ============================================================================
+databases:
+  - name: skilllink-db
+    plan: free
+    databaseName: skilllink
+    user: skilllink
+    # NOTE: enable PostGIS once after first deploy via the Render DB shell:
+    #   CREATE EXTENSION IF NOT EXISTS postgis;  CREATE EXTENSION IF NOT EXISTS pgcrypto;
+    # then run db/migrations/*.sql in order.
+
+services:
+  # ---- API (NestJS) ----
+  - type: web
+    name: skilllink-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/health # Render waits for 200 here before switching traffic
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: API_PORT
+        value: '4000'
+      - key: AUTH_VERIFIER
+        value: mock # set to 'firebase' + add creds for real OTP
+      - key: DATABASE_URL
+        fromDatabase:
+          name: skilllink-db
+          property: connectionString
+      - key: JWT_ACCESS_SECRET
+        generateValue: true # Render generates a strong secret (satisfies the boot guard)
+      - key: PAYMENT_MOCK_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        sync: false # set to the web service URL after first deploy
+
+  # ---- Web (Next.js) ----
+  - type: web
+    name: skilllink-web
+    runtime: docker
+    plan: free
+    dockerfilePath: ./apps/web/Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: '3000'
+      # NEXT_PUBLIC_API_URL is baked at build time — set it as a build arg in the
+      # Render dashboard (Docker build args) to the API's public URL + /api/v1.
