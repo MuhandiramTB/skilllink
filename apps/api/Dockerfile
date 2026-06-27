@@ -10,6 +10,8 @@
 # ---- builder ----
 FROM node:18-alpine AS builder
 WORKDIR /app
+# Prisma's query engine needs OpenSSL; Alpine doesn't include it by default.
+RUN apk add --no-cache openssl
 
 # Copy only manifests first → Docker caches `npm ci` unless deps change.
 COPY package*.json ./
@@ -28,6 +30,8 @@ RUN npm run build --workspace apps/api
 FROM node:18-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+# OpenSSL at runtime too — the Prisma query engine loads libssl when it connects.
+RUN apk add --no-cache openssl
 
 # Production deps only (smaller image). Workspace manifests again for npm.
 COPY package*.json ./
