@@ -7,27 +7,34 @@ import { BrandLoader } from './BrandLoader';
 
 /**
  * Public-landing gate. The marketing landing page is for signed-OUT visitors only.
- * If a session exists, redirect to that user's dashboard (by active mode) and render
- * nothing in the meantime, so the hero / "Get started" / provider marketing never
- * flashes for someone who's already signed in.
+ *  - Signed-in visitor → redirect to their dashboard immediately (no splash; they're
+ *    just passing through).
+ *  - Signed-out visitor → play the 3-second branded trade-loader splash, then reveal
+ *    the landing. Scoped to the landing page only, so daily app pages aren't slowed.
  */
+const SPLASH_MS = 3000;
+
 export function LandingGate({ children }: { children: React.ReactNode }) {
   const locale = (useParams().locale as string) ?? 'en';
-  // null = still checking; true = signed out (show landing); false = redirecting.
-  const [showLanding, setShowLanding] = useState<boolean | null>(null);
+  // 'checking' → 'splash' (signed out, playing intro) → 'landing'; or 'redirecting'.
+  const [phase, setPhase] = useState<'checking' | 'splash' | 'landing' | 'redirecting'>('checking');
 
   useEffect(() => {
     const s = getSession();
     if (s) {
       window.location.replace(homeForMode(locale, s.mode));
-      setShowLanding(false);
-    } else {
-      setShowLanding(true);
+      setPhase('redirecting');
+      return;
     }
+    setPhase('splash');
+    const id = setTimeout(() => setPhase('landing'), SPLASH_MS);
+    return () => clearTimeout(id);
   }, [locale]);
 
-  // While checking the session or redirecting a signed-in user, show the branded
-  // trade loader instead of a blank flash.
-  if (showLanding !== true) return <BrandLoader />;
-  return <>{children}</>;
+  if (phase === 'landing') {
+    // Gentle fade-in so the reveal after the splash feels intentional, not abrupt.
+    return <div className="motion-safe:animate-[gateFade_0.5s_ease]">{children}</div>;
+  }
+  // checking / splash / redirecting → branded loader.
+  return <BrandLoader />;
 }

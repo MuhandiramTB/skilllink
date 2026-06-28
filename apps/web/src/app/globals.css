@@ -48,6 +48,12 @@ h1, h2, h3, .font-display {
 .dark .bg-gray-50 { @apply bg-gray-800; }
 .dark .bg-surface { @apply bg-[#0B0D12]; }
 
+/* Landing reveal after the splash. */
+@keyframes gateFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Respect reduced-motion preferences for all transitions/animations. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
