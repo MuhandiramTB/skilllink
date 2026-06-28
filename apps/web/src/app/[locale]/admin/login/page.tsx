@@ -8,14 +8,16 @@ import { Button, ErrorBanner } from '@/components/ui';
 /** Hidden admin sign-in (not linked from public pages). OTP only; admins routed to console. */
 export default function AdminLoginPage() {
   const locale = (useParams().locale as string) ?? 'en';
-  const [phone, setPhone] = useState('+94');
+  // Only the 9 local digits live in state; "+94" is a fixed, non-editable prefix.
+  const [local, setLocal] = useState('');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
 
   async function signIn(e: React.FormEvent) {
     e.preventDefault(); setErr(''); setBusy(true);
     try {
-      if (!/^\+94\d{9}$/.test(phone)) { setErr('Enter a valid mobile number.'); return; }
+      const phone = `+94${local}`;
+      if (!/^\+94\d{9}$/.test(phone)) { setErr('Enter your 9-digit mobile number (e.g. 7X XXX XXXX).'); return; }
       const s = await verifyOtp(phone);
       if (!s.roles.includes('admin')) { setErr('This account does not have admin access.'); return; }
       window.location.href = homeForMode(locale, 'admin');
@@ -36,15 +38,21 @@ export default function AdminLoginPage() {
           <form onSubmit={signIn} className="space-y-4">
             <div>
               <label htmlFor="admin-phone" className="mb-1.5 block text-sm font-semibold text-ink dark:text-gray-200">Mobile number</label>
-              <input
-                id="admin-phone"
-                autoFocus
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                inputMode="tel"
-                className="w-full rounded-base border border-line bg-white px-3.5 py-2.5 text-ink transition-colors placeholder:text-slate/60 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
-                placeholder="+94 77 123 4567"
-              />
+              <div className="flex items-stretch overflow-hidden rounded-base border border-line bg-white transition-colors focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 dark:border-gray-700 dark:bg-gray-900">
+                {/* Fixed country prefix — not editable, can't be deleted. */}
+                <span className="flex select-none items-center border-r border-line bg-surface px-3 text-sm font-semibold text-slate dark:border-gray-700 dark:bg-gray-800">+94</span>
+                <input
+                  id="admin-phone"
+                  autoFocus
+                  value={local}
+                  onChange={(e) => setLocal(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                  inputMode="numeric"
+                  maxLength={9}
+                  autoComplete="tel-national"
+                  className="w-full bg-transparent px-3.5 py-2.5 tracking-wide text-ink placeholder:text-slate/50 focus:outline-none dark:text-gray-100"
+                  placeholder="7X XXX XXXX"
+                />
+              </div>
             </div>
             <Button disabled={busy} className="flex w-full items-center justify-center gap-2">
               {busy && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden />}
