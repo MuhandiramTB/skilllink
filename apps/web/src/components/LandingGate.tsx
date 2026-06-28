@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { getSession, homeForMode } from '@/lib/session';
+import { BrandLoader } from './BrandLoader';
 
 /**
  * Public-landing gate. The marketing landing page is for signed-OUT visitors only.
@@ -25,7 +26,8 @@ export function LandingGate({ children }: { children: React.ReactNode }) {
     }
   }, [locale]);
 
-  // While checking or redirecting, render nothing (no public-content flash).
-  if (showLanding !== true) return null;
+  // While checking the session or redirecting a signed-in user, show the branded
+  // trade loader instead of a blank flash.
+  if (showLanding !== true) return <BrandLoader />;
   return <>{children}</>;
 }
