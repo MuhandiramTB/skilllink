@@ -30,6 +30,23 @@ This repository is the **single source of truth** for the entire product, organi
 
 ---
 
+## 🌐 Live deployment
+
+The platform is deployed and running in production (HTTPS, multi-container).
+
+| Service | URL | Host |
+|---------|-----|------|
+| **Web app** | https://skilllink-web-dusky.vercel.app | Vercel |
+| **API** | https://skilllink-api.whitesand-ba9ed9eb.southeastasia.azurecontainerapps.io/api/v1 | Azure Container Apps |
+| **API health** | [`/api/v1/health`](https://skilllink-api.whitesand-ba9ed9eb.southeastasia.azurecontainerapps.io/api/v1/health) | — |
+| **Database** | (private) PostgreSQL + PostGIS | Neon |
+
+**Demo login:** any Sri Lankan mobile `+947XXXXXXXX` · OTP = **any 6 digits** (dev mock verifier). Admin: `+94770000000`.
+
+**Deploy pipeline:** push to `main` → GitHub Actions (test → build images to GHCR) → **Vercel** auto-deploys the web; the **API** is redeployed with [`deploy-api.ps1`](deploy-api.ps1) (builds → pushes to ACR → health-gated zero-downtime roll). Prod DB migrations: run `db/migrations/0NN_*.sql` (idempotent) in the Neon SQL editor. See [AZURE-STEPS.md](AZURE-STEPS.md).
+
+---
+
 ## Role-by-role map (who owns what)
 
 | Role | BMAD Agent | Primary Deliverables | Location |
@@ -98,7 +115,7 @@ db/        SQL migrations + seeds for the skilllink database
 | Storage | Cloudinary / AWS S3 |
 | Notifications | Firebase Cloud Messaging |
 | Payments | PayHere · Genie Business |
-| Hosting | Vercel (web) · AWS/DigitalOcean (API + DB) |
+| Hosting | Vercel (web) · Azure Container Apps (API) · Neon (PostgreSQL) — multi-container via Docker Compose locally |
 
 See the full rationale in [docs/04-architecture/tech-decisions.md](docs/04-architecture/tech-decisions.md).
 

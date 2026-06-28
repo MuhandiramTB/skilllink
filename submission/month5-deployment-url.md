@@ -17,14 +17,16 @@
 | Deliverable | File |
 |---|---|
 | Dockerfiles | `apps/api/Dockerfile`, `apps/web/Dockerfile` |
-| Docker Compose | `docker-compose.yml` |
+| Docker Compose (multi-container) | `docker-compose.yml` |
 | CI/CD workflow | `.github/workflows/deploy.yml` |
-| Cloud deploy (IaC) | `render.yaml` |
+| API deploy script (Azure) | `deploy-api.ps1` |
+| Prod DB schema/migrations | `db/migrations/*.sql`, `submission/render-db-setup.sql` |
 | Logging | `apps/api/src/common/logger.ts` |
 | Health check | `apps/api/src/health/health.controller.ts` |
-| Setup guide | `SETUP-DEPLOY.md` |
+| Setup guide | `AZURE-STEPS.md` |
 
 ## Notes
-- HTTPS is automatic on Render (`*.onrender.com`).
-- Blue-green / zero-downtime via Render health-check-gated rollouts.
-- Logs are structured JSON (Render Logs tab); metrics in the Render Metrics tab.
+- **Stack:** Vercel (web) + Azure Container Apps (API) + Neon (PostgreSQL/PostGIS). HTTPS is automatic on both Vercel (`*.vercel.app`) and Azure Container Apps (`*.azurecontainerapps.io`).
+- **Blue-green / zero-downtime:** Azure Container Apps keeps the old revision serving until the new revision passes its health check, then shifts 100% traffic.
+- **Logs & metrics:** structured JSON logs via the Azure Container Apps Log Analytics workspace; metrics in the Azure portal. Web logs/metrics in the Vercel dashboard.
+- **Redeploy:** push to `main` → Vercel auto-deploys the web; run `./deploy-api.ps1` to roll the API. Apply any new `db/migrations/0NN_*.sql` (idempotent) in the Neon SQL editor.
