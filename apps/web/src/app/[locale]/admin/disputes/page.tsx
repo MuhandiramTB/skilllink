@@ -32,14 +32,14 @@ export default function AdminDisputesPage() {
         <ul className="space-y-3">
           {disputes.map((d) => (
             <li key={d.id}>
-              <Card className="rounded-2xl">
+              <Card>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
-                    <p className="flex items-center gap-2 text-sm font-medium">
-                      {t('disputes.booking')} <code className="tabular-nums text-gray-600 dark:text-gray-400">{d.booking_id.slice(0, 8)}</code>
+                    <p className="flex items-center gap-2 text-sm font-medium text-ink dark:text-gray-100">
+                      {t('disputes.booking')} <code className="tabular-nums text-slate">{d.booking_id.slice(0, 8)}</code>
                       <StatusBadge status={d.status} />
                     </p>
-                    <p className="mt-1 text-xs text-gray-500">{d.resolution ?? t('disputes.noResolution')}</p>
+                    <p className="mt-1 text-xs text-slate">{d.resolution ?? t('disputes.noResolution')}</p>
                   </div>
                   <Button
                     onClick={() => resolve(d.id)}

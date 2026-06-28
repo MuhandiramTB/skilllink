@@ -33,7 +33,7 @@ export function AppBottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed bottom-0 left-1/2 z-40 flex w-full max-w-[480px] -translate-x-1/2 border-t bg-white/95 backdrop-blur md:hidden dark:border-gray-700 dark:bg-gray-900/95"
+      className="fixed bottom-0 left-1/2 z-40 flex w-full max-w-[480px] -translate-x-1/2 border-t border-line bg-white/80 backdrop-blur-xl md:hidden dark:border-gray-800 dark:bg-gray-900/80"
     >
       {tabs.map((tab) => {
         const href = `/${locale}${tab.path}`;
@@ -43,12 +43,12 @@ export function AppBottomNav() {
             key={tab.labelKey}
             href={href}
             aria-current={active ? 'page' : undefined}
-            className={`flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 transition active:bg-gray-50 dark:active:bg-gray-800 ${
-              active ? 'text-primary' : 'text-gray-500 dark:text-gray-400'
+            className={`group flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 transition-colors active:bg-surface dark:active:bg-gray-800 ${
+              active ? 'text-primary' : 'text-slate hover:text-ink dark:hover:text-gray-200'
             }`}
           >
-            {ICONS[tab.icon]}
-            <span className="text-[11px] font-medium">{t(tab.labelKey)}</span>
+            <span className={active ? 'scale-105 transition-transform' : 'transition-transform'}>{ICONS[tab.icon]}</span>
+            <span className={`text-[11px] ${active ? 'font-semibold' : 'font-medium'}`}>{t(tab.labelKey)}</span>
           </a>
         );
       })}
@@ -56,12 +56,12 @@ export function AppBottomNav() {
       <a
         href={profileHref}
         aria-current={profileActive ? 'page' : undefined}
-        className={`flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 transition active:bg-gray-50 dark:active:bg-gray-800 ${
-          profileActive ? 'text-primary' : 'text-gray-500 dark:text-gray-400'
+        className={`group flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 transition-colors active:bg-surface dark:active:bg-gray-800 ${
+          profileActive ? 'text-primary' : 'text-slate hover:text-ink dark:hover:text-gray-200'
         }`}
       >
-        {ICONS.user}
-        <span className="text-[11px] font-medium">{t('you')}</span>
+        <span className={profileActive ? 'scale-105 transition-transform' : 'transition-transform'}>{ICONS.user}</span>
+        <span className={`text-[11px] ${profileActive ? 'font-semibold' : 'font-medium'}`}>{t('you')}</span>
       </a>
     </nav>
   );

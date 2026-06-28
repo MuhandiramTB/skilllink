@@ -45,17 +45,17 @@ export default function AdminPaymentsPage() {
           <ul className="space-y-3 md:hidden">
             {rows.map((p) => (
               <li key={p.id}>
-                <Card className="rounded-2xl">
+                <Card>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="font-medium tabular-nums">
+                      <p className="font-semibold tabular-nums text-ink dark:text-gray-100">
                         <Money cents={p.amount_cents} />{' '}
-                        <span className="text-xs font-normal text-gray-500">{t('payments.via', { provider: p.provider })}</span>
+                        <span className="text-xs font-normal text-slate">{t('payments.via', { provider: p.provider })}</span>
                       </p>
-                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      <p className="mt-1 text-xs text-slate">
                         {t('payments.commission')} <span className="tabular-nums"><Money cents={p.commission_cents} /></span>
                       </p>
-                      <p className="mt-0.5 text-xs text-gray-400 tabular-nums">
+                      <p className="mt-0.5 text-xs text-slate tabular-nums">
                         {new Date(p.created_at).toLocaleDateString()}
                       </p>
                     </div>
@@ -67,25 +67,25 @@ export default function AdminPaymentsPage() {
           </ul>
 
           {/* Desktop: clean table */}
-          <Card className="hidden rounded-2xl p-0 md:block">
+          <Card className="hidden p-0 md:block">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b text-left text-gray-500 dark:border-gray-700">
-                    <th className="px-4 py-3 font-medium">{t('payments.colAmount')}</th>
-                    <th className="px-4 py-3 font-medium">{t('payments.colCommission')}</th>
-                    <th className="px-4 py-3 font-medium">{t('payments.colProvider')}</th>
-                    <th className="px-4 py-3 font-medium">{t('payments.colDate')}</th>
-                    <th className="px-4 py-3 font-medium">{t('payments.colStatus')}</th>
+                  <tr className="border-b border-line text-left text-xs uppercase tracking-wider text-slate dark:border-gray-800">
+                    <th className="px-4 py-3 font-semibold">{t('payments.colAmount')}</th>
+                    <th className="px-4 py-3 font-semibold">{t('payments.colCommission')}</th>
+                    <th className="px-4 py-3 font-semibold">{t('payments.colProvider')}</th>
+                    <th className="px-4 py-3 font-semibold">{t('payments.colDate')}</th>
+                    <th className="px-4 py-3 font-semibold">{t('payments.colStatus')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((p) => (
-                    <tr key={p.id} className="border-b last:border-0 dark:border-gray-700">
-                      <td className="px-4 py-3 font-medium tabular-nums"><Money cents={p.amount_cents} /></td>
-                      <td className="px-4 py-3 tabular-nums text-gray-600 dark:text-gray-400"><Money cents={p.commission_cents} /></td>
-                      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{p.provider}</td>
-                      <td className="px-4 py-3 tabular-nums text-gray-500">{new Date(p.created_at).toLocaleDateString()}</td>
+                    <tr key={p.id} className="border-b border-line last:border-0 dark:border-gray-800">
+                      <td className="px-4 py-3 font-semibold tabular-nums text-ink dark:text-gray-100"><Money cents={p.amount_cents} /></td>
+                      <td className="px-4 py-3 tabular-nums text-slate"><Money cents={p.commission_cents} /></td>
+                      <td className="px-4 py-3 text-slate">{p.provider}</td>
+                      <td className="px-4 py-3 tabular-nums text-slate">{new Date(p.created_at).toLocaleDateString()}</td>
                       <td className="px-4 py-3"><StatusBadge status={p.status} /></td>
                     </tr>
                   ))}

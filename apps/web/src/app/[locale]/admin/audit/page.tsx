@@ -28,7 +28,7 @@ export default function AdminAuditPage() {
       <PageHeader
         title={t('audit.title')}
         subtitle={t('audit.subtitle')}
-        action={rows ? <span className="text-xs text-gray-500 tabular-nums">{t('audit.entries', { count: total })}</span> : undefined}
+        action={rows ? <span className="text-xs text-slate tabular-nums">{t('audit.entries', { count: total })}</span> : undefined}
       />
 
       {err && <ErrorBanner message={err} />}
@@ -41,19 +41,19 @@ export default function AdminAuditPage() {
           <ul className="space-y-3 md:hidden">
             {rows.map((r) => (
               <li key={r.id}>
-                <Card className="rounded-2xl">
+                <Card>
                   <dl className="space-y-1.5 text-sm">
                     <div className="flex justify-between gap-3">
-                      <dt className="text-gray-500">{t('audit.colWhen')}</dt>
-                      <dd className="text-right text-xs text-gray-500 tabular-nums">{new Date(r.created_at).toLocaleString()}</dd>
+                      <dt className="text-slate">{t('audit.colWhen')}</dt>
+                      <dd className="text-right text-xs text-slate tabular-nums">{new Date(r.created_at).toLocaleString()}</dd>
                     </div>
                     <div className="flex justify-between gap-3">
-                      <dt className="text-gray-500">{t('audit.colAction')}</dt>
-                      <dd className="text-right"><code className="text-xs">{r.action}</code></dd>
+                      <dt className="text-slate">{t('audit.colAction')}</dt>
+                      <dd className="text-right"><code className="text-xs text-ink dark:text-gray-100">{r.action}</code></dd>
                     </div>
                     <div className="flex justify-between gap-3">
-                      <dt className="text-gray-500">{t('audit.colEntity')}</dt>
-                      <dd className="text-right text-xs text-gray-600 dark:text-gray-400">
+                      <dt className="text-slate">{t('audit.colEntity')}</dt>
+                      <dd className="text-right text-xs text-slate">
                         {r.entity}{r.entity_id ? ` · ${r.entity_id.slice(0, 8)}` : ''}
                       </dd>
                     </div>
@@ -64,22 +64,22 @@ export default function AdminAuditPage() {
           </ul>
 
           {/* Desktop: clean table */}
-          <Card className="hidden rounded-2xl p-0 md:block">
+          <Card className="hidden p-0 md:block">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b text-left text-gray-500 dark:border-gray-700">
-                    <th className="px-4 py-3 font-medium">{t('audit.colWhen')}</th>
-                    <th className="px-4 py-3 font-medium">{t('audit.colAction')}</th>
-                    <th className="px-4 py-3 font-medium">{t('audit.colEntity')}</th>
+                  <tr className="border-b border-line text-left text-xs uppercase tracking-wider text-slate dark:border-gray-800">
+                    <th className="px-4 py-3 font-semibold">{t('audit.colWhen')}</th>
+                    <th className="px-4 py-3 font-semibold">{t('audit.colAction')}</th>
+                    <th className="px-4 py-3 font-semibold">{t('audit.colEntity')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((r) => (
-                    <tr key={r.id} className="border-b last:border-0 dark:border-gray-700">
-                      <td className="px-4 py-3 text-xs text-gray-500 tabular-nums">{new Date(r.created_at).toLocaleString()}</td>
-                      <td className="px-4 py-3"><code className="text-xs">{r.action}</code></td>
-                      <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-400">{r.entity}{r.entity_id ? ` · ${r.entity_id.slice(0, 8)}` : ''}</td>
+                    <tr key={r.id} className="border-b border-line last:border-0 dark:border-gray-800">
+                      <td className="px-4 py-3 text-xs text-slate tabular-nums">{new Date(r.created_at).toLocaleString()}</td>
+                      <td className="px-4 py-3"><code className="text-xs text-ink dark:text-gray-100">{r.action}</code></td>
+                      <td className="px-4 py-3 text-xs text-slate">{r.entity}{r.entity_id ? ` · ${r.entity_id.slice(0, 8)}` : ''}</td>
                     </tr>
                   ))}
                 </tbody>

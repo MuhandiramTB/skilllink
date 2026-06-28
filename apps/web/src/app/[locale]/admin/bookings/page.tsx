@@ -22,13 +22,13 @@ export default function AdminBookingsPage() {
       {rows && rows.length > 0 && (
         <ul className="space-y-2">
           {rows.map((b) => (
-            <Card key={b.id} className="rounded-2xl">
+            <Card key={b.id}>
               <li className="flex list-none items-center justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium capitalize">
+                  <p className="truncate font-semibold capitalize text-ink dark:text-gray-100">
                     {b.categoryKey?.replace(/[._]/g, ' ') ?? t('bookings.service')}
                   </p>
-                  <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                  <p className="mt-0.5 text-xs text-slate">
                     <span className="tabular-nums">
                       {b.price_cents == null ? '—' : <Money cents={b.price_cents} />}
                     </span>

@@ -90,13 +90,13 @@ export default function BookingDetailPage() {
       {err && <ErrorBanner message={err} />}
       {msg && <SuccessBanner message={msg} />}
 
-      <Card className="rounded-2xl">
+      <Card className="rounded-xl2">
         <BookingProgress
           status={booking.status}
           labels={[t('stepRequested'), t('stepMatched'), t('stepAccepted'), t('stepInProgress'), t('stepCompleted')]}
         />
         {(booking.acceptedAt || booking.startedAt || booking.completedAt) && (
-          <ul className="mt-3 space-y-0.5 border-t border-gray-100 pt-3 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
+          <ul className="mt-3 space-y-0.5 border-t border-line pt-3 text-xs text-slate dark:border-gray-700 dark:text-gray-400">
             {booking.acceptedAt && <li>{t('stepAccepted')}: {new Date(booking.acceptedAt).toLocaleString()}</li>}
             {booking.startedAt && <li>{t('stepInProgress')}: {new Date(booking.startedAt).toLocaleString()}</li>}
             {booking.completedAt && <li>{t('stepCompleted')}: {new Date(booking.completedAt).toLocaleString()}</li>}
@@ -104,22 +104,22 @@ export default function BookingDetailPage() {
         )}
       </Card>
 
-      <Card className="rounded-2xl">
-        <p className="text-sm font-medium uppercase tracking-wide text-gray-400">{t('details')}</p>
+      <Card className="rounded-xl2">
+        <p className="text-sm font-medium uppercase tracking-wide text-slate">{t('details')}</p>
         <p className="mt-1.5 text-sm text-gray-700 dark:text-gray-300">{booking.description || t('noDescription')}</p>
         {canCancel && <Button variant="ghost" className="mt-4" disabled={busy === 'cancel'} onClick={cancel}>{busy === 'cancel' ? t('saving') : t('cancelBooking')}</Button>}
       </Card>
 
       {/* Quote — provider sets a price; customer accepts it. */}
       {canQuote && (
-        <Card className="space-y-3 rounded-2xl">
-          <h2 className="font-semibold">{t('setYourPrice')}</h2>
+        <Card className="space-y-3 rounded-xl2">
+          <h2 className="font-display font-bold text-ink dark:text-gray-50">{t('setYourPrice')}</h2>
           {quoteStatus === 'quoted' && booking.priceCents != null && (
             <p className="text-sm text-gray-600 dark:text-gray-300">{t('currentQuote')}: <Money cents={booking.priceCents} /></p>
           )}
           <Field label={t('yourPrice')} hint={t('setYourPriceHint')}>
             <div className="flex items-center gap-2">
-              <span className="rounded-base border bg-gray-50 px-3 py-2.5 text-sm font-medium text-gray-600 dark:border-gray-600 dark:bg-gray-900">LKR</span>
+              <span className="rounded-base border border-line bg-surface px-3 py-2.5 text-sm font-medium text-slate dark:border-gray-600 dark:bg-gray-900">LKR</span>
               <input value={price} onChange={(e) => setPrice(e.target.value)} inputMode="numeric" className={`${inputCls} max-w-[10rem]`} />
               <Button onClick={saveQuote} disabled={busy === 'quote'}>{busy === 'quote' ? t('saving') : t('saveQuote')}</Button>
             </div>
@@ -129,10 +129,10 @@ export default function BookingDetailPage() {
 
       {/* Customer view of the quote — accept it before the provider starts. */}
       {!isProvider && quoteStatus === 'quoted' && booking.status !== 'completed' && (
-        <Card className="space-y-3 rounded-2xl border-l-4 border-l-primary">
-          <h2 className="font-semibold">{t('quoteSection')}</h2>
+        <Card className="space-y-3 rounded-xl2 border-l-4 border-l-primary">
+          <h2 className="font-display font-bold text-ink dark:text-gray-50">{t('quoteSection')}</h2>
           {booking.priceCents != null && (
-            <p className="text-lg font-semibold"><span className="text-sm font-normal text-gray-500">{t('quotedPrice')}: </span><Money cents={booking.priceCents} /></p>
+            <p className="text-lg font-semibold"><span className="text-sm font-normal text-slate">{t('quotedPrice')}: </span><Money cents={booking.priceCents} /></p>
           )}
           <Button onClick={acceptQuote} disabled={busy === 'accept'}>{busy === 'accept' ? t('saving') : t('acceptQuote')}</Button>
         </Card>
@@ -140,22 +140,22 @@ export default function BookingDetailPage() {
 
       {/* Customer waiting for a quote. */}
       {!isProvider && quoteStatus === 'none' && ['matched', 'accepted'].includes(booking.status) && (
-        <Card className="rounded-2xl">
-          <p className="text-sm text-gray-500 dark:text-gray-400">{t('awaitingQuote')}</p>
+        <Card className="rounded-xl2">
+          <p className="text-sm text-slate dark:text-gray-400">{t('awaitingQuote')}</p>
         </Card>
       )}
 
       {/* Chat — available once a provider is assigned */}
       {booking.status !== 'requested' && (
-        <Card className="rounded-2xl">
+        <Card className="rounded-xl2">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-semibold">{t('chat')} <span className="text-xs font-normal text-gray-400">{t('numbersMasked')}</span></h2>
+            <h2 className="font-display font-bold text-ink dark:text-gray-50">{t('chat')} <span className="text-xs font-normal text-slate">{t('numbersMasked')}</span></h2>
             <button onClick={() => bookingApi.messages(id).then(setMessages)} className="text-xs font-medium text-primary hover:underline">{t('refresh')}</button>
           </div>
           <ul className="mb-3 max-h-60 space-y-1.5 overflow-y-auto text-sm">
-            {messages.length === 0 && <li className="py-4 text-center text-xs text-gray-400">{t('noMessages')}</li>}
+            {messages.length === 0 && <li className="py-4 text-center text-xs text-slate">{t('noMessages')}</li>}
             {messages.map((m, i) => (
-              <li key={`${m.created_at}-${i}`} className="rounded-base bg-gray-50 px-3 py-2 dark:bg-gray-700">{m.body}</li>
+              <li key={`${m.created_at}-${i}`} className="rounded-base bg-surface px-3 py-2 dark:bg-gray-700">{m.body}</li>
             ))}
           </ul>
           <div className="flex gap-2">
@@ -168,14 +168,14 @@ export default function BookingDetailPage() {
 
       {/* Pay + review on completion (customer). Settle the agreed price as cash or in-app. */}
       {booking.status === 'completed' && !isProvider && (
-        <Card className="space-y-4 rounded-2xl border-l-4 border-l-success">
-          <h2 className="font-semibold">{t('jobComplete')}</h2>
+        <Card className="space-y-4 rounded-xl2 border-l-4 border-l-success">
+          <h2 className="font-display font-bold text-ink dark:text-gray-50">{t('jobComplete')}</h2>
           {booking.priceCents != null && (
-            <p className="text-lg font-semibold"><span className="text-sm font-normal text-gray-500">{t('agreedPrice')}: </span><Money cents={booking.priceCents} /></p>
+            <p className="text-lg font-semibold"><span className="text-sm font-normal text-slate">{t('agreedPrice')}: </span><Money cents={booking.priceCents} /></p>
           )}
           {!settled ? (
             <>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{t('payExplainer')}</p>
+              <p className="text-xs text-slate dark:text-gray-400">{t('payExplainer')}</p>
               <div className="flex flex-wrap gap-2">
                 <Button variant="success" onClick={() => settle('in_app')} disabled={busy === 'pay'}>{busy === 'pay' ? t('saving') : t('payInApp')}</Button>
                 <Button variant="ghost" onClick={() => settle('cash')} disabled={busy === 'pay'}>{busy === 'pay' ? t('saving') : t('payCash')}</Button>

@@ -78,8 +78,8 @@ export default function ProviderDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-xl font-bold">{t('providerTitle')}</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">{me?.businessName ?? t('yourServices')}</p>
+        <h1 className="font-display text-xl font-bold text-ink dark:text-gray-50">{t('providerTitle')}</h1>
+        <p className="text-sm text-slate">{me?.businessName ?? t('yourServices')}</p>
       </div>
 
       {err && <ErrorBanner message={err} />}
@@ -91,7 +91,7 @@ export default function ProviderDashboard() {
           <div className="grid grid-cols-3 gap-3">
             <Card>
               <div className="text-sm"><StatusBadge status={me?.status ?? 'pending'} /></div>
-              <div className="mt-1 text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('status')}</div>
+              <div className="mt-1 text-[11px] font-medium uppercase tracking-wide text-slate">{t('status')}</div>
             </Card>
             <StatCard label={t('rating')} value={(me?.ratingAvg ?? 0).toFixed(1)} tone="primary" />
             <StatCard label={t('paidJobs')} value={earnings?.paidJobs ?? 0} />
@@ -101,8 +101,8 @@ export default function ProviderDashboard() {
             <Card>
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <div className="font-medium">{t('availability')}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div className="font-medium text-ink dark:text-gray-50">{t('availability')}</div>
+                  <div className="text-xs text-slate">
                     {approved
                       ? me?.isAvailable
                         ? t('availabilityVisible')
@@ -126,14 +126,14 @@ export default function ProviderDashboard() {
               <Card className={wallet.balanceCents < 0 ? 'border-l-4 border-l-danger' : ''}>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('walletBalance')}</div>
-                    <div className={`text-xl font-bold tabular-nums sm:text-2xl ${wallet.balanceCents < 0 ? 'text-danger' : 'text-gray-900 dark:text-gray-100'}`}>
+                    <div className="text-[11px] font-medium uppercase tracking-wide text-slate">{t('walletBalance')}</div>
+                    <div className={`text-xl font-bold tabular-nums sm:text-2xl ${wallet.balanceCents < 0 ? 'text-danger' : 'text-ink dark:text-gray-100'}`}>
                       <Money cents={wallet.balanceCents} />
                     </div>
                   </div>
                   <div className="flex items-end gap-2">
                     <div>
-                      <label className="mb-1 block text-[11px] font-medium text-gray-500 dark:text-gray-400">{t('topUpAmount')}</label>
+                      <label className="mb-1 block text-[11px] font-medium text-slate">{t('topUpAmount')}</label>
                       <input
                         value={topupAmount}
                         onChange={(e) => setTopupAmount(e.target.value)}
@@ -145,7 +145,7 @@ export default function ProviderDashboard() {
                   </div>
                 </div>
                 {wallet.balanceCents < 0 && (
-                  <p className="mt-3 rounded-base bg-amber-50 p-2 text-sm text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">{t('owesCommission')}</p>
+                  <p className="mt-3 rounded-base bg-warn/10 p-2 text-sm text-warn dark:bg-warn/20">{t('owesCommission')}</p>
                 )}
                 {walletMsg && <div className="mt-3"><SuccessBanner message={walletMsg} /></div>}
               </Card>
@@ -154,8 +154,8 @@ export default function ProviderDashboard() {
 
           {verificationIncomplete && (
             <a href={`/${locale}/provider/register`}>
-              <Card className="border-amber-300 transition hover:border-primary dark:border-amber-700">
-                <div className="text-sm font-medium text-amber-800 dark:text-amber-300">
+              <Card className="border-warn/40 transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lift">
+                <div className="text-sm font-medium text-warn">
                   {t('completeVerification')}
                 </div>
               </Card>
@@ -163,7 +163,7 @@ export default function ProviderDashboard() {
           )}
 
           <section>
-            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate">
               {t('verification')}
             </h2>
             {me && me.verifications.length === 0 ? (
@@ -187,7 +187,7 @@ export default function ProviderDashboard() {
           <WorkPhotosManager />
 
           <section>
-            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate">
               {t('jobRequests')}
             </h2>
             {jobs === null && !err ? (
@@ -199,11 +199,11 @@ export default function ProviderDashboard() {
                 {jobs?.map((j) => (
                   <li key={j.id}>
                     <a href={`/${locale}/bookings/${j.id}`}>
-                      <Card className="transition hover:border-primary">
+                      <Card className="transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lift">
                         <div className="flex items-center justify-between gap-3">
                           <div className="min-w-0">
-                            <div className="truncate font-medium">{j.categoryKey ?? t('service')}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                            <div className="truncate font-medium text-ink dark:text-gray-50">{j.categoryKey ?? t('service')}</div>
+                            <div className="text-xs text-slate">
                               {new Date(j.created_at).toLocaleDateString()}
                             </div>
                           </div>

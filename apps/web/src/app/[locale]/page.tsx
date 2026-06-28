@@ -42,63 +42,74 @@ export default async function HomePage({ params }: { params: { locale: string } 
   return (
     <LandingGate>
     <div className="space-y-10">
-      {/* ---- Hero: value prop + trust + primary action ---- */}
-      <section className="overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-accent-2 p-7 text-white shadow-sm sm:p-10">
-        <p className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
-          <span className="h-1.5 w-1.5 rounded-full bg-white" /> {t('near')}
-        </p>
-        <h1 className="mt-4 max-w-xl font-display text-3xl font-bold leading-tight sm:text-4xl">
-          {t('tagline')}
-        </h1>
-        <p className="mt-3 max-w-lg text-sm text-white/85 sm:text-base">{t('heroSub')}</p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <a
-            href={`/${locale}/login`}
-            className="rounded-base bg-white px-6 py-3 text-sm font-semibold text-primary shadow-sm transition hover:bg-white/90"
-          >
-            {t('getStarted')}
-          </a>
-          <a
-            href="#services"
-            className="rounded-base border border-white/40 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-          >
-            {t('browseAll')}
-          </a>
+      {/* ---- Hero: ink ground, one electric-blue pop, confident type ---- */}
+      <section className="relative overflow-hidden rounded-xl2 bg-ink p-7 text-white sm:p-12">
+        {/* Subtle dot-grid texture (not a gradient) — depth without the AI-default look. */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '22px 22px' }}
+          aria-hidden="true"
+        />
+        {/* One ambient accent glow, top-right. */}
+        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/30 blur-3xl" aria-hidden="true" />
+
+        <div className="relative">
+          <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold ring-1 ring-inset ring-white/15">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" /> {t('near')}
+          </p>
+          <h1 className="mt-5 max-w-2xl font-display text-[34px] font-extrabold leading-[1.05] tracking-tightest sm:text-5xl" style={{ textWrap: 'balance' } as React.CSSProperties}>
+            {t('tagline')}
+          </h1>
+          <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-white/70 sm:text-base">{t('heroSub')}</p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <a
+              href={`/${locale}/login`}
+              className="rounded-base bg-primary px-6 py-3 text-sm font-bold text-white transition-all duration-150 hover:bg-primary-700 active:translate-y-px"
+            >
+              {t('getStarted')}
+            </a>
+            <a
+              href="#services"
+              className="rounded-base bg-white/5 px-6 py-3 text-sm font-semibold text-white ring-1 ring-inset ring-white/20 transition hover:bg-white/10"
+            >
+              {t('browseAll')}
+            </a>
+          </div>
+          {/* Trust signals */}
+          <ul className="mt-8 flex flex-wrap gap-x-7 gap-y-2 border-t border-white/10 pt-5 text-[13px] font-medium text-white/75">
+            {[t('trustVerified'), t('trustRated'), t('trustLocal')].map((label) => (
+              <li key={label} className="inline-flex items-center gap-2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-primary" aria-hidden="true">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+                {label}
+              </li>
+            ))}
+          </ul>
         </div>
-        {/* Trust signals */}
-        <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2 border-t border-white/20 pt-5 text-xs text-white/90">
-          {[t('trustVerified'), t('trustRated'), t('trustLocal')].map((label) => (
-            <li key={label} className="inline-flex items-center gap-1.5">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
-              {label}
-            </li>
-          ))}
-        </ul>
       </section>
 
       {/* ---- Service categories ---- */}
       <section id="services">
         <div className="mb-4 flex items-end justify-between">
-          <h2 className="font-display text-xl font-bold">{t('chooseCategory')}</h2>
+          <h2 className="font-display text-xl font-bold text-ink dark:text-gray-50">{t('chooseCategory')}</h2>
         </div>
-        {failed && <p className="rounded-base bg-red-50 p-3 text-sm text-danger dark:bg-red-950/40">{t('error')}</p>}
+        {failed && <p className="rounded-base border border-red-200 bg-red-50 p-3 text-sm font-medium text-danger dark:border-red-500/30 dark:bg-red-950/40">{t('error')}</p>}
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {top.map((c) => (
             <li key={c.id}>
               <a
                 href={`/${locale}/category/${c.key}`}
-                className="group flex h-full flex-col gap-3 rounded-2xl border bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
+                className="group flex h-full flex-col gap-3 rounded-xl2 border border-line bg-white p-4 shadow-card transition-all duration-150 hover:-translate-y-0.5 hover:border-primary hover:shadow-lift dark:border-gray-800 dark:bg-gray-900"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
                     <path d={categoryIcon(c.key)} />
                   </svg>
                 </span>
-                <span className="font-medium leading-tight">{c.name[locale]}</span>
+                <span className="font-semibold leading-tight text-ink dark:text-gray-100">{c.name[locale]}</span>
                 {c.children.length > 0 && (
-                  <span className="-mt-1 text-xs text-gray-500 dark:text-gray-400">{c.children.length}+ services</span>
+                  <span className="-mt-1 text-xs text-slate">{c.children.length}+ services</span>
                 )}
               </a>
             </li>
@@ -106,17 +117,17 @@ export default async function HomePage({ params }: { params: { locale: string } 
         </ul>
       </section>
 
-      {/* ---- Provider band: a designed two-column section, not a flat box ---- */}
-      <section className="overflow-hidden rounded-2xl border bg-white dark:border-gray-700 dark:bg-gray-800">
+      {/* ---- Provider band: two-column, ink-on-dark right panel ---- */}
+      <section className="overflow-hidden rounded-xl2 border border-line bg-white shadow-card dark:border-gray-800 dark:bg-gray-900">
         <div className="grid md:grid-cols-2">
-          <div className="p-7 sm:p-8">
-            <p className="text-xs font-semibold uppercase tracking-widest text-accent">{t('providerEyebrow')}</p>
-            <h2 className="mt-2 font-display text-2xl font-bold">{t('providerCta')}</h2>
-            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{t('providerCtaSub')}</p>
-            <ul className="mt-5 space-y-2.5 text-sm">
+          <div className="p-7 sm:p-9">
+            <p className="text-xs font-bold uppercase tracking-wider text-primary">{t('providerEyebrow')}</p>
+            <h2 className="mt-2.5 font-display text-2xl font-extrabold tracking-tightest text-ink dark:text-gray-50">{t('providerCta')}</h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate">{t('providerCtaSub')}</p>
+            <ul className="mt-5 space-y-3 text-sm font-medium text-ink dark:text-gray-200">
               {[t('providerBenefit1'), t('providerBenefit2'), t('providerBenefit3')].map((b) => (
                 <li key={b} className="flex items-center gap-2.5">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent/15 text-accent">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden="true">
                       <path d="M20 6L9 17l-5-5" />
                     </svg>
@@ -127,15 +138,17 @@ export default async function HomePage({ params }: { params: { locale: string } 
             </ul>
             <a
               href={`/${locale}/login?intent=provider&next=/${locale}/provider/register`}
-              className="mt-6 inline-block rounded-base bg-accent px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+              className="mt-7 inline-block rounded-base bg-ink px-6 py-3 text-sm font-bold text-white transition-all duration-150 hover:bg-black active:translate-y-px dark:bg-primary dark:hover:bg-primary-700"
             >
               {t('providerButton')}
             </a>
           </div>
-          {/* Decorative accent panel (no external image needed) */}
-          <div className="relative hidden bg-gradient-to-br from-accent/15 to-primary/10 md:block">
+          {/* Dark accent panel with dot texture — echoes the hero. */}
+          <div className="relative hidden overflow-hidden bg-ink md:block">
+            <div className="pointer-events-none absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '20px 20px' }} aria-hidden="true" />
+            <div className="pointer-events-none absolute -bottom-16 -left-10 h-56 w-56 rounded-full bg-primary/30 blur-3xl" aria-hidden="true" />
             <div className="absolute inset-0 flex items-center justify-center">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="h-40 w-40 text-accent/40" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="h-40 w-40 text-white/20" aria-hidden="true">
                 <path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>

@@ -57,8 +57,8 @@ export default function CustomerDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-xl font-bold">{t('customerTitle')}</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">{t('customerSubtitle')}</p>
+        <h1 className="font-display text-xl font-bold text-ink dark:text-gray-50">{t('customerTitle')}</h1>
+        <p className="text-sm text-slate dark:text-gray-400">{t('customerSubtitle')}</p>
       </div>
 
       {err && <ErrorBanner message={err} />}
@@ -82,19 +82,19 @@ export default function CustomerDashboard() {
 
       {rewards && (
         <section>
-          <Card className="rounded-2xl">
+          <Card className="rounded-xl2">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('rewards')}</div>
+                <div className="text-[11px] font-medium uppercase tracking-wide text-slate dark:text-gray-400">{t('rewards')}</div>
                 <div className="text-2xl font-bold tabular-nums text-primary">⭐ {t('pointsBalance', { points: rewards.points })}</div>
               </div>
             </div>
             {rewards.ledger.length > 0 && (
               <div className="mt-3">
-                <div className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('recentActivity')}</div>
+                <div className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-slate dark:text-gray-400">{t('recentActivity')}</div>
                 <ul className="space-y-1 text-sm">
                   {rewards.ledger.slice(0, 3).map((e) => (
-                    <li key={e.id} className="flex items-center justify-between rounded-base bg-gray-50 px-3 py-1.5 dark:bg-gray-700">
+                    <li key={e.id} className="flex items-center justify-between rounded-base bg-surface px-3 py-1.5 dark:bg-gray-700">
                       <span className="capitalize text-gray-600 dark:text-gray-300">{e.reason.replace(/_/g, ' ')}</span>
                       <span className={`font-medium tabular-nums ${e.points >= 0 ? 'text-success' : 'text-danger'}`}>
                         {e.points >= 0 ? '+' : ''}{e.points}
@@ -112,13 +112,13 @@ export default function CustomerDashboard() {
 
       {favourites.length > 0 && (
         <section>
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate dark:text-gray-400">
             {t('favourites')}
           </h2>
           <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {favourites.map((f) => (
               <li key={f.providerId}>
-                <Card className="flex items-center gap-3 transition hover:border-primary">
+                <Card className="flex items-center gap-3 transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lift">
                   <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
                     {f.coverPhoto ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -129,7 +129,7 @@ export default function CustomerDashboard() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-medium">{f.businessName ?? t('service')}</div>
-                    <div className="text-xs text-gray-500">★ {f.ratingAvg.toFixed(1)}{f.ratingCount > 0 && ` (${f.ratingCount})`}</div>
+                    <div className="text-xs text-slate">★ {f.ratingAvg.toFixed(1)}{f.ratingCount > 0 && ` (${f.ratingCount})`}</div>
                   </div>
                   <a href={`/${locale}/providers/${f.providerId}`}>
                     <Button>{t('bookAgain')}</Button>
@@ -142,7 +142,7 @@ export default function CustomerDashboard() {
       )}
 
       <section>
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate dark:text-gray-400">
           {t('yourBookings')}
         </h2>
         {bookings === null && !err ? (
@@ -154,11 +154,11 @@ export default function CustomerDashboard() {
             {bookings?.map((b) => (
               <li key={b.id}>
                 <a href={`/${locale}/bookings/${b.id}`}>
-                  <Card className="transition hover:border-primary">
+                  <Card className="transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lift">
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <div className="truncate font-medium">{b.categoryKey ?? t('service')}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-slate dark:text-gray-400">
                           {new Date(b.created_at).toLocaleDateString()}
                         </div>
                       </div>

@@ -35,11 +35,11 @@ export default function ProviderJobsPage() {
       {jobs && jobs.length > 0 && (
         <div className="space-y-4">
           {jobs.map((j) => (
-            <Card key={j.id} className="space-y-4 rounded-2xl">
+            <Card key={j.id} className="space-y-4 rounded-xl2">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate font-medium capitalize">{j.categoryKey?.replace(/[._]/g, ' ') ?? t('service')}</p>
-                  <p className="mt-0.5 truncate text-xs text-gray-500">{j.description || '—'}</p>
+                  <p className="truncate font-medium capitalize text-ink dark:text-gray-50">{j.categoryKey?.replace(/[._]/g, ' ') ?? t('service')}</p>
+                  <p className="mt-0.5 truncate text-xs text-slate">{j.description || '—'}</p>
                 </div>
                 <StatusBadge status={j.status} />
               </div>

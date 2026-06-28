@@ -75,15 +75,15 @@ export default function AdminDistrictsPage() {
         subtitle={t('districts.subtitle')}
       />
 
-      <Card className="space-y-4 rounded-2xl">
-        <h2 className="font-semibold">{t('districts.addDistrict')}</h2>
+      <Card className="space-y-4">
+        <h2 className="font-display font-bold text-ink dark:text-gray-50">{t('districts.addDistrict')}</h2>
         <form onSubmit={add} className="space-y-4">
           <TrilingualNames state={names} autoFocus placeholder="e.g. Gampaha" />
           <Button disabled={busy} className="w-full sm:w-auto">{busy ? t('districts.adding') : t('districts.addDistrictButton')}</Button>
         </form>
       </Card>
 
-      <Card className="rounded-2xl bg-amber-50 text-sm text-amber-900 dark:bg-amber-900/20 dark:text-amber-200">
+      <Card className="border-l-4 border-l-primary text-sm text-slate">
         {t('districts.launchNote')}
       </Card>
 
@@ -101,7 +101,7 @@ export default function AdminDistrictsPage() {
           {districts?.map((d) => (
             <li
               key={d.id}
-              className="rounded-2xl border bg-white p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+              className="rounded-xl2 border border-line bg-white p-3 shadow-card dark:border-gray-800 dark:bg-gray-900"
             >
               {editing === d.id ? (
                 <form onSubmit={saveEdit} className="space-y-4">
@@ -113,10 +113,10 @@ export default function AdminDistrictsPage() {
                 </form>
               ) : (
                 <div className="flex items-center gap-2">
-                  <p className="min-w-0 flex-1 truncate font-medium">{d.name_en}</p>
+                  <p className="min-w-0 flex-1 truncate font-medium text-ink dark:text-gray-100">{d.name_en}</p>
                   <span
-                    className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-                      d.is_active ? 'bg-green-100 text-success' : 'bg-gray-100 text-gray-500'
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ring-1 ring-inset ${
+                      d.is_active ? 'bg-green-50 text-success ring-green-200' : 'bg-slate/10 text-slate ring-slate/20'
                     }`}
                   >
                     {d.is_active ? t('districts.active') : t('districts.inactive')}

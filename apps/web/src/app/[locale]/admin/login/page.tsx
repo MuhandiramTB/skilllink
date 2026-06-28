@@ -27,22 +27,22 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-sm">
         {/* Brand mark above the card — anchors the screen like real auth pages. */}
         <div className="mb-6 text-center">
-          <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-lg font-bold text-white shadow-sm">SL</span>
-          <h1 className="mt-3 font-display text-xl font-bold">Staff sign in</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Authorized personnel only.</p>
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl2 bg-primary text-lg font-bold text-white shadow-card">SL</span>
+          <h1 className="mt-3 font-display text-2xl font-bold text-ink dark:text-gray-50">Staff sign in</h1>
+          <p className="mt-1 text-sm text-slate">Authorized personnel only.</p>
         </div>
 
-        <div className="rounded-2xl border bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="rounded-xl2 border border-line bg-white p-6 shadow-card dark:border-gray-800 dark:bg-gray-900">
           <form onSubmit={signIn} className="space-y-4">
             <div>
-              <label htmlFor="admin-phone" className="mb-1.5 block text-sm font-medium">Mobile number</label>
+              <label htmlFor="admin-phone" className="mb-1.5 block text-sm font-semibold text-ink dark:text-gray-200">Mobile number</label>
               <input
                 id="admin-phone"
                 autoFocus
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 inputMode="tel"
-                className="w-full rounded-base border px-3 py-2.5 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 dark:border-gray-600 dark:bg-gray-900"
+                className="w-full rounded-base border border-line bg-white px-3.5 py-2.5 text-ink transition-colors placeholder:text-slate/60 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                 placeholder="+94 77 123 4567"
               />
             </div>
@@ -55,7 +55,7 @@ export default function AdminLoginPage() {
         </div>
 
         <div className="mt-5 text-center">
-          <p className="flex items-center justify-center gap-1.5 text-xs text-gray-400">
+          <p className="flex items-center justify-center gap-1.5 text-xs text-slate">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true">
               <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" />
             </svg>

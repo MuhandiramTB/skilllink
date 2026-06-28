@@ -9,8 +9,8 @@ import { PageHeader, Card, Button, Spinner, EmptyState, ErrorBanner, SuccessBann
 function Detail({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="min-w-0">
-      <dt className="text-[11px] font-medium uppercase tracking-wide text-gray-400">{label}</dt>
-      <dd className="truncate font-medium">{value ?? '—'}</dd>
+      <dt className="text-[11px] font-semibold uppercase tracking-wider text-slate">{label}</dt>
+      <dd className="truncate font-medium text-ink dark:text-gray-100">{value ?? '—'}</dd>
     </div>
   );
 }
@@ -21,7 +21,7 @@ function DocImage({ src, type }: { src: string; type: string }) {
   const [broken, setBroken] = useState(false);
   if (broken || !src) {
     return (
-      <div className="flex h-28 w-full items-center justify-center bg-gray-100 text-xs text-gray-400 dark:bg-gray-800">
+      <div className="flex h-28 w-full items-center justify-center bg-surface text-xs text-slate dark:bg-gray-800">
         no preview
       </div>
     );
@@ -70,22 +70,22 @@ export default function AdminVerificationsPage() {
       ) : (
         <ul className="space-y-3">
           {queue?.map((p) => (
-            <Card key={p.providerId} className="rounded-2xl">
+            <Card key={p.providerId}>
               <li className="list-none space-y-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="truncate font-semibold">{p.businessName ?? p.fullName ?? t('verifications.noName')}</p>
+                      <p className="truncate font-semibold text-ink dark:text-gray-100">{p.businessName ?? p.fullName ?? t('verifications.noName')}</p>
                       <StatusBadge status={p.status} />
                     </div>
                     {p.fullName && p.businessName && (
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{p.fullName}</p>
+                      <p className="text-sm text-slate">{p.fullName}</p>
                     )}
                   </div>
                 </div>
 
                 {/* Full provider details for review */}
-                <dl className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-base bg-gray-50 p-3 text-sm dark:bg-gray-900/40 sm:grid-cols-3">
+                <dl className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-base bg-surface p-3 text-sm dark:bg-gray-800/40 sm:grid-cols-3">
                   <Detail label={t('verifications.phone')} value={p.phone} />
                   <Detail label={t('verifications.email')} value={p.email} />
                   <Detail label={t('verifications.district')} value={p.district} />
@@ -97,11 +97,11 @@ export default function AdminVerificationsPage() {
                 </dl>
 
                 <div>
-                  <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate">
                     {t('verifications.documents')}
                   </p>
                   {p.documents.length === 0 ? (
-                    <p className="text-xs text-gray-400">{t('verifications.none')}</p>
+                    <p className="text-xs text-slate">{t('verifications.none')}</p>
                   ) : (
                     <>
                       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -111,16 +111,16 @@ export default function AdminVerificationsPage() {
                             href={d.media_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="group block overflow-hidden rounded-base border bg-gray-50 transition hover:border-primary dark:border-gray-700 dark:bg-gray-900"
+                            className="group block overflow-hidden rounded-base border border-line bg-surface transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lift dark:border-gray-800 dark:bg-gray-900"
                           >
                             <DocImage src={d.media_url} type={d.type} />
-                            <span className="block truncate px-2 py-1.5 text-xs font-medium capitalize text-gray-600 group-hover:text-primary dark:text-gray-300">
+                            <span className="block truncate px-2 py-1.5 text-xs font-medium capitalize text-slate group-hover:text-primary dark:text-gray-300">
                               {d.type}
                             </span>
                           </a>
                         ))}
                       </div>
-                      <p className="mt-1.5 text-xs text-gray-400">{t('verifications.viewFull')}</p>
+                      <p className="mt-1.5 text-xs text-slate">{t('verifications.viewFull')}</p>
                     </>
                   )}
                 </div>

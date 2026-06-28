@@ -60,7 +60,7 @@ export default function ProviderProfilePage() {
       )}
 
       <section>
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('workPhotos')}</h2>
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate dark:text-gray-400">{t('workPhotos')}</h2>
         {provider.photos.length === 0 ? (
           <EmptyState>{t('noWorkPhotosPublic')}</EmptyState>
         ) : (
@@ -70,7 +70,7 @@ export default function ProviderProfilePage() {
                 key={ph.id}
                 type="button"
                 onClick={() => setLightbox(ph.url)}
-                className="aspect-square overflow-hidden rounded-base border border-gray-200 transition hover:opacity-90 dark:border-gray-700"
+                className="aspect-square overflow-hidden rounded-base border border-line transition hover:opacity-90 dark:border-gray-700"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={ph.url} alt={ph.caption ?? t('workPhotos')} className="h-full w-full object-cover" />

@@ -45,7 +45,7 @@ function NavBody({ onNavigate }: { onNavigate?: () => void }) {
       <div className="px-1"><ModeSwitch /></div>
       {nav.groups.map((g) => (
         <div key={g.titleKey}>
-          <p className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400">{t(g.titleKey)}</p>
+          <p className="mb-1.5 px-3 text-[11px] font-bold uppercase tracking-wider text-slate">{t(g.titleKey)}</p>
           <ul className="space-y-0.5">
             {g.items.map((it) => {
               const href = `/${locale}${it.path}`;
@@ -56,10 +56,10 @@ function NavBody({ onNavigate }: { onNavigate?: () => void }) {
                     href={href}
                     onClick={onNavigate}
                     aria-current={active ? 'page' : undefined}
-                    className={`flex min-h-[44px] items-center gap-3 rounded-base px-3 text-sm transition ${
+                    className={`relative flex min-h-[44px] items-center gap-3 rounded-base px-3 text-sm font-medium transition-colors ${
                       active
-                        ? 'bg-primary/10 font-medium text-primary dark:bg-primary/20'
-                        : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                        ? 'bg-primary/10 font-semibold text-primary before:absolute before:-left-0.5 before:top-1/2 before:h-5 before:w-1 before:-translate-y-1/2 before:rounded-full before:bg-primary dark:bg-primary/15'
+                        : 'text-slate hover:bg-surface hover:text-ink dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100'
                     }`}
                   >
                     {ICONS[it.icon]}
@@ -72,10 +72,10 @@ function NavBody({ onNavigate }: { onNavigate?: () => void }) {
         </div>
       ))}
       {canBecomeProvider && (
-        <div className="border-t pt-4 dark:border-gray-700">
+        <div className="border-t border-line pt-4 dark:border-gray-800">
           <button
             onClick={() => { onNavigate?.(); void goProvider(); }}
-            className="flex min-h-[44px] w-full items-center gap-3 rounded-base bg-accent/10 px-3 text-sm font-medium text-accent transition hover:bg-accent/20"
+            className="flex min-h-[44px] w-full items-center gap-3 rounded-base bg-primary/10 px-3 text-sm font-semibold text-primary transition hover:bg-primary/20"
           >
             {ICONS.briefcase}
             <span>{t('becomeProvider')}</span>
@@ -84,7 +84,7 @@ function NavBody({ onNavigate }: { onNavigate?: () => void }) {
       )}
       <button
         onClick={() => { clearToken(); window.location.href = `/${locale}`; }}
-        className="flex min-h-[44px] w-full items-center gap-3 rounded-base px-3 text-sm text-gray-500 hover:bg-gray-100 hover:text-danger dark:hover:bg-gray-800"
+        className="flex min-h-[44px] w-full items-center gap-3 rounded-base px-3 text-sm font-medium text-slate transition-colors hover:bg-surface hover:text-danger dark:hover:bg-gray-800"
       >
         {ICONS.user}
         <span>{t('signOut')}</span>
@@ -103,7 +103,7 @@ export function AppSidebar() {
   }, []);
   if (!authed) return null;
   return (
-    <aside className="hidden w-60 shrink-0 border-r p-4 md:block dark:border-gray-700">
+    <aside className="hidden w-60 shrink-0 border-r border-line p-4 md:block dark:border-gray-800">
       <NavBody />
     </aside>
   );

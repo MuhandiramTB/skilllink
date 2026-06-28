@@ -30,10 +30,10 @@ export default function BookingsListPage() {
         <div className="space-y-4">
           {items.map((b) => (
             <a key={b.id} href={`/${locale}/bookings/${b.id}`} className="block">
-              <Card className="flex items-center justify-between gap-3 rounded-2xl transition hover:border-primary hover:shadow-md">
+              <Card className="flex items-center justify-between gap-3 rounded-xl2 transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lift">
                 <div className="min-w-0">
                   <p className="truncate font-medium capitalize">{b.categoryKey?.replace(/[._]/g, ' ') ?? t('service')}</p>
-                  <p className="mt-0.5 truncate text-xs text-gray-500">
+                  <p className="mt-0.5 truncate text-xs text-slate">
                     {b.description || '—'} · {new Date(b.created_at).toLocaleDateString()}
                   </p>
                 </div>

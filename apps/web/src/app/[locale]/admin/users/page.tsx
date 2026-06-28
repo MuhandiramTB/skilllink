@@ -41,7 +41,7 @@ export default function AdminUsersPage() {
         subtitle={t('users.subtitle')}
       />
 
-      <Card className="rounded-2xl">
+      <Card>
         <form
           onSubmit={(e) => { e.preventDefault(); void load(search); }}
           className="flex flex-col gap-3 sm:flex-row sm:items-end"
@@ -71,11 +71,11 @@ export default function AdminUsersPage() {
         <ul className="space-y-3">
           {users.map((u) => (
             <li key={u.id}>
-              <Card className="rounded-2xl">
+              <Card>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
-                    <p className="truncate font-medium tabular-nums">{u.phone}</p>
-                    <p className="mt-1 flex items-center gap-2 text-xs text-gray-500">
+                    <p className="truncate font-semibold tabular-nums text-ink dark:text-gray-100">{u.phone}</p>
+                    <p className="mt-1 flex items-center gap-2 text-xs text-slate">
                       <StatusBadge status={u.role} />
                       {!u.is_active && <span className="font-medium text-danger">{t('users.suspended')}</span>}
                     </p>

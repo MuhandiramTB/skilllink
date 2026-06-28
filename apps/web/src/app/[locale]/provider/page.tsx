@@ -72,7 +72,7 @@ export default function ProviderPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-semibold">{t('provider')}</h1>
+      <h1 className="font-display text-xl font-bold text-ink dark:text-gray-50">{t('provider')}</h1>
       {err && <p className="rounded-base bg-red-50 p-2 text-sm text-danger">{err}</p>}
       {msg && <p className="rounded-base bg-green-50 p-2 text-sm text-success">{msg}</p>}
 
@@ -82,49 +82,49 @@ export default function ProviderPage() {
         </button>
       ) : (
         <div className="space-y-4">
-          <div className="rounded-base border bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-            <p>{t('statusLabel')}: <b className={me.status === 'approved' ? 'text-success' : 'text-accent'}>{me.status}</b></p>
-            <p className="text-sm text-gray-600">{t('categoriesSet', { categories: me.categories, documents: me.verifications.length })}</p>
-            <button onClick={toggleAvail} className={`mt-2 rounded-base px-3 py-1 text-sm ${me.isAvailable ? 'bg-success text-white' : 'bg-gray-200'}`}>
+          <div className="rounded-base border border-line bg-white p-4 shadow-card dark:border-gray-800 dark:bg-gray-900">
+            <p>{t('statusLabel')}: <b className={me.status === 'approved' ? 'text-success' : 'text-primary'}>{me.status}</b></p>
+            <p className="text-sm text-slate">{t('categoriesSet', { categories: me.categories, documents: me.verifications.length })}</p>
+            <button onClick={toggleAvail} className={`mt-2 rounded-base px-3 py-1 text-sm ${me.isAvailable ? 'bg-success text-white' : 'bg-surface text-ink'}`}>
               {me.isAvailable ? t('available') : t('setAvailable')}
             </button>
           </div>
 
           <div className="grid grid-cols-1 gap-3">
-            <a href={`provider/jobs`} className="rounded-base border bg-white p-4 hover:border-primary dark:border-gray-700 dark:bg-gray-800">
+            <a href={`provider/jobs`} className="rounded-base border border-line bg-white p-4 shadow-card transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lift dark:border-gray-800 dark:bg-gray-900">
               <p className="text-2xl font-semibold text-primary">{earnings?.paidJobs ?? 0}</p>
-              <p className="text-xs text-gray-500">{t('viewAllJobs')}</p>
+              <p className="text-xs text-slate">{t('viewAllJobs')}</p>
             </a>
           </div>
 
-          <div className="rounded-base border bg-white p-4 space-y-2 dark:border-gray-700 dark:bg-gray-800">
-            <h2 className="font-medium">{t('sectionIdentity')}</h2>
+          <div className="rounded-base border border-line bg-white p-4 space-y-2 shadow-card dark:border-gray-800 dark:bg-gray-900">
+            <h2 className="font-display font-bold text-ink dark:text-gray-50">{t('sectionIdentity')}</h2>
             <div className="flex flex-wrap gap-2">
               {['nic', 'selfie', 'certificate'].map((docType) => (
-                <button key={docType} onClick={() => uploadDoc(docType)} className="rounded-base border px-3 py-1 text-sm hover:border-primary">
+                <button key={docType} onClick={() => uploadDoc(docType)} className="rounded-base border border-line px-3 py-1 text-sm transition-all hover:border-primary">
                   {t('uploadDoc', { type: docType })}
                 </button>
               ))}
             </div>
-            <ul className="text-xs text-gray-600">
+            <ul className="text-xs text-slate">
               {me.verifications.map((v, i) => <li key={i}>{v.type}: {v.status}</li>)}
             </ul>
           </div>
 
-          <div className="rounded-base border bg-white p-4 space-y-2 dark:border-gray-700 dark:bg-gray-800">
-            <h2 className="font-medium">{t('sectionCategory')}</h2>
+          <div className="rounded-base border border-line bg-white p-4 space-y-2 shadow-card dark:border-gray-800 dark:bg-gray-900">
+            <h2 className="font-display font-bold text-ink dark:text-gray-50">{t('sectionCategory')}</h2>
             <div className="flex flex-wrap gap-2">
               {cats.map((c) => (
-                <button key={c.id} onClick={() => pickCategory(c.id)} className="rounded-base border px-3 py-1 text-sm hover:border-primary">
+                <button key={c.id} onClick={() => pickCategory(c.id)} className="rounded-base border border-line px-3 py-1 text-sm transition-all hover:border-primary">
                   {c.name.en}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="rounded-base border bg-white p-4 space-y-2 dark:border-gray-700 dark:bg-gray-800">
-            <h2 className="font-medium">{t('sectionServiceArea')}</h2>
-            <button onClick={setArea} className="rounded-base border px-3 py-1 text-sm hover:border-primary">
+          <div className="rounded-base border border-line bg-white p-4 space-y-2 shadow-card dark:border-gray-800 dark:bg-gray-900">
+            <h2 className="font-display font-bold text-ink dark:text-gray-50">{t('sectionServiceArea')}</h2>
+            <button onClick={setArea} className="rounded-base border border-line px-3 py-1 text-sm transition-all hover:border-primary">
               {t('setAreaKandy')}
             </button>
           </div>
@@ -141,7 +141,7 @@ export default function ProviderPage() {
       {me && me.status === 'approved' && (
         <button
           onClick={toggleAvail}
-          className={`fixed bottom-20 left-1/2 z-20 -translate-x-1/2 rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition ${
+          className={`fixed bottom-20 left-1/2 z-20 -translate-x-1/2 rounded-full px-6 py-3 text-sm font-semibold shadow-lift transition ${
             me.isAvailable ? 'bg-success text-white' : 'bg-primary text-white'
           }`}
         >

@@ -98,8 +98,8 @@ export default function AdminCategoriesPage() {
       {err && <ErrorBanner message={err} />}
 
       {/* Simple add: just a name + where it goes. */}
-      <Card className="space-y-4 rounded-2xl">
-        <h2 className="font-semibold">{t('categories.addService')}</h2>
+      <Card className="space-y-4">
+        <h2 className="font-display font-bold text-ink dark:text-gray-50">{t('categories.addService')}</h2>
         <form onSubmit={add} className="space-y-4 sm:flex sm:items-end sm:gap-3 sm:space-y-0">
           <Field label={t('categories.name')}>
             <input autoFocus value={name} onChange={(e) => setName(e.target.value)} className={inputCls} placeholder="e.g. Electrician" />
@@ -123,22 +123,22 @@ export default function AdminCategoriesPage() {
         {tops.map((cat) => {
           const subs = subsByParent(cat.id);
           return (
-            <Card key={cat.id} className="space-y-3 rounded-2xl">
+            <Card key={cat.id} className="space-y-3">
               {editing === cat.id ? editRow : (
                 <div className="flex items-center gap-2">
-                  <p className="min-w-0 flex-1 truncate font-semibold">{cat.name_en}</p>
+                  <p className="min-w-0 flex-1 truncate font-semibold text-ink dark:text-gray-100">{cat.name_en}</p>
                   <StatusPill active={cat.is_active} t={t} />
                   <RowActions c={cat} t={t} onEdit={openEdit} onToggle={toggle} onDelete={setConfirmTarget} />
                 </div>
               )}
 
               {subs.length > 0 && (
-                <ul className="space-y-2 border-t pt-3 dark:border-gray-700">
+                <ul className="space-y-2 border-t border-line pt-3 dark:border-gray-800">
                   {subs.map((sub) => (
-                    <li key={sub.id} className="rounded-base bg-gray-50 px-3 py-2 dark:bg-gray-700/40">
+                    <li key={sub.id} className="rounded-base bg-surface px-3 py-2 dark:bg-gray-800/40">
                       {editing === sub.id ? editRow : (
                         <div className="flex items-center gap-2">
-                          <p className="min-w-0 flex-1 truncate text-sm font-medium">↳ {sub.name_en}</p>
+                          <p className="min-w-0 flex-1 truncate text-sm font-medium text-ink dark:text-gray-200">↳ {sub.name_en}</p>
                           <StatusPill active={sub.is_active} t={t} />
                           <RowActions c={sub} t={t} onEdit={openEdit} onToggle={toggle} onDelete={setConfirmTarget} small />
                         </div>
@@ -168,7 +168,7 @@ export default function AdminCategoriesPage() {
 
 function StatusPill({ active, t }: { active: boolean; t: (k: string) => string }) {
   return (
-    <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${active ? 'bg-green-100 text-success' : 'bg-gray-100 text-gray-500'}`}>
+    <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${active ? 'bg-green-50 text-success ring-1 ring-inset ring-green-200' : 'bg-slate/10 text-slate ring-1 ring-inset ring-slate/20'}`}>
       {active ? t('categories.active') : t('categories.hidden')}
     </span>
   );

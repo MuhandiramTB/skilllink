@@ -39,7 +39,7 @@ export function AppMobileMenu() {
         onClick={() => setOpen(true)}
         aria-label="Open menu"
         aria-expanded={open}
-        className="-ml-1 flex h-9 w-9 items-center justify-center rounded-base text-gray-600 hover:bg-gray-100 md:hidden dark:text-gray-300 dark:hover:bg-gray-800"
+        className="-ml-1 flex h-9 w-9 items-center justify-center rounded-base text-ink transition-colors hover:bg-surface md:hidden dark:text-gray-200 dark:hover:bg-gray-800"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-6 w-6" aria-hidden="true">
           <path d="M3 6h18M3 12h18M3 18h18" />
@@ -55,14 +55,14 @@ export function AppMobileMenu() {
           <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} aria-hidden="true" />
           {/* Panel — explicit viewport height (h-dvh) so it never collapses to the
               header height regardless of positioned ancestors in the app shell. */}
-          <div className="relative z-10 flex h-dvh w-72 max-w-[80%] flex-col bg-white shadow-xl dark:bg-gray-900">
-            <div className="flex items-center justify-between border-b px-4 py-3 dark:border-gray-700">
-              <span className="font-display text-lg font-bold text-primary">SkillLink</span>
+          <div className="relative z-10 flex h-dvh w-72 max-w-[80%] flex-col bg-white shadow-lift dark:bg-gray-900">
+            <div className="flex items-center justify-between border-b border-line px-4 py-3 dark:border-gray-800">
+              <span className="font-display text-lg font-extrabold tracking-tightest text-ink dark:text-white">Skill<span className="text-primary">Link</span></span>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close menu"
-                className="flex h-9 w-9 items-center justify-center rounded-base text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="flex h-9 w-9 items-center justify-center rounded-base text-slate transition-colors hover:bg-surface hover:text-ink dark:hover:bg-gray-800 dark:hover:text-white"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-5 w-5" aria-hidden="true">
                   <path d="M18 6L6 18M6 6l12 12" />

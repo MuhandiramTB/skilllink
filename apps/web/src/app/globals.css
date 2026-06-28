@@ -7,11 +7,21 @@
 }
 
 body {
-  @apply bg-gray-50 text-gray-900 antialiased dark:bg-gray-950 dark:text-gray-100;
+  /* Cool off-white ground (surface), near-black ink text. */
+  @apply bg-surface text-ink antialiased dark:bg-[#0B0D12] dark:text-gray-100;
+  font-feature-settings: 'cv05', 'ss01';
 }
 
-/* Mobile-first: form controls must be >=16px or iOS Safari zooms the page on focus.
-   Applies on touch/small screens; desktop can use the smaller text-sm where set. */
+/* Display face for headings — confident, tight tracking on the big sizes. */
+h1, h2, h3, .font-display {
+  font-family: var(--font-display), system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* Tabular numerals everywhere digits line up (money, stats, counts). */
+.tabular-nums { font-variant-numeric: tabular-nums; }
+
+/* Mobile-first: form controls must be >=16px or iOS Safari zooms on focus. */
 @media (max-width: 767px) {
   input,
   textarea,
@@ -20,12 +30,28 @@ body {
   }
 }
 
+/* Visible keyboard focus — accessible and on-brand (electric blue ring). */
+:focus-visible {
+  outline: 2px solid #1D4ED8;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
 /* Dark-aware form controls so we don't repeat dark: on every input. */
 .dark input,
 .dark textarea,
 .dark select {
-  @apply border-gray-600 bg-gray-800 text-gray-100 placeholder:text-gray-500;
+  @apply border-gray-700 bg-gray-900 text-gray-100 placeholder:text-gray-500;
 }
 
 /* Chat bubbles + neutral chips adapt in dark mode. */
-.dark .bg-gray-50 { @apply bg-gray-700; }
+.dark .bg-gray-50 { @apply bg-gray-800; }
+.dark .bg-surface { @apply bg-[#0B0D12]; }
+
+/* Respect reduced-motion preferences for all transitions/animations. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

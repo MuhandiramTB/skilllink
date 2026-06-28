@@ -44,24 +44,24 @@ export default function ReferralCard() {
 
   return (
     <section>
-      <Card className="rounded-2xl">
-        <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('referFriends')}</div>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+      <Card className="rounded-xl2">
+        <div className="text-[11px] font-medium uppercase tracking-wide text-slate">{t('referFriends')}</div>
+        <p className="mt-1 text-sm text-slate dark:text-gray-300">
           {t('referExplainer', { referrer: info.referrerPoints, referee: info.refereePoints })}
         </p>
 
         {info.code && (
           <div className="mt-3 flex items-center gap-2">
-            <code className="flex-1 rounded-base border bg-gray-50 px-3 py-2 text-center text-lg font-bold tracking-widest text-primary dark:border-gray-600 dark:bg-gray-900">
+            <code className="flex-1 rounded-base border border-line bg-surface px-3 py-2 text-center text-lg font-bold tracking-widest text-primary dark:border-gray-700 dark:bg-gray-900">
               {info.code}
             </code>
             <Button variant="ghost" onClick={copy}>{copied ? t('copied') : t('copy')}</Button>
           </div>
         )}
 
-        <p className="mt-2 text-xs text-gray-400">{t('referredCount', { count: info.referredCount })}</p>
+        <p className="mt-2 text-xs text-slate">{t('referredCount', { count: info.referredCount })}</p>
 
-        <div className="mt-4 border-t border-gray-100 pt-3 dark:border-gray-700">
+        <div className="mt-4 border-t border-line pt-3 dark:border-gray-800">
           <label className="mb-1.5 block text-sm font-medium">{t('haveACode')}</label>
           <div className="flex gap-2">
             <input

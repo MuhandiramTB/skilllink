@@ -44,8 +44,8 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-xl font-bold">{t('adminOverview')}</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">{t('platformHealth')}</p>
+        <h1 className="font-display text-2xl font-bold text-ink dark:text-gray-50">{t('adminOverview')}</h1>
+        <p className="mt-1 text-sm text-slate">{t('platformHealth')}</p>
       </div>
 
       {err && <ErrorBanner message={err} />}
@@ -66,7 +66,7 @@ export default function AdminDashboard() {
           </div>
 
           <section>
-            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate">
               {t('bookingsByStatus')}
             </h2>
             {byStatus.length === 0 ? (
@@ -77,10 +77,10 @@ export default function AdminDashboard() {
                   {byStatus.map(([status, count]) => (
                     <li key={status}>
                       <div className="mb-1 flex items-center justify-between text-xs">
-                        <span className="capitalize">{status.replace(/_/g, ' ')}</span>
-                        <span className="tabular-nums font-medium">{count}</span>
+                        <span className="capitalize text-ink dark:text-gray-200">{status.replace(/_/g, ' ')}</span>
+                        <span className="tabular-nums font-semibold text-ink dark:text-gray-100">{count}</span>
                       </div>
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-surface dark:bg-gray-800">
                         <div
                           className="h-full rounded-full bg-primary"
                           style={{ width: `${(count / maxStatus) * 100}%` }}
@@ -94,13 +94,13 @@ export default function AdminDashboard() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate">
               {t('manage')}
             </h2>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {QUICK_LINKS.map((l) => (
                 <a key={l.path} href={`/${locale}${l.path}`}>
-                  <Card className="text-center text-sm font-medium transition hover:border-primary">{tNav(l.navKey)}</Card>
+                  <Card className="text-center text-sm font-semibold text-ink transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lift dark:text-gray-100">{tNav(l.navKey)}</Card>
                 </a>
               ))}
             </div>

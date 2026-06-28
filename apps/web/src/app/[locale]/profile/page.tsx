@@ -110,8 +110,8 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="font-display text-2xl font-bold">{t('title')}</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">{t('subtitle')}</p>
+        <h1 className="font-display text-2xl font-bold text-ink dark:text-gray-50">{t('title')}</h1>
+        <p className="text-sm text-slate dark:text-gray-400">{t('subtitle')}</p>
       </header>
 
       {ok && <SuccessBanner message={ok} />}
@@ -119,7 +119,7 @@ export default function ProfilePage() {
 
       {/* Photo */}
       <Card className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">{t('photo')}</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate">{t('photo')}</h2>
         <div className="flex items-center gap-4">
           <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-xl font-bold text-primary dark:bg-primary/20">
             {avatarUrl ? (
@@ -134,7 +134,7 @@ export default function ProfilePage() {
             )}
           </div>
           <div className="flex flex-wrap gap-2">
-            <label className="cursor-pointer rounded-base border px-4 py-2 text-sm font-medium transition hover:border-primary dark:border-gray-600">
+            <label className="cursor-pointer rounded-base border border-line px-4 py-2 text-sm font-medium transition hover:border-primary dark:border-gray-600">
               {uploading ? t('saving') : t('changePhoto')}
               <input type="file" accept="image/*" className="hidden" onChange={onPickAvatar} disabled={uploading} />
             </label>
@@ -142,7 +142,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={async () => { setAvatarUrl(null); await removeAvatar().catch(() => {}); }}
-                className="rounded-base px-4 py-2 text-sm text-gray-500 hover:text-danger"
+                className="rounded-base px-4 py-2 text-sm text-slate hover:text-danger"
               >
                 {t('removePhoto')}
               </button>
@@ -153,22 +153,22 @@ export default function ProfilePage() {
 
       {/* Details */}
       <Card className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">{t('details')}</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate">{t('details')}</h2>
         <form onSubmit={save} className="space-y-4">
           <label className="block">
             <span className="mb-1 block text-sm font-medium">{t('fullName')}</span>
             <input value={fullName} onChange={(e) => setFullName(e.target.value)}
-              className="w-full rounded-base border px-3 py-2.5 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:border-gray-600 dark:bg-gray-900" />
+              className="w-full rounded-base border border-line px-3 py-2.5 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:border-gray-600 dark:bg-gray-900" />
           </label>
           <label className="block">
             <span className="mb-1 block text-sm font-medium">{t('emailOptional')}</span>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
-              className="w-full rounded-base border px-3 py-2.5 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:border-gray-600 dark:bg-gray-900" />
+              className="w-full rounded-base border border-line px-3 py-2.5 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:border-gray-600 dark:bg-gray-900" />
           </label>
           <label className="block">
             <span className="mb-1 block text-sm font-medium">{t('district')}</span>
             <select value={districtId} onChange={(e) => setDistrictId(e.target.value)}
-              className="w-full rounded-base border px-3 py-2.5 dark:border-gray-600 dark:bg-gray-900">
+              className="w-full rounded-base border border-line px-3 py-2.5 dark:border-gray-600 dark:bg-gray-900">
               <option value="">{t('selectDistrict')}</option>
               {districts.map((d) => <option key={d.id} value={d.id}>{d[`name_${language}` as 'name_en'] ?? d.name_en}</option>)}
             </select>
@@ -176,7 +176,7 @@ export default function ProfilePage() {
           <label className="block">
             <span className="mb-1 block text-sm font-medium">{t('language')}</span>
             <select value={language} onChange={(e) => setLanguage(e.target.value as 'si' | 'ta' | 'en')}
-              className="w-full rounded-base border px-3 py-2.5 dark:border-gray-600 dark:bg-gray-900">
+              className="w-full rounded-base border border-line px-3 py-2.5 dark:border-gray-600 dark:bg-gray-900">
               <option value="en">English</option>
               <option value="si">සිංහල</option>
               <option value="ta">தமிழ்</option>
@@ -191,14 +191,14 @@ export default function ProfilePage() {
 
       {/* Preferences: theme */}
       <Card className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">{t('preferences')}</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate">{t('preferences')}</h2>
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium">{t('theme')}</span>
           <div className="flex gap-1 rounded-base bg-gray-100 p-0.5 dark:bg-gray-800">
             {(['light', 'dark'] as Theme[]).map((m) => (
               <button key={m} type="button" onClick={() => applyTheme(m)}
                 aria-pressed={theme === m}
-                className={`rounded-base px-3 py-1 text-sm font-medium transition ${theme === m ? 'bg-white text-primary shadow-sm dark:bg-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>
+                className={`rounded-base px-3 py-1 text-sm font-medium transition ${theme === m ? 'bg-white text-primary shadow-sm dark:bg-gray-700' : 'text-slate dark:text-gray-400'}`}>
                 {m === 'light' ? t('themeLight') : t('themeDark')}
               </button>
             ))}
@@ -208,7 +208,7 @@ export default function ProfilePage() {
 
       {/* Notifications */}
       <Card className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">{t('notifications')}</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate">{t('notifications')}</h2>
         {([['bookings', t('notifyBookings')], ['messages', t('notifyMessages')], ['promos', t('notifyPromos')]] as const).map(([key, label]) => (
           <label key={key} className="flex items-center justify-between py-1">
             <span className="text-sm">{label}</span>
@@ -228,12 +228,12 @@ export default function ProfilePage() {
 
       {/* Account & security */}
       <Card className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">{t('account')}</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate">{t('account')}</h2>
         <dl className="space-y-2 text-sm">
-          <div className="flex justify-between"><dt className="text-gray-500">{t('phone')}</dt><dd className="font-medium tabular-nums">{me.phone}</dd></div>
-          <div className="flex justify-between"><dt className="text-gray-500">{t('memberSince')}</dt><dd>{new Date(me.createdAt).toLocaleDateString()}</dd></div>
+          <div className="flex justify-between"><dt className="text-slate">{t('phone')}</dt><dd className="font-medium tabular-nums">{me.phone}</dd></div>
+          <div className="flex justify-between"><dt className="text-slate">{t('memberSince')}</dt><dd>{new Date(me.createdAt).toLocaleDateString()}</dd></div>
           <div className="flex items-center justify-between">
-            <dt className="text-gray-500">{t('roles')}</dt>
+            <dt className="text-slate">{t('roles')}</dt>
             <dd className="flex gap-1.5">
               {me.roles.map((r) => (
                 <span key={r} className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary dark:bg-primary/20">{ROLE_LABEL[r]}</span>
@@ -241,7 +241,7 @@ export default function ProfilePage() {
             </dd>
           </div>
         </dl>
-        <div className="flex flex-wrap gap-2 border-t pt-3 dark:border-gray-700">
+        <div className="flex flex-wrap gap-2 border-t border-line pt-3 dark:border-gray-700">
           <Button variant="ghost" onClick={() => { clearToken(); window.location.href = `/${locale}`; }}>{t('signOut')}</Button>
           <button
             onClick={async () => { await logoutAllDevices(); window.location.href = `/${locale}`; }}

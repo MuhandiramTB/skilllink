@@ -91,7 +91,7 @@ export default function CategoryBookingPage() {
       {err && <ErrorBanner message={err} />}
 
       {!bookingId && (
-        <Card className="space-y-4 rounded-2xl">
+        <Card className="space-y-4 rounded-xl2">
           <Field label={t('needHelpWith')}>
             <textarea value={desc} onChange={(e) => setDesc(e.target.value)} placeholder={t('describePlaceholder')}
               className={inputCls} rows={3} />
@@ -104,9 +104,9 @@ export default function CategoryBookingPage() {
       {bookingId && (
         <div className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('chooseProvider')}</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate dark:text-gray-400">{t('chooseProvider')}</h2>
             {matches.length > 1 && (
-              <label className="flex items-center gap-1.5 text-xs text-gray-500">
+              <label className="flex items-center gap-1.5 text-xs text-slate">
                 {t('sortBy')}
                 <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} className={`${inputCls} w-auto py-1 text-xs`}>
                   <option value="best">{t('sortBest')}</option>
@@ -118,7 +118,7 @@ export default function CategoryBookingPage() {
           </div>
           {matches.length === 0 && <EmptyState>{t('noProvidersNearby')}</EmptyState>}
           {sortedMatches.map((m) => (
-            <Card key={m.provider_id} className="flex items-center gap-3 rounded-2xl">
+            <Card key={m.provider_id} className="flex items-center gap-3 rounded-xl2">
               {/* Work-photo thumbnail (spec 12): the strongest trust signal. */}
               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
                 {m.cover_photo ? (
@@ -142,9 +142,9 @@ export default function CategoryBookingPage() {
                     </span>
                   )}
                 </div>
-                <p className="mt-0.5 text-xs text-gray-500">
+                <p className="mt-0.5 text-xs text-slate">
                   {(m.distance_m / 1000).toFixed(1)} km · ★ {m.rating_avg.toFixed(1)}
-                  {m.rating_count > 0 && <span className="text-gray-400"> ({m.rating_count})</span>}
+                  {m.rating_count > 0 && <span className="text-slate"> ({m.rating_count})</span>}
                 </p>
                 {m.photo_count > 0 && (
                   <p className="mt-0.5 text-[11px] text-primary">{t('photosCount', { count: m.photo_count })}</p>

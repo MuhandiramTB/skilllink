@@ -21,7 +21,7 @@ export default function AdminSettingsPage() {
         subtitle={t('settings.subtitle')}
       />
 
-      <p className="text-sm text-gray-500 dark:text-gray-400">
+      <p className="text-sm text-slate">
         {t.rich('settings.intro', {
           districts: (chunks) => (
             <a href="districts" className="font-medium text-primary underline">{chunks}</a>
@@ -29,11 +29,11 @@ export default function AdminSettingsPage() {
         })}
       </p>
 
-      <Card className="rounded-2xl divide-y dark:divide-gray-700">
+      <Card className="divide-y divide-line dark:divide-gray-800">
         {rows.map(([k, v]) => (
           <div key={k} className="flex items-center justify-between gap-3 py-3 text-sm">
-            <span className="text-gray-500 dark:text-gray-400">{k}</span>
-            <span className="text-right font-medium">{v}</span>
+            <span className="text-slate">{k}</span>
+            <span className="text-right font-semibold text-ink dark:text-gray-100">{v}</span>
           </div>
         ))}
       </Card>

@@ -39,21 +39,21 @@ export default function AdminAnalyticsPage() {
           </div>
 
           <section>
-            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate">
               {t('analytics.bookingsByStatus')}
             </h2>
             {byStatus.length === 0 ? (
               <EmptyState>{t('analytics.empty')}</EmptyState>
             ) : (
-              <Card className="rounded-2xl">
+              <Card>
                 <ul className="space-y-2">
                   {byStatus.map(([status, count]) => (
                     <li key={status}>
                       <div className="mb-1 flex items-center justify-between text-xs">
-                        <span className="capitalize">{status.replace(/_/g, ' ')}</span>
-                        <span className="font-medium tabular-nums">{count}</span>
+                        <span className="capitalize text-ink dark:text-gray-200">{status.replace(/_/g, ' ')}</span>
+                        <span className="font-semibold tabular-nums text-ink dark:text-gray-100">{count}</span>
                       </div>
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-surface dark:bg-gray-800">
                         <div
                           className="h-full rounded-full bg-primary"
                           style={{ width: `${(count / maxStatus) * 100}%` }}

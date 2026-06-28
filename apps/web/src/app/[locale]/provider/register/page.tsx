@@ -82,8 +82,8 @@ export default function ProviderRegisterPage() {
       <div className="mx-auto max-w-md text-center">
         <Card className="space-y-3">
           <StatusBadge status="pending" />
-          <h1 className="font-display text-xl font-semibold">{t('submittedForReview')}</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <h1 className="font-display text-xl font-bold text-ink dark:text-gray-50">{t('submittedForReview')}</h1>
+          <p className="text-sm text-slate">
             {t('submittedForReviewBody')}
           </p>
           <Button onClick={() => (window.location.href = `/${locale}/provider`)}>{t('goToDashboard')}</Button>
@@ -95,14 +95,14 @@ export default function ProviderRegisterPage() {
   return (
     <div className="mx-auto max-w-md space-y-4">
       <div>
-        <h1 className="font-display text-xl font-semibold">{t('registerTitle')}</h1>
+        <h1 className="font-display text-xl font-bold text-ink dark:text-gray-50">{t('registerTitle')}</h1>
         {/* stepper */}
         <div className="mt-3 flex gap-1.5">
           {STEP_KEYS.map((s, i) => (
-            <div key={s} className={`h-1.5 flex-1 rounded-full ${i <= step ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-700'}`} />
+            <div key={s} className={`h-1.5 flex-1 rounded-full ${i <= step ? 'bg-primary' : 'bg-surface dark:bg-gray-700'}`} />
           ))}
         </div>
-        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{t('stepOf', { current: step + 1, total: STEP_KEYS.length, name: t(STEP_KEYS[step]) })}</p>
+        <p className="mt-2 text-xs text-slate">{t('stepOf', { current: step + 1, total: STEP_KEYS.length, name: t(STEP_KEYS[step]) })}</p>
       </div>
 
       {err && <ErrorBanner message={err} />}
@@ -112,7 +112,7 @@ export default function ProviderRegisterPage() {
             <>
               <label className="block"><span className="mb-1 block text-sm font-medium">{t('businessName')}</span>
                 <input autoFocus value={business} onChange={(e) => setBusiness(e.target.value)}
-                  className="w-full rounded-base border px-3 py-2.5 dark:border-gray-600 dark:bg-gray-900" placeholder={t('businessNamePlaceholder')} /></label>
+                  className="w-full rounded-base border border-line px-3 py-2.5 dark:border-gray-700 dark:bg-gray-900" placeholder={t('businessNamePlaceholder')} /></label>
               <Button className="w-full" onClick={() => guard(() => providerApi.become(business || 'My Service'))}>{t('continue')}</Button>
             </>
           )}
@@ -121,12 +121,12 @@ export default function ProviderRegisterPage() {
             <>
               <label className="block"><span className="mb-1 block text-sm font-medium">{t('serviceCategory')}</span>
                 <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full rounded-base border px-3 py-2.5 dark:border-gray-600 dark:bg-gray-900">
+                  className="w-full rounded-base border border-line px-3 py-2.5 dark:border-gray-700 dark:bg-gray-900">
                   {cats.map((c) => <option key={c.id} value={c.id}>{c.name.en}</option>)}
                 </select></label>
               <label className="block"><span className="mb-1 block text-sm font-medium">{t('yearsExperience')}</span>
                 <input inputMode="numeric" value={years} onChange={(e) => setYears(e.target.value)}
-                  className="w-full rounded-base border px-3 py-2.5 dark:border-gray-600 dark:bg-gray-900" placeholder={t('yearsExperiencePlaceholder')} /></label>
+                  className="w-full rounded-base border border-line px-3 py-2.5 dark:border-gray-700 dark:bg-gray-900" placeholder={t('yearsExperiencePlaceholder')} /></label>
               <Button className="w-full" onClick={() => guard(() => providerApi.setCategories([categoryId]))}>{t('continue')}</Button>
             </>
           )}
@@ -137,7 +137,7 @@ export default function ProviderRegisterPage() {
               <div className="grid grid-cols-3 gap-2">
                 {RADII.map((r) => (
                   <button key={r.m} onClick={() => setRadius(r.m)}
-                    className={`rounded-base border p-3 text-sm font-medium ${radius === r.m ? 'border-primary bg-primary/10' : 'dark:border-gray-600'}`}>{t(r.labelKey)}</button>
+                    className={`rounded-base border p-3 text-sm font-medium transition-all ${radius === r.m ? 'border-primary bg-primary/10' : 'border-line dark:border-gray-700'}`}>{t(r.labelKey)}</button>
                 ))}
               </div>
               <LocationPicker value={loc} onChange={setLoc} label={t('baseLocation')} />
@@ -156,7 +156,7 @@ export default function ProviderRegisterPage() {
                 uploaded={docs['certificate']} onPicked={(file) => uploadDoc('certificate', file)} />
               <Button className="w-full" disabled={!docs['nic'] || !docs['selfie']}
                 onClick={() => setStep(4)}>{t('continue')}</Button>
-              {(!docs['nic'] || !docs['selfie']) && <p className="text-xs text-gray-400">{t('nicSelfieRequired')}</p>}
+              {(!docs['nic'] || !docs['selfie']) && <p className="text-xs text-slate">{t('nicSelfieRequired')}</p>}
             </>
           )}
 
@@ -164,10 +164,10 @@ export default function ProviderRegisterPage() {
             <>
               <label className="block"><span className="mb-1 block text-sm font-medium">{t('workingDays')}</span>
                 <input value={days} onChange={(e) => setDays(e.target.value)}
-                  className="w-full rounded-base border px-3 py-2.5 dark:border-gray-600 dark:bg-gray-900" /></label>
+                  className="w-full rounded-base border border-line px-3 py-2.5 dark:border-gray-700 dark:bg-gray-900" /></label>
               <label className="block"><span className="mb-1 block text-sm font-medium">{t('workingHours')}</span>
                 <input value={hours} onChange={(e) => setHours(e.target.value)}
-                  className="w-full rounded-base border px-3 py-2.5 dark:border-gray-600 dark:bg-gray-900" /></label>
+                  className="w-full rounded-base border border-line px-3 py-2.5 dark:border-gray-700 dark:bg-gray-900" /></label>
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={emergency} onChange={(e) => setEmergency(e.target.checked)} />
                 {t('emergencyCalls')}

@@ -61,12 +61,12 @@ export default function WorkPhotosManager() {
   return (
     <section>
       <div className="mb-2 flex items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate">
           {t('workPhotos')}
         </h2>
-        <span className="text-xs tabular-nums text-gray-400">{count}/{MAX_PHOTOS}</span>
+        <span className="text-xs tabular-nums text-slate">{count}/{MAX_PHOTOS}</span>
       </div>
-      <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">{t('workPhotosHint')}</p>
+      <p className="mb-3 text-xs text-slate">{t('workPhotosHint')}</p>
 
       {err && <div className="mb-3"><ErrorBanner message={err} /></div>}
 
@@ -93,7 +93,7 @@ export default function WorkPhotosManager() {
         <>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {photos!.map((p) => (
-              <div key={p.id} className="group relative aspect-square overflow-hidden rounded-base border border-gray-200 dark:border-gray-700">
+              <div key={p.id} className="group relative aspect-square overflow-hidden rounded-base border border-line dark:border-gray-800">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={p.url} alt={p.caption ?? t('workPhotos')} className="h-full w-full object-cover" />
                 <button
@@ -112,13 +112,13 @@ export default function WorkPhotosManager() {
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
-                className="flex aspect-square items-center justify-center rounded-base border-2 border-dashed border-gray-300 text-sm text-gray-500 transition hover:border-primary hover:text-primary disabled:opacity-50 dark:border-gray-600"
+                className="flex aspect-square items-center justify-center rounded-base border-2 border-dashed border-line text-sm text-slate transition-all hover:border-primary hover:text-primary disabled:opacity-50 dark:border-gray-700"
               >
                 {uploading ? t('uploading') : `+ ${t('addPhoto')}`}
               </button>
             )}
           </div>
-          {atLimit && <p className="mt-2 text-xs text-gray-400">{t('workPhotosFull')}</p>}
+          {atLimit && <p className="mt-2 text-xs text-slate">{t('workPhotosFull')}</p>}
         </>
       )}
     </section>
