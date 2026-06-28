@@ -88,14 +88,13 @@ export default function ProviderDashboard() {
         <Spinner label={t('loadingProfile')} />
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className="grid grid-cols-3 gap-3">
             <Card>
               <div className="text-sm"><StatusBadge status={me?.status ?? 'pending'} /></div>
               <div className="mt-1 text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('status')}</div>
             </Card>
             <StatCard label={t('rating')} value={(me?.ratingAvg ?? 0).toFixed(1)} tone="primary" />
             <StatCard label={t('paidJobs')} value={earnings?.paidJobs ?? 0} />
-            <StatCard label={t('netEarnings')} value={<Money cents={earnings?.totalNetCents ?? 0} />} tone="success" />
           </div>
 
           <section>

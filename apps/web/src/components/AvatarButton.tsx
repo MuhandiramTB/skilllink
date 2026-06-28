@@ -28,12 +28,10 @@ export function AvatarButton() {
       const me = await fetchMe();
       if (cancelled || !me) return;
       setAvatar(me.avatarUrl);
+      // Initials only from a real name; if the user hasn't set a name yet we show a
+      // generic person icon (not the phone digits, which read like a meaningless "00").
       const name = me.fullName?.trim();
-      setInitials(
-        name
-          ? name.split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase()).join('')
-          : (me.phone.slice(-2) || '··'),
-      );
+      setInitials(name ? name.split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase()).join('') : '');
     };
     void sync();
     const off = onAuthChange(() => void sync());
@@ -65,8 +63,13 @@ export function AvatarButton() {
         {avatar ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={avatar} alt="" className="h-full w-full object-cover" />
+        ) : initials ? (
+          <span>{initials}</span>
         ) : (
-          <span>{initials || '··'}</span>
+          // No photo and no name yet → generic person icon.
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" />
+          </svg>
         )}
       </button>
 

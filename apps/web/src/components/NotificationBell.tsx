@@ -60,9 +60,12 @@ export function NotificationBell() {
 
   return (
     <div className="relative">
-      <button onClick={toggle} aria-label={t('title')}
-        className="relative rounded-base border px-2 py-1 text-xs font-medium dark:border-gray-600">
-        {t('alerts')}
+      <button onClick={toggle} aria-label={t('title')} title={t('title')}
+        className="relative flex h-9 w-9 items-center justify-center rounded-base border text-gray-600 transition hover:border-primary hover:text-primary dark:border-gray-600 dark:text-gray-300">
+        {/* Bell icon */}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
+          <path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0" />
+        </svg>
         {count > 0 && (
           <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
             {count > 9 ? '9+' : count}

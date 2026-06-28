@@ -90,11 +90,7 @@ export default function ProviderPage() {
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-base border bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-              <p className="text-2xl font-semibold text-primary">LKR {((earnings?.totalNetCents ?? 0) / 100).toLocaleString()}</p>
-              <p className="text-xs text-gray-500">{t('netEarnings')}</p>
-            </div>
+          <div className="grid grid-cols-1 gap-3">
             <a href={`provider/jobs`} className="rounded-base border bg-white p-4 hover:border-primary dark:border-gray-700 dark:bg-gray-800">
               <p className="text-2xl font-semibold text-primary">{earnings?.paidJobs ?? 0}</p>
               <p className="text-xs text-gray-500">{t('viewAllJobs')}</p>

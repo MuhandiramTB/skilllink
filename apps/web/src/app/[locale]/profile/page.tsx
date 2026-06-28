@@ -102,8 +102,10 @@ export default function ProfilePage() {
     return <div className="flex min-h-[40vh] items-center justify-center">{err ? <ErrorBanner message={err} /> : <Spinner />}</div>;
   }
 
-  const initials = (fullName.trim() || me.phone.slice(-2))
-    .split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase()).join('');
+  // Initials only from a real name; with no name yet we show a person icon (not phone digits).
+  const initials = fullName.trim()
+    ? fullName.trim().split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase()).join('')
+    : '';
 
   return (
     <div className="space-y-6">
@@ -123,8 +125,12 @@ export default function ProfilePage() {
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+            ) : initials ? (
+              <span>{initials}</span>
             ) : (
-              <span>{initials || '··'}</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-10 w-10" aria-hidden="true">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" />
+              </svg>
             )}
           </div>
           <div className="flex flex-wrap gap-2">
