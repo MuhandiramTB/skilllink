@@ -145,7 +145,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
 
       {/* ---- Discreet footer with staff entry ---- */}
       <footer className="border-t pt-6 text-center text-xs text-gray-400 dark:border-gray-700">
-        <p>© SkillLink LK · Kandy</p>
+        <p>© SkillLink · Kandy</p>
         <a href={`/${locale}/admin/login`} className="mt-2 inline-block text-gray-400 hover:text-primary hover:underline">
           {t('staff')}
         </a>

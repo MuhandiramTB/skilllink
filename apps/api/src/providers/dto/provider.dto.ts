@@ -51,3 +51,9 @@ export class VerificationDecisionDto {
 export class WalletTopupDto {
   @IsInt() @Min(1) amountCents!: number;
 }
+
+export class AddPhotoDto {
+  @IsString() @MinLength(1) url!: string;
+  @IsOptional() @IsString() caption?: string;
+  @IsOptional() @IsUUID() categoryId?: string;
+}

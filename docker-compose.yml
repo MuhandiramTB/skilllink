@@ -14,6 +14,9 @@ services:
       POSTGRES_DB: skilllink
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      # Auto-load the full schema + seeds (migrations 001–012, idempotent) on first
+      # boot of an empty data volume. The postgis image runs *.sql in this dir once.
+      - ./submission/render-db-setup.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U skilllink -d skilllink']
       interval: 10s
@@ -54,8 +57,13 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
       args:
-        # Baked into the browser bundle at build time.
+        # Baked into the browser bundle at build time — the browser reaches the API
+        # via the host's published port.
         NEXT_PUBLIC_API_URL: http://localhost:4000/api/v1
+    environment:
+      # Runtime, server-side only: Next.js server components fetch the API by its
+      # compose service name (localhost inside the container = the web container).
+      API_URL_SERVER: http://api:4000/api/v1
     ports:
       - '3000:3000'
     depends_on:

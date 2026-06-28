@@ -545,6 +545,53 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_reward_ledger_award
     WHERE booking_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_reward_ledger_user ON reward_ledger (user_id, created_at DESC);
 
+-- ============================================================================
+-- ===== migrations/009_provider_photos.sql =====
+-- ============================================================================
+-- 009: provider work-photos portfolio (the #1 trust signal). See spec 12.
+CREATE TABLE IF NOT EXISTS provider_photos (
+    id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    provider_id uuid NOT NULL REFERENCES providers(user_id) ON DELETE CASCADE,
+    url         text NOT NULL,
+    caption     text,
+    category_id uuid REFERENCES categories(id) ON DELETE SET NULL,
+    created_at  timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_provider_photos_provider
+    ON provider_photos (provider_id, created_at DESC);
+
+-- ============================================================================
+-- ===== migrations/010_booking_timestamps.sql =====
+-- ============================================================================
+-- 010: booking lifecycle timestamps + responsiveness signal. See spec 13.
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS accepted_at  timestamptz;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS started_at   timestamptz;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS completed_at timestamptz;
+
+-- ============================================================================
+-- ===== migrations/011_favourites.sql =====
+-- ============================================================================
+-- 011: customer favourites (1-tap rebooking). See spec 14.
+CREATE TABLE IF NOT EXISTS favourites (
+    id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    customer_id uuid NOT NULL REFERENCES users(id)          ON DELETE CASCADE,
+    provider_id uuid NOT NULL REFERENCES providers(user_id) ON DELETE CASCADE,
+    created_at  timestamptz NOT NULL DEFAULT now(),
+    UNIQUE (customer_id, provider_id)
+);
+CREATE INDEX IF NOT EXISTS idx_favourites_customer ON favourites (customer_id);
+
+-- ============================================================================
+-- ===== migrations/012_referrals.sql =====
+-- ============================================================================
+-- 012: referral program. See spec 15.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS referral_code text;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS referred_by   uuid REFERENCES users(id) ON DELETE SET NULL;
+UPDATE users
+   SET referral_code = 'SK' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 6))
+ WHERE referral_code IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_users_referral_code ON users (referral_code);
+
 -- ===== seeds/001_seed_kandy_and_categories.sql =====
 -- ============================================================================
 -- Seed data — v1 Kandy district + service categories (incl. Solar)

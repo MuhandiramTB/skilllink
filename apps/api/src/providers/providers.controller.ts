@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ProvidersService } from './providers.service';
 import { VerificationService } from './verification.service';
 import { WalletService } from './wallet.service';
@@ -8,6 +8,7 @@ import { AdminGuard } from '../admin/admin.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { RequestUser } from '../auth/guards/jwt-auth.guard';
 import {
+  AddPhotoDto,
   AddVerificationDto,
   AvailabilityDto,
   BecomeProviderDto,
@@ -91,7 +92,26 @@ export class ProvidersController {
     return this.providers.setDetails(u.userId, dto);
   }
 
-  /** Public profile (verified flag). No auth required. */
+  /** Spec 12: provider work-photos portfolio. */
+  @Get('me/photos')
+  @UseGuards(JwtAuthGuard)
+  listPhotos(@CurrentUser() u: RequestUser) {
+    return this.providers.listPhotos(u.userId);
+  }
+
+  @Post('me/photos')
+  @UseGuards(JwtAuthGuard)
+  addPhoto(@CurrentUser() u: RequestUser, @Body() dto: AddPhotoDto) {
+    return this.providers.addPhoto(u.userId, dto);
+  }
+
+  @Delete('me/photos/:photoId')
+  @UseGuards(JwtAuthGuard)
+  removePhoto(@CurrentUser() u: RequestUser, @Param('photoId') photoId: string) {
+    return this.providers.removePhoto(u.userId, photoId);
+  }
+
+  /** Public profile (verified flag + work photos). No auth required. */
   @Get(':id')
   publicProfile(@Param('id') id: string) {
     return this.providers.publicProfile(id);

@@ -45,7 +45,7 @@ export default async function LocaleLayout({
             <header className="sticky top-0 z-30 flex items-center justify-between gap-2 border-b bg-white/95 px-4 py-3 backdrop-blur dark:border-gray-700 dark:bg-gray-900/95">
               <div className="flex min-w-0 items-center gap-2">
                 <AppMobileMenu />
-                <a href={`/${locale}`} className="shrink-0 font-display text-lg font-bold text-primary">SkillLink LK</a>
+                <a href={`/${locale}`} className="shrink-0 font-display text-lg font-bold text-primary">SkillLink</a>
               </div>
               {/* Utilities — always reachable, including on mobile when signed out
                   (theme + language must never disappear). ModeSwitch/bell render only

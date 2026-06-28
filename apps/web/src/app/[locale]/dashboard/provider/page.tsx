@@ -7,6 +7,7 @@ import { getSession, homeForMode } from '@/lib/session';
 import { providerApi, type ProviderMe, type WalletSummary } from '@/lib/provider-api';
 import { bookingApi, type BookingListItem } from '@/lib/booking-api';
 import { Button, Card, StatCard, Money, StatusBadge, Spinner, EmptyState, ErrorBanner, SuccessBanner, inputCls } from '@/components/ui';
+import WorkPhotosManager from '@/components/WorkPhotosManager';
 
 export default function ProviderDashboard() {
   const locale = (useParams().locale as string) ?? 'en';
@@ -183,6 +184,8 @@ export default function ProviderDashboard() {
               </ul>
             )}
           </section>
+
+          <WorkPhotosManager />
 
           <section>
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">

@@ -37,6 +37,10 @@ export interface Match {
   distance_m: number;
   rating_avg: number;
   score: number;
+  photo_count: number;
+  cover_photo: string | null;
+  rating_count: number;
+  verified: boolean;
 }
 export interface Booking {
   id: string;
@@ -45,6 +49,9 @@ export interface Booking {
   description: string | null;
   quoteStatus?: 'none' | 'quoted' | 'accepted';
   priceCents?: number | null;
+  acceptedAt?: string | null;
+  startedAt?: string | null;
+  completedAt?: string | null;
 }
 export interface Message { sender_id: string; body: string; created_at: string }
 

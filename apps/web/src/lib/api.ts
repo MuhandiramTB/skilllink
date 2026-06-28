@@ -1,4 +1,9 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
+// This module's fetches run in SERVER components (the Next.js Node process), so
+// inside Docker they must reach the API by its compose service name, not localhost
+// (localhost there = the web container itself). API_URL_SERVER provides that;
+// fall back to the public browser URL for local `npm run dev`.
+const API_URL =
+  process.env.API_URL_SERVER ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
 
 export interface Envelope<T> {
   data: T | null;

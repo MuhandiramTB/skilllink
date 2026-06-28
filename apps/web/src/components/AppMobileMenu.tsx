@@ -57,7 +57,7 @@ export function AppMobileMenu() {
               header height regardless of positioned ancestors in the app shell. */}
           <div className="relative z-10 flex h-dvh w-72 max-w-[80%] flex-col bg-white shadow-xl dark:bg-gray-900">
             <div className="flex items-center justify-between border-b px-4 py-3 dark:border-gray-700">
-              <span className="font-display text-lg font-bold text-primary">SkillLink LK</span>
+              <span className="font-display text-lg font-bold text-primary">SkillLink</span>
               <button
                 type="button"
                 onClick={() => setOpen(false)}

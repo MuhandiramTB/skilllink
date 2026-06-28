@@ -66,14 +66,13 @@ export const NAV: Record<Role, RoleNav> = {
         { labelKey: 'jobRequests', path: '/provider/jobs', icon: 'briefcase' },
       ]},
       { titleKey: 'groupBusiness', items: [
-        { labelKey: 'earnings', path: '/dashboard/provider', icon: 'wallet' },
         { labelKey: 'verification', path: '/provider/register', icon: 'shield' },
       ]},
     ],
     tabs: [
       { labelKey: 'home', path: '/dashboard/provider', icon: 'home' },
       { labelKey: 'jobs', path: '/provider/jobs', icon: 'briefcase' },
-      { labelKey: 'earnings', path: '/dashboard/provider', icon: 'wallet' },
+      { labelKey: 'profile', path: '/profile', icon: 'user' },
     ],
   },
   admin: {

@@ -8,6 +8,10 @@ export interface MatchResult {
   rating_avg: number;
   avg_response_seconds: number;
   score: number;
+  photo_count: number;
+  cover_photo: string | null;
+  rating_count: number;
+  verified: boolean;
 }
 
 /**
@@ -45,7 +49,12 @@ export class MatchingService {
              p.business_name,
              ST_Distance(p.base_location, customer.pt)::float8 AS distance_m,
              p.rating_avg::float8 AS rating_avg,
+             p.rating_count,
+             (p.status = 'approved') AS verified,
              p.avg_response_seconds,
+             (SELECT count(*)::int FROM provider_photos ph WHERE ph.provider_id = p.user_id) AS photo_count,
+             (SELECT ph.url FROM provider_photos ph WHERE ph.provider_id = p.user_id
+                ORDER BY ph.created_at DESC LIMIT 1) AS cover_photo,
              (
                $3 * (1.0 / (1 + ST_Distance(p.base_location, customer.pt) / 1000.0))
              + $4 * (p.rating_avg / 5.0)

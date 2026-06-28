@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { bookingApi, type Booking, type Message } from '@/lib/booking-api';
 import { getToken, getSession } from '@/lib/session';
-import { Button, Card, Spinner, ErrorBanner, SuccessBanner, StatusBadge, PageHeader, Money, Field, inputCls } from '@/components/ui';
+import { Button, Card, Spinner, ErrorBanner, SuccessBanner, StatusBadge, PageHeader, Money, Field, BookingProgress, inputCls } from '@/components/ui';
 
 export default function BookingDetailPage() {
   const p = useParams();
@@ -21,6 +21,8 @@ export default function BookingDetailPage() {
   const [reviewed, setReviewed] = useState(false);
   const [stars, setStars] = useState('5');
   const [price, setPrice] = useState('');
+  // Guards against double-submitting money/state actions (a real double-tap risk on mobile).
+  const [busy, setBusy] = useState<null | 'quote' | 'accept' | 'pay' | 'review' | 'cancel' | 'send'>(null);
 
   function fail(e: unknown) { setErr((e as Error).message); }
 
@@ -36,28 +38,39 @@ export default function BookingDetailPage() {
   }, []);
 
   async function send() {
-    if (!chat.trim()) return;
-    try { await bookingApi.sendMessage(id, chat); setChat(''); setMessages(await bookingApi.messages(id)); } catch (e) { fail(e); }
+    if (!chat.trim() || busy) return;
+    setBusy('send');
+    try { await bookingApi.sendMessage(id, chat); setChat(''); setMessages(await bookingApi.messages(id)); } catch (e) { fail(e); } finally { setBusy(null); }
   }
   async function saveQuote() {
     setErr('');
     const amount = Number(price);
-    if (!amount || amount <= 0) return;
-    try { await bookingApi.quote(id, Math.round(amount * 100)); setMsg(t('quoteSaved')); await load(); } catch (e) { fail(e); }
+    if (!amount || amount <= 0) { setErr(t('enterValidPrice')); return; }
+    if (busy) return;
+    setBusy('quote');
+    try { await bookingApi.quote(id, Math.round(amount * 100)); setMsg(t('quoteSaved')); await load(); } catch (e) { fail(e); } finally { setBusy(null); }
   }
   async function acceptQuote() {
     setErr('');
-    try { await bookingApi.acceptQuote(id); setMsg(t('quoteAccepted')); await load(); } catch (e) { fail(e); }
+    if (busy) return;
+    setBusy('accept');
+    try { await bookingApi.acceptQuote(id); setMsg(t('quoteAccepted')); await load(); } catch (e) { fail(e); } finally { setBusy(null); }
   }
   async function settle(method: 'cash' | 'in_app') {
     setErr('');
-    try { await bookingApi.settle(id, method); setSettled(true); setMsg(t('paymentSettled')); } catch (e) { fail(e); }
+    if (busy) return;
+    setBusy('pay');
+    try { await bookingApi.settle(id, method); setSettled(true); setMsg(t('paymentSettled')); } catch (e) { fail(e); } finally { setBusy(null); }
   }
   async function leaveReview() {
-    try { await bookingApi.review(id, Number(stars), 'Reviewed via app'); setReviewed(true); } catch (e) { fail(e); }
+    if (busy) return;
+    setBusy('review');
+    try { await bookingApi.review(id, Number(stars), 'Reviewed via app'); setReviewed(true); } catch (e) { fail(e); } finally { setBusy(null); }
   }
   async function cancel() {
-    try { await bookingApi.cancel(id); await load(); } catch (e) { fail(e); }
+    if (busy) return;
+    setBusy('cancel');
+    try { await bookingApi.cancel(id); await load(); } catch (e) { fail(e); } finally { setBusy(null); }
   }
 
   if (err && !booking) return <ErrorBanner message={err} />;
@@ -78,9 +91,23 @@ export default function BookingDetailPage() {
       {msg && <SuccessBanner message={msg} />}
 
       <Card className="rounded-2xl">
+        <BookingProgress
+          status={booking.status}
+          labels={[t('stepRequested'), t('stepMatched'), t('stepAccepted'), t('stepInProgress'), t('stepCompleted')]}
+        />
+        {(booking.acceptedAt || booking.startedAt || booking.completedAt) && (
+          <ul className="mt-3 space-y-0.5 border-t border-gray-100 pt-3 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
+            {booking.acceptedAt && <li>{t('stepAccepted')}: {new Date(booking.acceptedAt).toLocaleString()}</li>}
+            {booking.startedAt && <li>{t('stepInProgress')}: {new Date(booking.startedAt).toLocaleString()}</li>}
+            {booking.completedAt && <li>{t('stepCompleted')}: {new Date(booking.completedAt).toLocaleString()}</li>}
+          </ul>
+        )}
+      </Card>
+
+      <Card className="rounded-2xl">
         <p className="text-sm font-medium uppercase tracking-wide text-gray-400">{t('details')}</p>
         <p className="mt-1.5 text-sm text-gray-700 dark:text-gray-300">{booking.description || t('noDescription')}</p>
-        {canCancel && <Button variant="ghost" className="mt-4" onClick={cancel}>{t('cancelBooking')}</Button>}
+        {canCancel && <Button variant="ghost" className="mt-4" disabled={busy === 'cancel'} onClick={cancel}>{busy === 'cancel' ? t('saving') : t('cancelBooking')}</Button>}
       </Card>
 
       {/* Quote — provider sets a price; customer accepts it. */}
@@ -94,7 +121,7 @@ export default function BookingDetailPage() {
             <div className="flex items-center gap-2">
               <span className="rounded-base border bg-gray-50 px-3 py-2.5 text-sm font-medium text-gray-600 dark:border-gray-600 dark:bg-gray-900">LKR</span>
               <input value={price} onChange={(e) => setPrice(e.target.value)} inputMode="numeric" className={`${inputCls} max-w-[10rem]`} />
-              <Button onClick={saveQuote}>{t('saveQuote')}</Button>
+              <Button onClick={saveQuote} disabled={busy === 'quote'}>{busy === 'quote' ? t('saving') : t('saveQuote')}</Button>
             </div>
           </Field>
         </Card>
@@ -107,7 +134,7 @@ export default function BookingDetailPage() {
           {booking.priceCents != null && (
             <p className="text-lg font-semibold"><span className="text-sm font-normal text-gray-500">{t('quotedPrice')}: </span><Money cents={booking.priceCents} /></p>
           )}
-          <Button onClick={acceptQuote}>{t('acceptQuote')}</Button>
+          <Button onClick={acceptQuote} disabled={busy === 'accept'}>{busy === 'accept' ? t('saving') : t('acceptQuote')}</Button>
         </Card>
       )}
 
@@ -134,7 +161,7 @@ export default function BookingDetailPage() {
           <div className="flex gap-2">
             <input value={chat} onChange={(e) => setChat(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') send(); }}
               className={inputCls} placeholder={t('typeMessage')} />
-            <Button onClick={send}>{t('send')}</Button>
+            <Button onClick={send} disabled={busy === 'send'}>{t('send')}</Button>
           </div>
         </Card>
       )}
@@ -147,10 +174,13 @@ export default function BookingDetailPage() {
             <p className="text-lg font-semibold"><span className="text-sm font-normal text-gray-500">{t('agreedPrice')}: </span><Money cents={booking.priceCents} /></p>
           )}
           {!settled ? (
-            <div className="flex flex-wrap gap-2">
-              <Button variant="success" onClick={() => settle('in_app')}>{t('payInApp')}</Button>
-              <Button variant="ghost" onClick={() => settle('cash')}>{t('payCash')}</Button>
-            </div>
+            <>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t('payExplainer')}</p>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="success" onClick={() => settle('in_app')} disabled={busy === 'pay'}>{busy === 'pay' ? t('saving') : t('payInApp')}</Button>
+                <Button variant="ghost" onClick={() => settle('cash')} disabled={busy === 'pay'}>{busy === 'pay' ? t('saving') : t('payCash')}</Button>
+              </div>
+            </>
           ) : <SuccessBanner message={t('pointsEarnedNote')} />}
 
           {settled && !reviewed && (
@@ -160,7 +190,7 @@ export default function BookingDetailPage() {
                 <select value={stars} onChange={(e) => setStars(e.target.value)} className={`${inputCls} max-w-[7rem]`}>
                   {[5, 4, 3, 2, 1].map((s) => <option key={s} value={s}>{s} ★</option>)}
                 </select>
-                <Button onClick={leaveReview}>{t('leaveReview')}</Button>
+                <Button onClick={leaveReview} disabled={busy === 'review'}>{busy === 'review' ? t('saving') : t('leaveReview')}</Button>
               </div>
             </div>
           )}

@@ -53,7 +53,15 @@ export const providerApi = {
   wallet: () => req<WalletSummary>(`/providers/me/wallet`),
   topup: (amountCents: number) =>
     req<WalletSummary>(`/providers/me/wallet/topup`, { method: 'POST', body: JSON.stringify({ amountCents }) }),
+  // Spec 12: provider work-photos portfolio.
+  listPhotos: () => req<WorkPhoto[]>(`/providers/me/photos`),
+  addPhoto: (url: string, caption?: string) =>
+    req<WorkPhoto>(`/providers/me/photos`, { method: 'POST', body: JSON.stringify({ url, caption }) }),
+  removePhoto: (photoId: string) =>
+    req<{ ok: boolean }>(`/providers/me/photos/${photoId}`, { method: 'DELETE' }),
 };
+
+export interface WorkPhoto { id: string; url: string; caption: string | null; created_at?: string }
 
 export interface WalletLedgerEntry { id: string; type: string; amount_cents: number; booking_id: string | null; note: string | null; created_at: string }
 export interface WalletSummary { balanceCents: number; ledger: WalletLedgerEntry[] }

@@ -6,10 +6,13 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
+  AddPhotoDto,
   AddVerificationDto,
   BecomeProviderDto,
   ServiceAreaDto,
 } from './dto/provider.dto';
+
+const MAX_PHOTOS = 12;
 
 @Injectable()
 export class ProvidersService {
@@ -140,13 +143,58 @@ export class ProvidersService {
   async publicProfile(providerId: string) {
     const p = await this.prisma.providers.findUnique({ where: { user_id: providerId } });
     if (!p) throw new NotFoundException({ code: 'NOT_FOUND', message: 'errors.providers.notFound' });
+    const photos = await this.prisma.provider_photos.findMany({
+      where: { provider_id: providerId },
+      orderBy: { created_at: 'desc' },
+      select: { id: true, url: true, caption: true },
+    });
     return {
       id: p.user_id,
       businessName: p.business_name,
       ratingAvg: Number(p.rating_avg),
       ratingCount: p.rating_count,
       verified: p.status === 'approved',
+      photos,
     };
+  }
+
+  /** Spec 12 Req 1: provider adds a work photo (cap MAX_PHOTOS). */
+  async addPhoto(userId: string, dto: AddPhotoDto) {
+    await this.ensureProvider(userId);
+    const count = await this.prisma.provider_photos.count({ where: { provider_id: userId } });
+    if (count >= MAX_PHOTOS) {
+      throw new BadRequestException({ code: 'PHOTO_LIMIT_REACHED', message: 'errors.providers.photoLimit' });
+    }
+    const row = await this.prisma.provider_photos.create({
+      data: {
+        provider_id: userId,
+        url: dto.url,
+        caption: dto.caption ?? null,
+        category_id: dto.categoryId ?? null,
+      },
+      select: { id: true, url: true, caption: true, created_at: true },
+    });
+    return row;
+  }
+
+  /** Spec 12 Req 1 (read): provider's own portfolio, newest first. */
+  async listPhotos(userId: string) {
+    await this.ensureProvider(userId);
+    return this.prisma.provider_photos.findMany({
+      where: { provider_id: userId },
+      orderBy: { created_at: 'desc' },
+      select: { id: true, url: true, caption: true, created_at: true },
+    });
+  }
+
+  /** Spec 12 Req 2: provider removes a photo they own. */
+  async removePhoto(userId: string, photoId: string) {
+    const photo = await this.prisma.provider_photos.findUnique({ where: { id: photoId } });
+    if (!photo || photo.provider_id !== userId) {
+      throw new NotFoundException({ code: 'NOT_FOUND', message: 'errors.providers.photoNotFound' });
+    }
+    await this.prisma.provider_photos.delete({ where: { id: photoId } });
+    return { ok: true };
   }
 
   private async ensureProvider(userId: string) {

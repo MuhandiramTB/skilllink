@@ -144,3 +144,47 @@ export function Field({ label, hint, children }: { label: string; hint?: string;
 
 export const inputCls =
   'w-full rounded-base border px-3 py-2.5 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:border-gray-600 dark:bg-gray-900';
+
+/**
+ * Booking progress stepper — shows the customer/provider where the job is in its
+ * lifecycle so the next action is obvious. Cancelled/rejected bookings collapse the
+ * timeline to a single terminal state. `labels` are passed in (i18n) in step order.
+ */
+const BOOKING_FLOW = ['requested', 'matched', 'accepted', 'in_progress', 'completed'] as const;
+export function BookingProgress({ status, labels }: { status: string; labels: string[] }) {
+  if (status === 'cancelled' || status === 'rejected') {
+    return (
+      <div className="rounded-base bg-gray-50 px-3 py-2 text-sm text-gray-500 dark:bg-gray-800">
+        <StatusBadge status={status} />
+      </div>
+    );
+  }
+  const current = BOOKING_FLOW.indexOf(status as (typeof BOOKING_FLOW)[number]);
+  const activeIdx = current < 0 ? 0 : current;
+  return (
+    <ol className="flex items-center gap-1" aria-label="Booking progress">
+      {BOOKING_FLOW.map((step, i) => {
+        const done = i < activeIdx;
+        const active = i === activeIdx;
+        return (
+          <li key={step} className="flex flex-1 flex-col items-center gap-1">
+            <div className="flex w-full items-center">
+              {i > 0 && <span className={`h-0.5 flex-1 ${i <= activeIdx ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-700'}`} />}
+              <span
+                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+                  done ? 'bg-primary text-white' : active ? 'bg-primary text-white ring-2 ring-primary/30' : 'bg-gray-200 text-gray-400 dark:bg-gray-700'
+                }`}
+              >
+                {done ? '✓' : i + 1}
+              </span>
+              {i < BOOKING_FLOW.length - 1 && <span className={`h-0.5 flex-1 ${i < activeIdx ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-700'}`} />}
+            </div>
+            <span className={`text-center text-[10px] leading-tight ${active ? 'font-semibold text-primary' : 'text-gray-400'}`}>
+              {labels[i]}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}

@@ -13,6 +13,8 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { RewardsModule } from './rewards/rewards.module';
 import { AdminOpsModule } from './admin-ops/admin-ops.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { FavouritesModule } from './favourites/favourites.module';
+import { ReferralsModule } from './referrals/referrals.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 
@@ -33,6 +35,8 @@ import { APP_GUARD } from '@nestjs/core';
     NotificationsModule,
     CategoriesModule,
     MatchingModule,
+    FavouritesModule,
+    ReferralsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
   controllers: [HealthController],

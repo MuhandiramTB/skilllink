@@ -89,9 +89,18 @@ export class AuthService {
     const row =
       existing ??
       (await this.prisma.users.create({
-        data: { phone, firebase_uid: firebaseUid, role: 'customer', language: 'en' },
+        // Spec 15: every user gets a shareable referral code at creation.
+        data: { phone, firebase_uid: firebaseUid, role: 'customer', language: 'en', referral_code: this.newReferralCode() },
       }));
     return row.id;
+  }
+
+  /** Spec 15: short, human-shareable referral code (SK + 6 base36 chars). */
+  private newReferralCode(): string {
+    let s = '';
+    // Random base36 without Math.random dependence on a single source.
+    for (let i = 0; i < 6; i++) s += Math.floor(Math.random() * 36).toString(36);
+    return ('SK' + s).toUpperCase();
   }
 
   /** Req 4: refresh (rotation + replay defense in SessionService). Re-derives roles. */

@@ -87,7 +87,11 @@ export class BookingsService {
     const b = await this.assignedToProvider(providerId, bookingId);
     if (action === 'accept') {
       this.assertTransition(b.status as BookingStatus, 'accepted');
-      const res = await this.setStatus(bookingId, 'accepted');
+      const now = new Date();
+      const res = await this.setStatus(bookingId, 'accepted', { accepted_at: now });
+      // Spec 13: feed the matching engine's responsiveness signal — roll the
+      // provider's avg_response_seconds toward this job's accept latency.
+      await this.recordResponseTime(providerId, Math.max(0, Math.round((now.getTime() - new Date(b.created_at).getTime()) / 1000)));
       await this.notifier.notify({
         userId: b.customer_id, type: 'booking.accepted',
         title: 'Provider accepted', body: 'Your provider accepted the job.', link: `/bookings/${bookingId}`,
@@ -131,6 +135,11 @@ export class BookingsService {
     await this.prisma.bookings.update({
       where: { id: bookingId },
       data: { price_cents: amountCents, quote_status: 'quoted', updated_at: new Date() },
+    });
+    // Notify the customer that a price quote is ready to review.
+    await this.notifier.notify({
+      userId: b.customer_id, type: 'booking.quoted',
+      title: 'Price quote ready', body: 'Your provider sent a price. Tap to accept.', link: `/bookings/${bookingId}`,
     });
     return { id: bookingId, priceCents: amountCents, quoteStatus: 'quoted' };
   }
@@ -206,16 +215,44 @@ export class BookingsService {
       solarSpecs: b.solar_specs,
       media: b.booking_media,
       createdAt: b.created_at,
+      acceptedAt: b.accepted_at,
+      startedAt: b.started_at,
+      completedAt: b.completed_at,
     };
   }
 
   // ---- helpers ----
   private async setStatus(bookingId: string, status: BookingStatus, extra: Record<string, unknown> = {}) {
+    const now = new Date();
+    // Spec 13: stamp the lifecycle timestamp matching the new status (unless the
+    // caller already set it). Only set on the forward transition into each state.
+    const stamp: Record<string, unknown> = {};
+    if (status === 'in_progress') stamp.started_at = now;
+    if (status === 'completed') stamp.completed_at = now;
     await this.prisma.bookings.update({
       where: { id: bookingId },
-      data: { status, updated_at: new Date(), ...extra },
+      data: { status, updated_at: now, ...stamp, ...extra },
     });
     return { id: bookingId, status };
+  }
+
+  /**
+   * Spec 13: update a provider's rolling average accept-response time. Uses an
+   * exponential moving average (alpha=0.3) so recent behaviour dominates without
+   * needing to store every sample. avg=0 (never measured) seeds with the first value.
+   */
+  private async recordResponseTime(providerId: string, seconds: number) {
+    const p = await this.prisma.providers.findUnique({
+      where: { user_id: providerId },
+      select: { avg_response_seconds: true },
+    });
+    if (!p) return;
+    const prev = p.avg_response_seconds ?? 0;
+    const next = prev === 0 ? seconds : Math.round(prev * 0.7 + seconds * 0.3);
+    await this.prisma.providers.update({
+      where: { user_id: providerId },
+      data: { avg_response_seconds: next, updated_at: new Date() },
+    });
   }
 
   private assertTransition(from: BookingStatus, to: BookingStatus) {

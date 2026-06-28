@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { getToken } from '@/lib/session';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
@@ -19,6 +20,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T | null> {
 /** Header notification bell: unread badge + dropdown list, mark-read. */
 export function NotificationBell() {
   const locale = (useParams().locale as string) ?? 'en';
+  const t = useTranslations('notif');
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<Notif[]>([]);
   const [count, setCount] = useState(0);
@@ -58,9 +60,9 @@ export function NotificationBell() {
 
   return (
     <div className="relative">
-      <button onClick={toggle} aria-label="Notifications"
+      <button onClick={toggle} aria-label={t('title')}
         className="relative rounded-base border px-2 py-1 text-xs font-medium dark:border-gray-600">
-        Alerts
+        {t('alerts')}
         {count > 0 && (
           <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
             {count > 9 ? '9+' : count}
@@ -71,11 +73,11 @@ export function NotificationBell() {
       {open && (
         <div className="absolute right-0 z-30 mt-2 w-72 rounded-base border bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
           <div className="flex items-center justify-between border-b px-3 py-2 text-sm font-medium dark:border-gray-700">
-            <span>Notifications</span>
-            {count > 0 && <button onClick={markAll} className="text-xs text-primary">Mark all read</button>}
+            <span>{t('title')}</span>
+            {count > 0 && <button onClick={markAll} className="text-xs text-primary">{t('markAllRead')}</button>}
           </div>
           <ul className="max-h-80 overflow-y-auto">
-            {items.length === 0 && <li className="px-3 py-6 text-center text-sm text-gray-400">No notifications.</li>}
+            {items.length === 0 && <li className="px-3 py-6 text-center text-sm text-gray-400">{t('none')}</li>}
             {items.map((n) => (
               <li key={n.id}>
                 <button onClick={() => openItem(n)}

@@ -6,7 +6,9 @@ import { useTranslations } from 'next-intl';
 import { getSession, homeForMode, becomeProvider } from '@/lib/session';
 import { bookingApi, type BookingListItem } from '@/lib/booking-api';
 import { rewardsApi, type RewardsSummary } from '@/lib/rewards-api';
+import { favouritesApi, type Favourite } from '@/lib/favourites-api';
 import { Button, Card, StatCard, StatusBadge, Spinner, EmptyState, ErrorBanner } from '@/components/ui';
+import ReferralCard from '@/components/ReferralCard';
 
 const ACTIVE_STATUSES = new Set(['requested', 'matched', 'accepted', 'in_progress']);
 
@@ -17,6 +19,7 @@ export default function CustomerDashboard() {
   const [err, setErr] = useState('');
   const [becoming, setBecoming] = useState(false);
   const [rewards, setRewards] = useState<RewardsSummary | null>(null);
+  const [favourites, setFavourites] = useState<Favourite[]>([]);
 
   const session = typeof window !== 'undefined' ? getSession() : null;
   const hasProvider = session?.roles.includes('provider') ?? false;
@@ -31,8 +34,9 @@ export default function CustomerDashboard() {
       .list('customer')
       .then(setBookings)
       .catch((e) => setErr((e as Error).message));
-    // Rewards failure shouldn't break the dashboard — show inline only.
+    // Rewards/favourites failures shouldn't break the dashboard — show inline only.
     rewardsApi.me().then(setRewards).catch(() => {});
+    favouritesApi.list().then(setFavourites).catch(() => {});
   }, [locale]);
 
   async function onBecomeProvider() {
@@ -101,6 +105,39 @@ export default function CustomerDashboard() {
               </div>
             )}
           </Card>
+        </section>
+      )}
+
+      <ReferralCard />
+
+      {favourites.length > 0 && (
+        <section>
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            {t('favourites')}
+          </h2>
+          <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {favourites.map((f) => (
+              <li key={f.providerId}>
+                <Card className="flex items-center gap-3 transition hover:border-primary">
+                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
+                    {f.coverPhoto ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={f.coverPhoto} alt={f.businessName ?? ''} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-gray-300">🛠️</div>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-medium">{f.businessName ?? t('service')}</div>
+                    <div className="text-xs text-gray-500">★ {f.ratingAvg.toFixed(1)}{f.ratingCount > 0 && ` (${f.ratingCount})`}</div>
+                  </div>
+                  <a href={`/${locale}/providers/${f.providerId}`}>
+                    <Button>{t('bookAgain')}</Button>
+                  </a>
+                </Card>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 
