@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { adminApi, type Dispute } from '@/lib/admin-api';
 import { Button, Card, EmptyState, ErrorBanner, StatusBadge, PageHeader } from '@/components/ui';
+import { ICONS } from '@/components/nav-config';
 
 export default function AdminDisputesPage() {
   const t = useTranslations('admin');
@@ -23,23 +24,30 @@ export default function AdminDisputesPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title={t('disputes.title')} subtitle={t('disputes.subtitle')} />
+      <PageHeader
+        title={t('disputes.title')}
+        subtitle={t('disputes.subtitle')}
+        action={disputes.length > 0 ? <span className="rounded-full bg-surface px-2.5 py-1 text-xs font-semibold tabular-nums text-slate dark:bg-gray-800">{disputes.length}</span> : undefined}
+      />
 
       {err && <ErrorBanner message={err} />}
       {disputes.length === 0 && !err && <EmptyState>{t('disputes.empty')}</EmptyState>}
 
       {disputes.length > 0 && (
-        <ul className="space-y-3">
+        <ul className="space-y-2.5">
           {disputes.map((d) => (
             <li key={d.id}>
               <Card>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="min-w-0">
-                    <p className="flex items-center gap-2 text-sm font-medium text-ink dark:text-gray-100">
-                      {t('disputes.booking')} <code className="tabular-nums text-slate">{d.booking_id.slice(0, 8)}</code>
-                      <StatusBadge status={d.status} />
-                    </p>
-                    <p className="mt-1 text-xs text-slate">{d.resolution ?? t('disputes.noResolution')}</p>
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface text-slate dark:bg-gray-800" aria-hidden="true">{ICONS.flag}</span>
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-2 text-sm font-medium text-ink dark:text-gray-100">
+                        {t('disputes.booking')} <code className="tabular-nums text-slate">{d.booking_id.slice(0, 8)}</code>
+                        <StatusBadge status={d.status} />
+                      </p>
+                      <p className="mt-1 text-xs text-slate">{d.resolution ?? t('disputes.noResolution')}</p>
+                    </div>
                   </div>
                   <Button
                     onClick={() => resolve(d.id)}

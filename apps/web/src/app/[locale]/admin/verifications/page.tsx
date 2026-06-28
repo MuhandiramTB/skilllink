@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { adminApi, type VerificationQueueItem } from '@/lib/admin-api';
 import { PageHeader, Card, Button, Spinner, EmptyState, ErrorBanner, SuccessBanner, StatusBadge } from '@/components/ui';
+import { ICONS } from '@/components/nav-config';
 
 /** A label/value pair in the details grid. */
 function Detail({ label, value }: { label: string; value: string | null }) {
@@ -58,6 +59,7 @@ export default function AdminVerificationsPage() {
       <PageHeader
         title={t('verifications.title')}
         subtitle={t('verifications.subtitle')}
+        action={queue ? <span className="rounded-full bg-surface px-2.5 py-1 text-xs font-semibold tabular-nums text-slate dark:bg-gray-800">{queue.length}</span> : undefined}
       />
 
       {err && <ErrorBanner message={err} />}
@@ -73,14 +75,17 @@ export default function AdminVerificationsPage() {
             <Card key={p.providerId}>
               <li className="list-none space-y-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="truncate font-semibold text-ink dark:text-gray-100">{p.businessName ?? p.fullName ?? t('verifications.noName')}</p>
-                      <StatusBadge status={p.status} />
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface text-slate dark:bg-gray-800" aria-hidden="true">{ICONS.shield}</span>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="truncate font-semibold text-ink dark:text-gray-100">{p.businessName ?? p.fullName ?? t('verifications.noName')}</p>
+                        <StatusBadge status={p.status} />
+                      </div>
+                      {p.fullName && p.businessName && (
+                        <p className="text-sm text-slate">{p.fullName}</p>
+                      )}
                     </div>
-                    {p.fullName && p.businessName && (
-                      <p className="text-sm text-slate">{p.fullName}</p>
-                    )}
                   </div>
                 </div>
 

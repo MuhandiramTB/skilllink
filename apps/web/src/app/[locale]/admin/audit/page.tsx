@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { adminApi, type AuditRow } from '@/lib/admin-api';
 import { Spinner, EmptyState, ErrorBanner, Card, PageHeader } from '@/components/ui';
 import { Pagination } from '@/components/Pagination';
+import { ICONS } from '@/components/nav-config';
 
 const LIMIT = 20;
 
@@ -42,22 +43,25 @@ export default function AdminAuditPage() {
             {rows.map((r) => (
               <li key={r.id}>
                 <Card>
-                  <dl className="space-y-1.5 text-sm">
-                    <div className="flex justify-between gap-3">
-                      <dt className="text-slate">{t('audit.colWhen')}</dt>
-                      <dd className="text-right text-xs text-slate tabular-nums">{new Date(r.created_at).toLocaleString()}</dd>
-                    </div>
-                    <div className="flex justify-between gap-3">
-                      <dt className="text-slate">{t('audit.colAction')}</dt>
-                      <dd className="text-right"><code className="text-xs text-ink dark:text-gray-100">{r.action}</code></dd>
-                    </div>
-                    <div className="flex justify-between gap-3">
-                      <dt className="text-slate">{t('audit.colEntity')}</dt>
-                      <dd className="text-right text-xs text-slate">
-                        {r.entity}{r.entity_id ? ` · ${r.entity_id.slice(0, 8)}` : ''}
-                      </dd>
-                    </div>
-                  </dl>
+                  <div className="flex min-w-0 items-start gap-3">
+                    <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface text-slate dark:bg-gray-800" aria-hidden="true">{ICONS.receipt}</span>
+                    <dl className="min-w-0 flex-1 space-y-1.5 text-sm">
+                      <div className="flex justify-between gap-3">
+                        <dt className="text-slate">{t('audit.colWhen')}</dt>
+                        <dd className="text-right text-xs text-slate tabular-nums">{new Date(r.created_at).toLocaleString()}</dd>
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        <dt className="text-slate">{t('audit.colAction')}</dt>
+                        <dd className="text-right"><code className="text-xs text-ink dark:text-gray-100">{r.action}</code></dd>
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        <dt className="text-slate">{t('audit.colEntity')}</dt>
+                        <dd className="text-right text-xs text-slate">
+                          {r.entity}{r.entity_id ? ` · ${r.entity_id.slice(0, 8)}` : ''}
+                        </dd>
+                      </div>
+                    </dl>
+                  </div>
                 </Card>
               </li>
             ))}
@@ -68,17 +72,22 @@ export default function AdminAuditPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-line text-left text-xs uppercase tracking-wider text-slate dark:border-gray-800">
-                    <th className="px-4 py-3 font-semibold">{t('audit.colWhen')}</th>
-                    <th className="px-4 py-3 font-semibold">{t('audit.colAction')}</th>
-                    <th className="px-4 py-3 font-semibold">{t('audit.colEntity')}</th>
+                  <tr className="border-b border-line text-left dark:border-gray-800">
+                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate">{t('audit.colWhen')}</th>
+                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate">{t('audit.colAction')}</th>
+                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate">{t('audit.colEntity')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((r) => (
                     <tr key={r.id} className="border-b border-line last:border-0 dark:border-gray-800">
                       <td className="px-4 py-3 text-xs text-slate tabular-nums">{new Date(r.created_at).toLocaleString()}</td>
-                      <td className="px-4 py-3"><code className="text-xs text-ink dark:text-gray-100">{r.action}</code></td>
+                      <td className="px-4 py-3">
+                        <span className="flex items-center gap-2">
+                          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-surface text-slate dark:bg-gray-800" aria-hidden="true">{ICONS.receipt}</span>
+                          <code className="text-xs text-ink dark:text-gray-100">{r.action}</code>
+                        </span>
+                      </td>
                       <td className="px-4 py-3 text-xs text-slate">{r.entity}{r.entity_id ? ` · ${r.entity_id.slice(0, 8)}` : ''}</td>
                     </tr>
                   ))}

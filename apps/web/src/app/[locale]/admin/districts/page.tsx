@@ -6,6 +6,7 @@ import { adminApi, type AdminDistrict } from '@/lib/admin-api';
 import { PageHeader, Card, Button, Spinner, EmptyState, ErrorBanner, SuccessBanner } from '@/components/ui';
 import { TrilingualNames, useTrilingual } from '@/components/TrilingualNames';
 import { IconButton, ConfirmModal } from '@/components/IconButton';
+import { ICONS } from '@/components/nav-config';
 
 export default function AdminDistrictsPage() {
   const t = useTranslations('admin');
@@ -73,6 +74,7 @@ export default function AdminDistrictsPage() {
       <PageHeader
         title={t('districts.title')}
         subtitle={t('districts.subtitle')}
+        action={districts ? <span className="rounded-full bg-surface px-2.5 py-1 text-xs font-semibold tabular-nums text-slate dark:bg-gray-800">{districts.length}</span> : undefined}
       />
 
       <Card className="space-y-4">
@@ -113,6 +115,7 @@ export default function AdminDistrictsPage() {
                 </form>
               ) : (
                 <div className="flex items-center gap-2">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface text-slate dark:bg-gray-800" aria-hidden="true">{ICONS.map}</span>
                   <p className="min-w-0 flex-1 truncate font-medium text-ink dark:text-gray-100">{d.name_en}</p>
                   <span
                     className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ring-1 ring-inset ${

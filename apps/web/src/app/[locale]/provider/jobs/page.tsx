@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { bookingApi, type BookingListItem } from '@/lib/booking-api';
 import { getToken } from '@/lib/session';
 import { Button, Card, Spinner, EmptyState, ErrorBanner, StatusBadge, PageHeader } from '@/components/ui';
+import { ICONS } from '@/components/nav-config';
 
 export default function ProviderJobsPage() {
   const locale = (useParams().locale as string) ?? 'en';
@@ -28,17 +29,22 @@ export default function ProviderJobsPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title={t('myJobs')} subtitle={t('myJobsSubtitle')} />
+      <PageHeader
+        title={t('myJobs')}
+        subtitle={t('myJobsSubtitle')}
+        action={jobs ? <span className="rounded-full bg-surface px-2.5 py-1 text-xs font-semibold tabular-nums text-slate dark:bg-gray-800">{jobs.length}</span> : undefined}
+      />
       {err && <ErrorBanner message={err} />}
       {!jobs && !err && <Spinner />}
       {jobs && jobs.length === 0 && !err && <EmptyState>{t('noJobsAssigned')}</EmptyState>}
       {jobs && jobs.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-2.5">
           {jobs.map((j) => (
             <Card key={j.id} className="space-y-4 rounded-xl2">
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="truncate font-medium capitalize text-ink dark:text-gray-50">{j.categoryKey?.replace(/[._]/g, ' ') ?? t('service')}</p>
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface text-slate dark:bg-gray-800" aria-hidden="true">{ICONS.briefcase}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-semibold capitalize text-ink dark:text-gray-50">{j.categoryKey?.replace(/[._]/g, ' ') ?? t('service')}</p>
                   <p className="mt-0.5 truncate text-xs text-slate">{j.description || '—'}</p>
                 </div>
                 <StatusBadge status={j.status} />

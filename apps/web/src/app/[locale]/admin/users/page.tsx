@@ -15,6 +15,7 @@ import {
   Field,
   inputCls,
 } from '@/components/ui';
+import { ICONS } from '@/components/nav-config';
 
 export default function AdminUsersPage() {
   const t = useTranslations('admin');
@@ -39,6 +40,7 @@ export default function AdminUsersPage() {
       <PageHeader
         title={t('users.title')}
         subtitle={t('users.subtitle')}
+        action={users ? <span className="rounded-full bg-surface px-2.5 py-1 text-xs font-semibold tabular-nums text-slate dark:bg-gray-800">{users.length}</span> : undefined}
       />
 
       <Card>
@@ -68,17 +70,22 @@ export default function AdminUsersPage() {
       {users && users.length === 0 && <EmptyState>{t('users.empty')}</EmptyState>}
 
       {users && users.length > 0 && (
-        <ul className="space-y-3">
+        <ul className="space-y-2.5">
           {users.map((u) => (
             <li key={u.id}>
               <Card>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold tabular-nums text-ink dark:text-gray-100">{u.phone}</p>
-                    <p className="mt-1 flex items-center gap-2 text-xs text-slate">
-                      <StatusBadge status={u.role} />
-                      {!u.is_active && <span className="font-medium text-danger">{t('users.suspended')}</span>}
-                    </p>
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold tabular-nums ${u.is_active ? 'bg-primary/10 text-primary' : 'bg-slate/10 text-slate'}`} aria-hidden="true">
+                      {u.phone.replace(/\D/g, '').slice(-2) || (ICONS.user)}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold tabular-nums text-ink dark:text-gray-100">{u.phone}</p>
+                      <p className="mt-1 flex items-center gap-2 text-xs text-slate">
+                        <StatusBadge status={u.role} />
+                        {!u.is_active && <span className="font-medium text-danger">{t('users.suspended')}</span>}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {u.is_active ? (

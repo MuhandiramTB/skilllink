@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { adminApi, type AdminCategory } from '@/lib/admin-api';
 import { PageHeader, Card, Button, Field, inputCls, ErrorBanner, SuccessBanner } from '@/components/ui';
 import { IconButton, ConfirmModal } from '@/components/IconButton';
+import { ICONS } from '@/components/nav-config';
 
 /** Slugify an English name into a valid category key (lowercase, _ separated). */
 function toKey(name: string) {
@@ -126,6 +127,7 @@ export default function AdminCategoriesPage() {
             <Card key={cat.id} className="space-y-3">
               {editing === cat.id ? editRow : (
                 <div className="flex items-center gap-2">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface text-slate dark:bg-gray-800" aria-hidden="true">{ICONS.grid}</span>
                   <p className="min-w-0 flex-1 truncate font-semibold text-ink dark:text-gray-100">{cat.name_en}</p>
                   <StatusPill active={cat.is_active} t={t} />
                   <RowActions c={cat} t={t} onEdit={openEdit} onToggle={toggle} onDelete={setConfirmTarget} />
