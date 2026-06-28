@@ -7,7 +7,8 @@ import { getSession, homeForMode, becomeProvider } from '@/lib/session';
 import { bookingApi, type BookingListItem } from '@/lib/booking-api';
 import { rewardsApi, type RewardsSummary } from '@/lib/rewards-api';
 import { favouritesApi, type Favourite } from '@/lib/favourites-api';
-import { Button, Card, StatCard, StatusBadge, Spinner, EmptyState, ErrorBanner } from '@/components/ui';
+import { Button, AccentButton, Card, MetricCard, StatusBadge, Spinner, EmptyState, ErrorBanner } from '@/components/ui';
+import { ICONS } from '@/components/nav-config';
 import ReferralCard from '@/components/ReferralCard';
 
 const ACTIVE_STATUSES = new Set(['requested', 'matched', 'accepted', 'in_progress']);
@@ -63,15 +64,15 @@ export default function CustomerDashboard() {
 
       {err && <ErrorBanner message={err} />}
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <StatCard label={t('activeBookings')} value={active} tone="primary" />
-        <StatCard label={t('completed')} value={completed} tone="success" />
-        <StatCard label={t('totalBookings')} value={bookings?.length ?? 0} />
+      <div className="grid grid-cols-3 gap-3">
+        <MetricCard icon={ICONS.chat} tone="primary" label={t('activeBookings')} value={active} />
+        <MetricCard icon={ICONS.star} tone="success" label={t('completed')} value={completed} />
+        <MetricCard icon={ICONS.briefcase} label={t('totalBookings')} value={bookings?.length ?? 0} />
       </div>
 
       <div className="flex flex-wrap gap-3">
         <a href={`/${locale}/book`}>
-          <Button>{t('bookAService')}</Button>
+          <AccentButton>{t('bookAService')}</AccentButton>
         </a>
         {!hasProvider && (
           <Button variant="ghost" disabled={becoming} onClick={onBecomeProvider}>

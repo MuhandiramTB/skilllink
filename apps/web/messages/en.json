@@ -502,7 +502,10 @@
     "customers": "Customers",
     "activeDistricts": "Active districts",
     "bookingsByStatus": "Bookings by status",
-    "manage": "Manage"
+    "manage": "Manage",
+    "revenueGroup": "Revenue & bookings",
+    "marketplaceGroup": "Marketplace",
+    "needsReview": "Needs review"
   },
   "notif": {
     "title": "Notifications",

@@ -5,17 +5,18 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { getSession, homeForMode } from '@/lib/session';
 import { adminApi, type Analytics } from '@/lib/admin-api';
-import { Card, StatCard, Money, Spinner, EmptyState, ErrorBanner } from '@/components/ui';
+import { Card, MetricCard, NavCard, Money, Spinner, EmptyState, ErrorBanner } from '@/components/ui';
+import { ICONS } from '@/components/nav-config';
 
 // label = key in the `nav` namespace (already translated for the sidebar).
-const QUICK_LINKS: { navKey: string; path: string }[] = [
-  { navKey: 'users', path: '/admin/users' },
-  { navKey: 'providers', path: '/admin/verifications' },
-  { navKey: 'disputes', path: '/admin/disputes' },
-  { navKey: 'payments', path: '/admin/payments' },
-  { navKey: 'auditLog', path: '/admin/audit' },
-  { navKey: 'categories', path: '/admin/categories' },
-  { navKey: 'districts', path: '/admin/districts' },
+const QUICK_LINKS: { navKey: string; path: string; icon: keyof typeof ICONS }[] = [
+  { navKey: 'users', path: '/admin/users', icon: 'user' },
+  { navKey: 'providers', path: '/admin/verifications', icon: 'shield' },
+  { navKey: 'disputes', path: '/admin/disputes', icon: 'flag' },
+  { navKey: 'payments', path: '/admin/payments', icon: 'wallet' },
+  { navKey: 'auditLog', path: '/admin/audit', icon: 'receipt' },
+  { navKey: 'categories', path: '/admin/categories', icon: 'grid' },
+  { navKey: 'districts', path: '/admin/districts', icon: 'map' },
 ];
 
 export default function AdminDashboard() {
@@ -54,38 +55,42 @@ export default function AdminDashboard() {
         <Spinner label={t('loadingAnalytics')} />
       ) : data ? (
         <>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            <StatCard label={t('totalBookings')} value={data.bookings.total} tone="primary" />
-            <StatCard label={t('completed')} value={data.bookings.completed} tone="success" />
-            <StatCard label={t('grossRevenue')} value={<Money cents={data.revenue.grossCents} />} />
-            <StatCard label={t('commissionEarned')} value={<Money cents={data.revenue.commissionCents} />} tone="success" />
-            <StatCard label={t('approvedProviders')} value={data.providers.approved} />
-            <StatCard label={t('pendingVerifications')} value={data.providers.pending} tone="danger" />
-            <StatCard label={t('customers')} value={data.customers} />
-            <StatCard label={t('activeDistricts')} value={data.activeDistricts} />
-          </div>
+          {/* Money first — the headline metrics for an operator. */}
+          <section className="space-y-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate">{t('revenueGroup')}</h2>
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <MetricCard icon={ICONS.wallet} tone="success" label={t('grossRevenue')} value={<Money cents={data.revenue.grossCents} />} />
+              <MetricCard icon={ICONS.receipt} tone="primary" label={t('commissionEarned')} value={<Money cents={data.revenue.commissionCents} />} />
+              <MetricCard icon={ICONS.chat} label={t('totalBookings')} value={data.bookings.total} sub={`${data.bookings.completed} ${t('completed').toLowerCase()}`} />
+              <MetricCard icon={ICONS.star} tone="success" label={t('completed')} value={data.bookings.completed} />
+            </div>
+          </section>
 
-          <section>
-            <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate">
-              {t('bookingsByStatus')}
-            </h2>
+          {/* Supply + reach. Pending verifications flagged when there's a backlog. */}
+          <section className="space-y-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate">{t('marketplaceGroup')}</h2>
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <MetricCard icon={ICONS.shield} label={t('approvedProviders')} value={data.providers.approved} />
+              <MetricCard icon={ICONS.shield} tone={data.providers.pending > 0 ? 'warn' : 'default'} label={t('pendingVerifications')} value={data.providers.pending} sub={data.providers.pending > 0 ? t('needsReview') : undefined} />
+              <MetricCard icon={ICONS.user} label={t('customers')} value={data.customers} />
+              <MetricCard icon={ICONS.map} label={t('activeDistricts')} value={data.activeDistricts} />
+            </div>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate">{t('bookingsByStatus')}</h2>
             {byStatus.length === 0 ? (
               <EmptyState>{t('noBookingsYet')}</EmptyState>
             ) : (
               <Card>
-                <ul className="space-y-2">
+                <ul className="space-y-3">
                   {byStatus.map(([status, count]) => (
-                    <li key={status}>
-                      <div className="mb-1 flex items-center justify-between text-xs">
-                        <span className="capitalize text-ink dark:text-gray-200">{status.replace(/_/g, ' ')}</span>
-                        <span className="tabular-nums font-semibold text-ink dark:text-gray-100">{count}</span>
-                      </div>
+                    <li key={status} className="grid grid-cols-[7rem_1fr_2.5rem] items-center gap-3">
+                      <span className="truncate text-xs font-medium capitalize text-slate">{status.replace(/_/g, ' ')}</span>
                       <div className="h-2 w-full overflow-hidden rounded-full bg-surface dark:bg-gray-800">
-                        <div
-                          className="h-full rounded-full bg-primary"
-                          style={{ width: `${(count / maxStatus) * 100}%` }}
-                        />
+                        <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(count / maxStatus) * 100}%` }} />
                       </div>
+                      <span className="text-right text-sm font-bold tabular-nums text-ink dark:text-gray-100">{count}</span>
                     </li>
                   ))}
                 </ul>
@@ -93,15 +98,19 @@ export default function AdminDashboard() {
             )}
           </section>
 
-          <section>
-            <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate">
-              {t('manage')}
-            </h2>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <section className="space-y-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate">{t('manage')}</h2>
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
               {QUICK_LINKS.map((l) => (
-                <a key={l.path} href={`/${locale}${l.path}`}>
-                  <Card className="text-center text-sm font-semibold text-ink transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lift dark:text-gray-100">{tNav(l.navKey)}</Card>
-                </a>
+                <NavCard
+                  key={l.path}
+                  href={`/${locale}${l.path}`}
+                  icon={ICONS[l.icon]}
+                  title={tNav(l.navKey)}
+                  badge={l.navKey === 'providers' && data.providers.pending > 0
+                    ? <span className="rounded-full bg-warn/15 px-1.5 py-0.5 text-[10px] font-bold text-warn">{data.providers.pending}</span>
+                    : undefined}
+                />
               ))}
             </div>
           </section>

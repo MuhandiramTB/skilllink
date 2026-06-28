@@ -79,11 +79,29 @@ export function StatusBadge({ status }: { status: string }) {
   );
 }
 
-export function Spinner({ label = 'Loading…' }: { label?: string }) {
+/**
+ * Loading state. Default = a centered, branded loader with breathing room (used for
+ * page/section loads). `inline` = the compact row variant for buttons/small spots.
+ */
+export function Spinner({ label = 'Loading…', inline = false }: { label?: string; inline?: boolean }) {
+  if (inline) {
+    return (
+      <div className="flex items-center gap-2.5 py-6 text-sm font-medium text-slate">
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-line border-t-primary" />
+        {label}
+      </div>
+    );
+  }
   return (
-    <div className="flex items-center gap-2.5 py-6 text-sm font-medium text-slate">
-      <span className="h-4 w-4 animate-spin rounded-full border-2 border-line border-t-primary" />
-      {label}
+    <div className="flex min-h-[45vh] flex-col items-center justify-center gap-5 py-10 text-center">
+      {/* Dual-ring loader: a soft track + a spinning accent arc, with a pulsing dot core. */}
+      <span className="relative flex h-12 w-12 items-center justify-center" aria-hidden="true">
+        <span className="absolute inset-0 rounded-full border-[3px] border-line dark:border-gray-800" />
+        <span className="absolute inset-0 animate-spin rounded-full border-[3px] border-transparent border-t-primary" />
+        <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
+      </span>
+      <span className="text-sm font-medium text-slate">{label}</span>
+      <span className="sr-only" role="status">{label}</span>
     </div>
   );
 }
@@ -133,6 +151,63 @@ export function StatCard({
       <div className={`font-display text-2xl font-bold leading-none tabular-nums sm:text-3xl ${toneCls[tone]}`}>{value}</div>
       <div className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-slate">{label}</div>
     </div>
+  );
+}
+
+/**
+ * Icon-led metric card — the building block of a real dashboard. An icon tile
+ * (tinted by tone), a big tabular value, a label, and an optional context line.
+ * Tone drives the icon tile color so state reads at a glance.
+ */
+export function MetricCard({
+  icon,
+  label,
+  value,
+  sub,
+  tone = 'default',
+}: {
+  icon: ReactNode;
+  label: string;
+  value: ReactNode;
+  sub?: ReactNode;
+  tone?: 'default' | 'primary' | 'success' | 'warn' | 'danger';
+}) {
+  const tile: Record<string, string> = {
+    default: 'bg-slate/10 text-slate',
+    primary: 'bg-primary/10 text-primary',
+    success: 'bg-green-100 text-success dark:bg-green-500/15',
+    warn: 'bg-amber-100 text-warn dark:bg-amber-500/15',
+    danger: 'bg-red-100 text-danger dark:bg-red-500/15',
+  };
+  return (
+    <div className="rounded-xl2 border border-line bg-white p-4 shadow-card dark:border-gray-800 dark:bg-gray-900">
+      <div className="flex items-start justify-between gap-2">
+        <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${tile[tone]}`} aria-hidden="true">{icon}</span>
+        {sub && <span className="text-[11px] font-semibold text-slate">{sub}</span>}
+      </div>
+      <div className="mt-3 font-display text-2xl font-bold leading-none tabular-nums text-ink dark:text-gray-50 sm:text-[28px]">{value}</div>
+      <div className="mt-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate">{label}</div>
+    </div>
+  );
+}
+
+/** Navigation card — icon tile + title + one-line description. The proper way to
+ *  present a "jump to section" link (vs. a bare text box). */
+export function NavCard({ href, icon, title, desc, badge }: { href: string; icon: ReactNode; title: string; desc?: string; badge?: ReactNode }) {
+  return (
+    <a
+      href={href}
+      className="group flex items-center gap-3.5 rounded-xl2 border border-line bg-white p-4 shadow-card transition-all duration-150 hover:-translate-y-0.5 hover:border-primary hover:shadow-lift dark:border-gray-800 dark:bg-gray-900"
+    >
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface text-slate transition-colors group-hover:bg-primary group-hover:text-white dark:bg-gray-800" aria-hidden="true">{icon}</span>
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2 font-semibold text-ink dark:text-gray-100">{title}{badge}</span>
+        {desc && <span className="mt-0.5 block truncate text-xs text-slate">{desc}</span>}
+      </span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 shrink-0 text-slate transition-transform group-hover:translate-x-0.5 group-hover:text-primary" aria-hidden="true">
+        <path d="M9 18l6-6-6-6" />
+      </svg>
+    </a>
   );
 }
 

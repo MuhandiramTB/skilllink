@@ -6,7 +6,8 @@ import { useTranslations } from 'next-intl';
 import { getSession, homeForMode } from '@/lib/session';
 import { providerApi, type ProviderMe, type WalletSummary } from '@/lib/provider-api';
 import { bookingApi, type BookingListItem } from '@/lib/booking-api';
-import { Button, Card, StatCard, Money, StatusBadge, Spinner, EmptyState, ErrorBanner, SuccessBanner, inputCls } from '@/components/ui';
+import { Button, Card, MetricCard, Money, StatusBadge, Spinner, EmptyState, ErrorBanner, SuccessBanner, inputCls } from '@/components/ui';
+import { ICONS } from '@/components/nav-config';
 import WorkPhotosManager from '@/components/WorkPhotosManager';
 
 export default function ProviderDashboard() {
@@ -89,12 +90,13 @@ export default function ProviderDashboard() {
       ) : (
         <>
           <div className="grid grid-cols-3 gap-3">
-            <Card>
-              <div className="text-sm"><StatusBadge status={me?.status ?? 'pending'} /></div>
-              <div className="mt-1 text-[11px] font-medium uppercase tracking-wide text-slate">{t('status')}</div>
-            </Card>
-            <StatCard label={t('rating')} value={(me?.ratingAvg ?? 0).toFixed(1)} tone="primary" />
-            <StatCard label={t('paidJobs')} value={earnings?.paidJobs ?? 0} />
+            <div className="rounded-xl2 border border-line bg-white p-4 shadow-card dark:border-gray-800 dark:bg-gray-900">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate/10 text-slate" aria-hidden="true">{ICONS.shield}</span>
+              <div className="mt-3"><StatusBadge status={me?.status ?? 'pending'} /></div>
+              <div className="mt-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate">{t('status')}</div>
+            </div>
+            <MetricCard icon={ICONS.star} tone="primary" label={t('rating')} value={(me?.ratingAvg ?? 0).toFixed(1)} />
+            <MetricCard icon={ICONS.briefcase} tone="success" label={t('paidJobs')} value={earnings?.paidJobs ?? 0} />
           </div>
 
           <section>

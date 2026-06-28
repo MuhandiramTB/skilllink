@@ -490,7 +490,10 @@
     "customers": "පාරිභෝගිකයෝ",
     "activeDistricts": "සක්‍රිය දිස්ත්‍රික්ක",
     "bookingsByStatus": "තත්ත්වය අනුව වෙන්කිරීම්",
-    "manage": "කළමනාකරණය"
+    "manage": "කළමනාකරණය",
+    "revenueGroup": "ආදායම සහ වෙන්කිරීම්",
+    "marketplaceGroup": "වෙළඳපොළ",
+    "needsReview": "සමාලෝචනය අවශ්‍යයි"
   },
   "notif": {
     "title": "දැනුම්දීම්",
