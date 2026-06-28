@@ -8,6 +8,7 @@ import {
   clearToken, logoutAllDevices, type Me, type District, type Role,
 } from '@/lib/session';
 import { Card, Button, Spinner, ErrorBanner, SuccessBanner } from '@/components/ui';
+import ReferralCard from '@/components/ReferralCard';
 
 type Theme = 'light' | 'dark';
 const THEME_KEY = 'skilllink_theme';
@@ -188,6 +189,10 @@ export default function ProfilePage() {
           </Button>
         </form>
       </Card>
+
+      {/* Refer & earn — customers only (admins don't refer). Full referral UI lives
+          here in the profile; the dashboard shows a compact promo that links here. */}
+      {!me.roles.includes('admin') && <div id="referrals"><ReferralCard /></div>}
 
       {/* Preferences: theme */}
       <Card className="space-y-3">

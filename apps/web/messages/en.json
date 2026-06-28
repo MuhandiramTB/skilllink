@@ -349,6 +349,7 @@
     "addFavourite": "Save to favourites",
     "removeFavourite": "Remove from favourites",
     "referFriends": "Refer friends, earn points",
+    "referDashboardHint": "Share your code — you both get rewarded.",
     "referExplainer": "Share your code. They get {referee} points when they join, and you get {referrer} points.",
     "copy": "Copy",
     "copied": "Copied!",

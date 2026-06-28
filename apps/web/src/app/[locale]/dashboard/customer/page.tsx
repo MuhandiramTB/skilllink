@@ -9,7 +9,6 @@ import { rewardsApi, type RewardsSummary } from '@/lib/rewards-api';
 import { favouritesApi, type Favourite } from '@/lib/favourites-api';
 import { Button, AccentButton, Card, MetricCard, StatusBadge, Spinner, EmptyState, ErrorBanner } from '@/components/ui';
 import { ICONS } from '@/components/nav-config';
-import ReferralCard from '@/components/ReferralCard';
 
 const ACTIVE_STATUSES = new Set(['requested', 'matched', 'accepted', 'in_progress']);
 
@@ -109,7 +108,25 @@ export default function CustomerDashboard() {
         </section>
       )}
 
-      <ReferralCard />
+      {/* Compact referral promo — full code/apply UI lives in Profile (discoverable
+          here without cluttering the dashboard). */}
+      <a
+        href={`/${locale}/profile#referrals`}
+        className="group flex items-center gap-3.5 rounded-xl2 border border-primary/20 bg-primary/5 p-4 transition-all duration-150 hover:-translate-y-0.5 hover:border-primary hover:shadow-lift dark:border-primary/30 dark:bg-primary/10"
+      >
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-white" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+            <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+          </svg>
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-semibold text-ink dark:text-gray-100">{t('referFriends')}</span>
+          <span className="mt-0.5 block truncate text-xs text-slate">{t('referDashboardHint')}</span>
+        </span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5" aria-hidden="true">
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+      </a>
 
       {favourites.length > 0 && (
         <section>
