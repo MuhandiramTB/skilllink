@@ -61,17 +61,18 @@ export default async function HomePage({ params }: { params: { locale: string } 
             </h1>
             <p className="mt-4 max-w-md text-base leading-relaxed text-slate sm:text-lg">{t('heroSub')}</p>
 
-            {/* Search bar — what + where + go */}
-            <form action={`/${locale}/book`} className="mt-7 flex flex-col gap-2 rounded-xl2 border border-line bg-white p-2 shadow-lift dark:border-gray-800 dark:bg-gray-900 md:flex-row">
-              <div className="flex flex-1 items-center gap-3 border-b border-line px-4 py-2.5 md:border-b-0 md:border-r dark:border-gray-800">
+            {/* Search bar — routes to /book?q=<what> which pre-filters services.
+                Wraps cleanly instead of clipping on narrower widths. */}
+            <form action={`/${locale}/book`} method="get" className="mt-7 flex flex-wrap items-center gap-2 rounded-xl2 border border-line bg-white p-2 shadow-lift dark:border-gray-800 dark:bg-gray-900 sm:flex-nowrap">
+              <div className="flex min-w-[10rem] flex-1 items-center gap-2.5 rounded-base px-3 py-2.5 sm:border-r sm:border-line dark:sm:border-gray-800">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 shrink-0 text-primary" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.3-4.3" /></svg>
-                <input name="q" className="w-full border-none bg-transparent text-ink placeholder:text-slate/60 focus:outline-none focus:ring-0 dark:text-gray-100" placeholder={t('searchWhat')} type="text" />
+                <input name="q" className="w-full border-none bg-transparent text-sm text-ink placeholder:text-slate/60 focus:outline-none focus:ring-0 dark:text-gray-100" placeholder={t('searchWhat')} type="text" />
               </div>
-              <div className="flex flex-1 items-center gap-3 px-4 py-2.5">
+              <div className="flex min-w-[8rem] flex-1 items-center gap-2.5 rounded-base px-3 py-2.5">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 shrink-0 text-primary" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
-                <input name="loc" className="w-full border-none bg-transparent text-ink placeholder:text-slate/60 focus:outline-none focus:ring-0 dark:text-gray-100" placeholder={t('searchWhere')} type="text" />
+                <input name="loc" className="w-full border-none bg-transparent text-sm text-ink placeholder:text-slate/60 focus:outline-none focus:ring-0 dark:text-gray-100" placeholder={t('searchWhere')} type="text" />
               </div>
-              <button type="submit" className="rounded-base bg-primary px-7 py-3 text-sm font-bold text-white transition-all duration-150 hover:bg-primary-700 active:translate-y-px">
+              <button type="submit" className="w-full shrink-0 rounded-base bg-primary px-7 py-3 text-sm font-bold text-white transition-all duration-150 hover:bg-primary-700 active:translate-y-px sm:w-auto">
                 {t('search')}
               </button>
             </form>

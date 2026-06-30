@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { getToken } from '@/lib/session';
 import { fetchCategories, type CategoryNode } from '@/lib/api';
@@ -15,9 +15,11 @@ export default function BookPage() {
   const locale = (params.locale as Locale) ?? 'en';
   const t = useTranslations('book');
 
+  // Seed the search from the hero's ?q= so "what do you need" carries through.
+  const initialQ = useSearchParams().get('q') ?? '';
   const [cats, setCats] = useState<CategoryNode[] | null>(null);
   const [err, setErr] = useState('');
-  const [q, setQ] = useState('');
+  const [q, setQ] = useState(initialQ);
 
   useEffect(() => {
     if (!getToken()) {
