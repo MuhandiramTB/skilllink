@@ -61,7 +61,21 @@
     "providerButton": "Become a provider",
     "staff": "Staff & admin",
     "loading": "Loading services…",
-    "error": "Could not load services. Is the API running?"
+    "error": "Could not load services. Is the API running?",
+    "searchWhat": "What do you need help with?",
+    "searchWhere": "Your location",
+    "search": "Search",
+    "prosReady": "pros ready to help",
+    "popularSub": "Handpicked experts for your common needs.",
+    "viewAll": "View all",
+    "whyTitle": "Why choose SkillLink?",
+    "whySub": "We've built the most trusted network of service providers to give you peace of mind with every booking.",
+    "whyVerifiedTitle": "ID-verified pros",
+    "whyVerifiedBody": "Every professional undergoes a multi-step background check and ID verification before they can take jobs.",
+    "whyPricingTitle": "Transparent pricing",
+    "whyPricingBody": "No hidden fees. Get a clear quote and pay securely in the app — only when you're satisfied.",
+    "whyGuaranteeTitle": "Service guarantee",
+    "whyGuaranteeBody": "Every job booked through SkillLink is backed by our satisfaction guarantee. Your home is in safe hands."
   },
   "login": {
     "title": "Sign in",
