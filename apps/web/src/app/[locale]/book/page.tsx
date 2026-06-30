@@ -16,7 +16,9 @@ export default function BookPage() {
   const t = useTranslations('book');
 
   // Seed the search from the hero's ?q= so "what do you need" carries through.
-  const initialQ = useSearchParams().get('q') ?? '';
+  const sp = useSearchParams();
+  const initialQ = sp.get('q') ?? '';
+  const loc = sp.get('loc')?.trim() ?? '';
   const [cats, setCats] = useState<CategoryNode[] | null>(null);
   const [err, setErr] = useState('');
   const [q, setQ] = useState(initialQ);
@@ -48,6 +50,12 @@ export default function BookPage() {
       <header>
         <h1 className="font-display text-2xl font-bold text-ink dark:text-gray-50">{t('title')}</h1>
         <p className="text-sm text-slate dark:text-gray-400">{t('subtitle')}</p>
+        {loc && (
+          <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
+            {loc} · {t('confirmOnMap')}
+          </p>
+        )}
       </header>
 
       {/* Search */}

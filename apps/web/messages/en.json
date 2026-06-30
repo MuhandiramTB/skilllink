@@ -100,7 +100,8 @@
     "searchPlaceholder": "Search services (e.g. wiring, leak, AC)",
     "loading": "Loading services…",
     "error": "Could not load services. Please try again.",
-    "noResults": "No services match your search."
+    "noResults": "No services match your search.",
+    "confirmOnMap": "confirm the exact spot on the map next"
   },
   "profile": {
     "title": "Your profile",
