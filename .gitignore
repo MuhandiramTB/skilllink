@@ -36,3 +36,6 @@ test-results/
 # Playwright/E2E screenshot output folders (e.g. apps/web/audit-shots, *-shots)
 *-shots/
 playwright/.cache/
+
+# TypeScript incremental build cache (generated)
+*.tsbuildinfo
