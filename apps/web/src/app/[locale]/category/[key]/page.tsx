@@ -8,6 +8,7 @@ import { favouritesApi } from '@/lib/favourites-api';
 import { getToken } from '@/lib/session';
 import { Button, Card, ErrorBanner, EmptyState, Spinner, PageHeader, Field, inputCls } from '@/components/ui';
 import { LocationPicker, KANDY, type LatLng } from '@/components/LocationPicker';
+import { ICONS, HEART_PATH } from '@/components/nav-config';
 
 export default function CategoryBookingPage() {
   const p = useParams();
@@ -125,7 +126,7 @@ export default function CategoryBookingPage() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={m.cover_photo} alt={m.business_name ?? ''} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xl text-gray-300">🛠️</div>
+                  <div className="flex h-full w-full items-center justify-center text-slate/50 [&>svg]:h-6 [&>svg]:w-6">{ICONS.tools}</div>
                 )}
                 {m.photo_count > 1 && (
                   <span className="absolute bottom-0.5 right-0.5 rounded bg-black/60 px-1 text-[10px] font-medium text-white">
@@ -156,10 +157,10 @@ export default function CategoryBookingPage() {
                   onClick={() => toggleFav(m.provider_id)}
                   aria-label={favIds.has(m.provider_id) ? t('removeFavourite') : t('addFavourite')}
                   aria-pressed={favIds.has(m.provider_id)}
-                  className="text-xl leading-none transition hover:scale-110"
+                  className={`transition-transform hover:scale-110 ${favIds.has(m.provider_id) ? 'text-danger' : 'text-slate'}`}
                   title={favIds.has(m.provider_id) ? t('removeFavourite') : t('addFavourite')}
                 >
-                  {favIds.has(m.provider_id) ? '❤️' : '🤍'}
+                  <svg viewBox="0 0 24 24" fill={favIds.has(m.provider_id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true"><path d={HEART_PATH} /></svg>
                 </button>
                 <Button variant="success" onClick={() => book(m.provider_id)}>{t('book')}</Button>
               </div>

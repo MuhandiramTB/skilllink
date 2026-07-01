@@ -7,7 +7,7 @@ import { getSession, homeForMode, becomeProvider } from '@/lib/session';
 import { bookingApi, type BookingListItem } from '@/lib/booking-api';
 import { rewardsApi, type RewardsSummary } from '@/lib/rewards-api';
 import { favouritesApi, type Favourite } from '@/lib/favourites-api';
-import { Button, AccentButton, Card, MetricCard, StatusBadge, Spinner, EmptyState, ErrorBanner } from '@/components/ui';
+import { Button, AccentButton, Card, MetricCard, StatusBadge, SkeletonList, EmptyState, ErrorBanner } from '@/components/ui';
 import { ICONS } from '@/components/nav-config';
 import { CategoryIcon } from '@/components/category-icon';
 
@@ -123,7 +123,7 @@ export default function CustomerDashboard() {
           </div>
 
           {bookings === null && !err ? (
-            <Spinner label={t('loadingBookings')} />
+            <SkeletonList rows={2} />
           ) : active.length === 0 ? (
             <EmptyState>{t('noActiveBookings')} <a href={`/${locale}/book`} className="font-semibold text-primary hover:underline">{t('bookAService')}</a></EmptyState>
           ) : (
@@ -221,7 +221,10 @@ export default function CustomerDashboard() {
       {/* ===== Full-width promo band (Stitch "Protect your home" layout) ===== */}
       <section className="relative overflow-hidden rounded-[20px] bg-secondary-container p-7 text-white sm:p-9">
           <div className="relative z-10 max-w-lg">
-            <p className="text-xs font-bold uppercase tracking-wider text-white/80">{t('rewards')} · ⭐ {t('pointsBalance', { points: rewards?.points ?? 0 })}</p>
+            <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white/80">
+              <span className="[&>svg]:h-4 [&>svg]:w-4">{ICONS.star}</span>
+              {t('rewards')} · {t('pointsBalance', { points: rewards?.points ?? 0 })}
+            </p>
             <h3 className="mt-2 font-display text-2xl font-extrabold tracking-tightest sm:text-[28px]">{t('promoTitle')}</h3>
             <p className="mt-3 text-sm leading-relaxed text-white/90">{t('promoSub', { referrer: 50, referee: 30 })}</p>
             <a href={`/${locale}/profile#referrals`} className="mt-6 inline-block rounded-lg bg-white px-7 py-3 text-sm font-bold text-secondary-container transition-all hover:bg-white/90 active:translate-y-px">

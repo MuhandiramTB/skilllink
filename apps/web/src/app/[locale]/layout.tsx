@@ -16,6 +16,7 @@ import { AppBottomNav } from '@/components/AppBottomNav';
 import { AppSidebar } from '@/components/AppSidebar';
 import { AppMobileMenu } from '@/components/AppMobileMenu';
 import { AvatarButton } from '@/components/AvatarButton';
+import { ToastProvider } from '@/components/Toast';
 
 // Inline script: apply saved theme before paint to avoid a flash of light mode.
 const THEME_SCRIPT = `try{var t=localStorage.getItem('skilllink_theme');if(t==='dark')document.documentElement.classList.add('dark');}catch(e){}`;
@@ -42,6 +43,7 @@ export default async function LocaleLayout({
       <head><script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} /></head>
       <body className="font-body">
         <NextIntlClientProvider messages={messages}>
+        <ToastProvider>
           {/* Single app shell.
               Mobile (<md): full-width column — top bar (hamburger + logo + mode +
                 utilities) → content → fixed bottom tab bar. Full menu via the drawer.
@@ -78,6 +80,7 @@ export default async function LocaleLayout({
             {/* Role-aware bottom tabs — signed-in, mobile only. */}
             <AppBottomNav />
           </div>
+        </ToastProvider>
         </NextIntlClientProvider>
       </body>
     </html>

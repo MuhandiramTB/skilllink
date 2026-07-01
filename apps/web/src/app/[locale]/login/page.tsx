@@ -118,8 +118,8 @@ export default function LoginPage() {
                 <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-ink dark:text-gray-200">{t('phoneLabel')}</label>
                 {/* Country code as a fixed adornment — the user only types local digits. */}
                 <div className={`flex items-stretch overflow-hidden rounded-base border border-line transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 dark:border-gray-700 ${phoneErr ? 'border-danger' : ''}`}>
-                  <span className="flex items-center gap-1.5 border-r border-line bg-surface px-3 text-sm font-medium text-slate dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                    <span aria-hidden="true">🇱🇰</span> +94
+                  <span className="flex items-center gap-1.5 border-r border-line bg-surface px-3 text-sm font-semibold text-slate dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                    LK +94
                   </span>
                   <input
                     id="phone"

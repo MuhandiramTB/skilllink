@@ -45,10 +45,10 @@ export default function ProviderProfilePage() {
             onClick={toggleFav}
             aria-pressed={fav}
             aria-label={fav ? t('removeFavourite') : t('addFavourite')}
-            className="text-2xl transition hover:scale-110"
+            className={`flex h-10 w-10 items-center justify-center rounded-full border border-line transition-all hover:scale-105 ${fav ? 'border-danger/30 bg-danger/10 text-danger' : 'text-slate hover:border-ink hover:text-ink'} dark:border-gray-700`}
             title={fav ? t('removeFavourite') : t('addFavourite')}
           >
-            {fav ? '❤️' : '🤍'}
+            <svg viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8z" /></svg>
           </button>
         }
       />
