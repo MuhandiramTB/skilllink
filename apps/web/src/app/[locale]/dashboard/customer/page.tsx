@@ -7,7 +7,7 @@ import { getSession, homeForMode, becomeProvider } from '@/lib/session';
 import { bookingApi, type BookingListItem } from '@/lib/booking-api';
 import { rewardsApi, type RewardsSummary } from '@/lib/rewards-api';
 import { favouritesApi, type Favourite } from '@/lib/favourites-api';
-import { Button, AccentButton, Card, MetricCard, StatusBadge, Spinner, EmptyState, ErrorBanner } from '@/components/ui';
+import { Button, AccentButton, Card, MetricCard, StatusBadge, SkeletonList, EmptyState, ErrorBanner } from '@/components/ui';
 import { ICONS } from '@/components/nav-config';
 import { CategoryIcon } from '@/components/category-icon';
 
@@ -123,7 +123,7 @@ export default function CustomerDashboard() {
           </div>
 
           {bookings === null && !err ? (
-            <Spinner label={t('loadingBookings')} />
+            <SkeletonList rows={2} />
           ) : active.length === 0 ? (
             <EmptyState>{t('noActiveBookings')} <a href={`/${locale}/book`} className="font-semibold text-primary hover:underline">{t('bookAService')}</a></EmptyState>
           ) : (

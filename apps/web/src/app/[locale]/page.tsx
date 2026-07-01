@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { fetchCategories, type CategoryNode } from '@/lib/api';
 import { LandingGate } from '@/components/LandingGate';
 import { HeroSlider } from '@/components/HeroSlider';
+import { Reveal } from '@/components/Reveal';
 
 type Locale = 'en' | 'si' | 'ta';
 
@@ -98,6 +99,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
       </section>
 
       {/* ===== Popular services (bento grid) ===== */}
+      <Reveal>
       <section id="services" className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <div className="mb-6 flex items-end justify-between gap-3">
           <div>
@@ -128,8 +130,10 @@ export default async function HomePage({ params }: { params: { locale: string } 
           ))}
         </ul>
       </section>
+      </Reveal>
 
       {/* ===== Why SkillLink ===== */}
+      <Reveal>
       <section className="bg-white px-4 py-14 dark:bg-gray-900/40 sm:px-6 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto mb-12 max-w-2xl text-center">
@@ -153,8 +157,10 @@ export default async function HomePage({ params }: { params: { locale: string } 
           </div>
         </div>
       </section>
+      </Reveal>
 
       {/* ===== Become a Provider CTA (Stitch: deep-navy panel, white buttons) ===== */}
+      <Reveal>
       <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <div className="relative overflow-hidden rounded-3xl bg-[#131b2e] p-8 sm:p-12 md:p-16">
           <div className="pointer-events-none absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '20px 20px' }} aria-hidden="true" />
@@ -193,6 +199,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
           </div>
         </div>
       </section>
+      </Reveal>
 
       {/* ===== Footer with staff entry ===== */}
       <footer className="border-t border-line px-4 py-8 text-center text-xs text-slate dark:border-gray-800">

@@ -106,6 +106,48 @@ export function Spinner({ label = 'Loading…', inline = false }: { label?: stri
   );
 }
 
+/** Shimmer placeholder block. Compose these into content-shaped skeletons. */
+export function Skeleton({ className = '' }: { className?: string }) {
+  return <span className={`sl-skeleton block ${className}`} aria-hidden="true" />;
+}
+
+/** A card-shaped skeleton row (icon tile + two lines) — matches list/dashboard rows. */
+export function SkeletonRow() {
+  return (
+    <div className="flex items-center gap-3 rounded-xl2 border border-line bg-white p-4 shadow-card dark:border-gray-800 dark:bg-gray-900">
+      <Skeleton className="h-10 w-10 rounded-lg" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-3.5 w-1/3" />
+        <Skeleton className="h-3 w-1/2" />
+      </div>
+    </div>
+  );
+}
+
+/** N skeleton rows — drop-in for a loading list. */
+export function SkeletonList({ rows = 3 }: { rows?: number }) {
+  return (
+    <div className="space-y-2.5" role="status" aria-label="Loading">
+      {Array.from({ length: rows }).map((_, i) => <SkeletonRow key={i} />)}
+    </div>
+  );
+}
+
+/** Skeleton grid of stat/metric cards. */
+export function SkeletonMetrics({ count = 3 }: { count?: number }) {
+  return (
+    <div className="grid grid-cols-3 gap-3" role="status" aria-label="Loading">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="rounded-xl2 border border-line bg-white p-4 shadow-card dark:border-gray-800 dark:bg-gray-900">
+          <Skeleton className="h-9 w-9 rounded-lg" />
+          <Skeleton className="mt-3 h-6 w-12" />
+          <Skeleton className="mt-2 h-3 w-16" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function EmptyState({ children }: { children: ReactNode }) {
   return (
     <div className="rounded-xl2 border border-dashed border-line bg-white/50 p-8 text-center text-sm text-slate dark:border-gray-800 dark:bg-gray-900/40">
@@ -119,6 +161,24 @@ export function ErrorBanner({ message }: { message: string }) {
     <p className="flex items-start gap-2 rounded-base border border-red-200 bg-red-50 px-3 py-2.5 text-sm font-medium text-danger dark:border-red-500/30 dark:bg-red-500/10">
       <span aria-hidden="true">⚠</span>{message}
     </p>
+  );
+}
+
+/** Celebratory success moment — a popping badge with a drawing check-mark, plus a
+ *  headline + optional sub. Used at peaks (payment settled, booking confirmed). */
+export function SuccessBurst({ title, sub }: { title: string; sub?: ReactNode }) {
+  return (
+    <div className="flex flex-col items-center gap-3 py-4 text-center">
+      <span className="sl-pop flex h-16 w-16 items-center justify-center rounded-full bg-success/12 text-success" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8">
+          <path className="sl-check" d="M20 6L9 17l-5-5" />
+        </svg>
+      </span>
+      <div>
+        <p className="font-display text-lg font-bold text-ink dark:text-gray-50">{title}</p>
+        {sub && <p className="mt-1 text-sm text-slate">{sub}</p>}
+      </div>
+    </div>
   );
 }
 

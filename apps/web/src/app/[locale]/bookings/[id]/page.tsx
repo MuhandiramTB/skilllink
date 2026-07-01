@@ -5,13 +5,15 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { bookingApi, type Booking, type Message } from '@/lib/booking-api';
 import { getToken, getSession } from '@/lib/session';
-import { Button, Card, Spinner, ErrorBanner, SuccessBanner, StatusBadge, PageHeader, Money, Field, BookingProgress, inputCls } from '@/components/ui';
+import { Button, Card, Spinner, ErrorBanner, SuccessBanner, SuccessBurst, StatusBadge, PageHeader, Money, Field, BookingProgress, inputCls } from '@/components/ui';
+import { useToast } from '@/components/Toast';
 
 export default function BookingDetailPage() {
   const p = useParams();
   const id = p.id as string;
   const locale = (p.locale as string) ?? 'en';
   const t = useTranslations('dash');
+  const toast = useToast();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [chat, setChat] = useState('');
@@ -48,24 +50,24 @@ export default function BookingDetailPage() {
     if (!amount || amount <= 0) { setErr(t('enterValidPrice')); return; }
     if (busy) return;
     setBusy('quote');
-    try { await bookingApi.quote(id, Math.round(amount * 100)); setMsg(t('quoteSaved')); await load(); } catch (e) { fail(e); } finally { setBusy(null); }
+    try { await bookingApi.quote(id, Math.round(amount * 100)); setMsg(t('quoteSaved')); toast.show(t('quoteSaved'), 'success'); await load(); } catch (e) { fail(e); toast.show((e as Error).message, 'error'); } finally { setBusy(null); }
   }
   async function acceptQuote() {
     setErr('');
     if (busy) return;
     setBusy('accept');
-    try { await bookingApi.acceptQuote(id); setMsg(t('quoteAccepted')); await load(); } catch (e) { fail(e); } finally { setBusy(null); }
+    try { await bookingApi.acceptQuote(id); setMsg(t('quoteAccepted')); toast.show(t('quoteAccepted'), 'success'); await load(); } catch (e) { fail(e); toast.show((e as Error).message, 'error'); } finally { setBusy(null); }
   }
   async function settle(method: 'cash' | 'in_app') {
     setErr('');
     if (busy) return;
     setBusy('pay');
-    try { await bookingApi.settle(id, method); setSettled(true); setMsg(t('paymentSettled')); } catch (e) { fail(e); } finally { setBusy(null); }
+    try { await bookingApi.settle(id, method); setSettled(true); setMsg(t('paymentSettled')); toast.show(t('paymentSettled'), 'success'); } catch (e) { fail(e); toast.show((e as Error).message, 'error'); } finally { setBusy(null); }
   }
   async function leaveReview() {
     if (busy) return;
     setBusy('review');
-    try { await bookingApi.review(id, Number(stars), 'Reviewed via app'); setReviewed(true); } catch (e) { fail(e); } finally { setBusy(null); }
+    try { await bookingApi.review(id, Number(stars), 'Reviewed via app'); setReviewed(true); toast.show(t('reviewThanks', { stars }), 'success'); } catch (e) { fail(e); toast.show((e as Error).message, 'error'); } finally { setBusy(null); }
   }
   async function cancel() {
     if (busy) return;
@@ -181,7 +183,7 @@ export default function BookingDetailPage() {
                 <Button variant="ghost" onClick={() => settle('cash')} disabled={busy === 'pay'}>{busy === 'pay' ? t('saving') : t('payCash')}</Button>
               </div>
             </>
-          ) : <SuccessBanner message={t('pointsEarnedNote')} />}
+          ) : <SuccessBurst title={t('jobComplete')} sub={t('pointsEarnedNote')} />}
 
           {settled && !reviewed && (
             <div>

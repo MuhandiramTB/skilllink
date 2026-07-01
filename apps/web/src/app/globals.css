@@ -48,11 +48,55 @@ h1, h2, h3, .font-display {
 .dark .bg-gray-50 { @apply bg-gray-800; }
 .dark .bg-surface { @apply bg-[#0B0D12]; }
 
+/* ============================================================================
+   Motion system — reusable keyframes + utilities. All gated by reduced-motion.
+   ========================================================================== */
+
 /* Landing reveal after the splash. */
 @keyframes gateFade {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Skeleton shimmer — a soft sweep across placeholder blocks. */
+@keyframes sl-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.sl-skeleton {
+  background: linear-gradient(90deg, rgba(0,0,0,0.05) 25%, rgba(0,0,0,0.09) 37%, rgba(0,0,0,0.05) 63%);
+  background-size: 200% 100%;
+  animation: sl-shimmer 1.4s ease-in-out infinite;
+  border-radius: 8px;
+}
+.dark .sl-skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.09) 37%, rgba(255,255,255,0.05) 63%);
+  background-size: 200% 100%;
+}
+
+/* Toast entrance — slide up + fade (mobile bottom / desktop bottom-right). */
+@keyframes sl-toast-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.sl-toast-in { animation: sl-toast-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Success moment — badge pops in, then the check-mark draws. */
+@keyframes sl-pop {
+  0% { opacity: 0; transform: scale(0.6); }
+  60% { transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.sl-pop { animation: sl-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes sl-draw { to { stroke-dashoffset: 0; } }
+.sl-check { stroke-dasharray: 30; stroke-dashoffset: 30; animation: sl-draw 0.4s ease-out 0.25s forwards; }
+
+/* Scroll/reveal — a small rise + fade, applied per element with a delay var. */
+@keyframes sl-reveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.sl-reveal { animation: sl-reveal 0.5s ease-out both; animation-delay: var(--sl-delay, 0ms); }
 
 /* Respect reduced-motion preferences for all transitions/animations. */
 @media (prefers-reduced-motion: reduce) {
