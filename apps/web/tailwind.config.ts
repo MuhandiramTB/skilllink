@@ -21,6 +21,12 @@ const config: Config = {
         'primary-600': '#1D4ED8',
         'primary-700': '#1E40AF',
         accent: '#1D4ED8', // was amber; collapse onto the single accent
+        // Stitch palette tokens used by ported designs (login panel, dashboard).
+        'secondary-container': '#2170e4',
+        'primary-fixed-dim': '#bec6e0',
+        'primary-fixed': '#dae2fd',
+        'primary-container': '#131b2e',
+        'tertiary-fixed-dim': '#b7c8e1',
         ink: '#0B0D12', // near-black ground for headings + primary buttons
         slate: '#5B6472', // cool secondary text
         // Cool-biased neutral surfaces
