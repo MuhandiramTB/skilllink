@@ -9,20 +9,26 @@ import {
   Spinner,
   EmptyState,
   ErrorBanner,
-  SuccessBanner,
   StatusBadge,
   PageHeader,
   Field,
   inputCls,
 } from '@/components/ui';
+import { ConfirmModal } from '@/components/IconButton';
+import { useToast } from '@/components/Toast';
 import { ICONS } from '@/components/nav-config';
 
 export default function AdminUsersPage() {
   const t = useTranslations('admin');
+  const toast = useToast();
   const [users, setUsers] = useState<AdminUser[] | null>(null);
   const [search, setSearch] = useState('');
   const [err, setErr] = useState('');
-  const [msg, setMsg] = useState('');
+  const [busyId, setBusyId] = useState<string | null>(null);
+  // A pending destructive action awaiting confirmation in the modal.
+  const [confirmAction, setConfirmAction] = useState<
+    null | { title: string; message: string; confirmLabel: string; run: () => Promise<unknown>; ok: string }
+  >(null);
 
   async function load(q = '') {
     setErr('');
@@ -30,9 +36,22 @@ export default function AdminUsersPage() {
   }
   useEffect(() => { void load(); }, []);
 
-  async function act(fn: () => Promise<unknown>, ok: string) {
-    setErr(''); setMsg('');
-    try { await fn(); setMsg(ok); await load(search); } catch (e) { setErr((e as Error).message); }
+  // Immediate action (reactivate, force-logout) — no confirmation needed.
+  async function act(id: string, fn: () => Promise<unknown>, ok: string) {
+    setErr(''); setBusyId(id);
+    try { await fn(); toast.show(ok, 'success'); await load(search); }
+    catch (e) { setErr((e as Error).message); toast.show((e as Error).message, 'error'); }
+    finally { setBusyId(null); }
+  }
+
+  // Runs the confirmed destructive action, then closes the modal.
+  async function runConfirmed() {
+    if (!confirmAction) return;
+    const { run, ok } = confirmAction;
+    setConfirmAction(null);
+    setErr('');
+    try { await run(); toast.show(ok, 'success'); await load(search); }
+    catch (e) { setErr((e as Error).message); toast.show((e as Error).message, 'error'); }
   }
 
   return (
@@ -65,7 +84,6 @@ export default function AdminUsersPage() {
       </Card>
 
       {err && <ErrorBanner message={err} />}
-      {msg && <SuccessBanner message={msg} />}
       {!users && !err && <Spinner />}
       {users && users.length === 0 && <EmptyState>{t('users.empty')}</EmptyState>}
 
@@ -91,24 +109,33 @@ export default function AdminUsersPage() {
                     {u.is_active ? (
                       <Button
                         variant="danger"
+                        disabled={busyId === u.id}
                         className="min-h-[44px] flex-1 sm:flex-none"
-                        onClick={() => act(() => adminApi.setUserActive(u.id, false), t('users.userSuspended'))}
+                        onClick={() => setConfirmAction({
+                          title: t('users.suspend'),
+                          message: t('users.confirmSuspend', { phone: u.phone }),
+                          confirmLabel: t('users.suspend'),
+                          run: () => adminApi.setUserActive(u.id, false),
+                          ok: t('users.userSuspended'),
+                        })}
                       >
                         {t('users.suspend')}
                       </Button>
                     ) : (
                       <Button
                         variant="success"
+                        disabled={busyId === u.id}
                         className="min-h-[44px] flex-1 sm:flex-none"
-                        onClick={() => act(() => adminApi.setUserActive(u.id, true), t('users.userReactivated'))}
+                        onClick={() => act(u.id, () => adminApi.setUserActive(u.id, true), t('users.userReactivated'))}
                       >
                         {t('users.reactivate')}
                       </Button>
                     )}
                     <Button
                       variant="ghost"
+                      disabled={busyId === u.id}
                       className="min-h-[44px] flex-1 sm:flex-none"
-                      onClick={() => act(() => adminApi.forceLogout(u.id), t('users.sessionsRevoked'))}
+                      onClick={() => act(u.id, () => adminApi.forceLogout(u.id), t('users.sessionsRevoked'))}
                     >
                       {t('users.forceLogout')}
                     </Button>
@@ -119,6 +146,17 @@ export default function AdminUsersPage() {
           ))}
         </ul>
       )}
+
+      <ConfirmModal
+        open={!!confirmAction}
+        title={confirmAction?.title ?? ''}
+        message={confirmAction?.message ?? ''}
+        confirmLabel={confirmAction?.confirmLabel ?? ''}
+        cancelLabel={t('users.cancel')}
+        danger
+        onConfirm={runConfirmed}
+        onCancel={() => setConfirmAction(null)}
+      />
     </div>
   );
 }

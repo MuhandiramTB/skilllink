@@ -76,6 +76,34 @@ export class ProvidersService {
     return { ok: true };
   }
 
+  /**
+   * Multi-town service areas: replace all of a provider's areas with the given set.
+   * Matching (`ST_DWithin` over service_areas) already treats a provider as reachable
+   * if the customer is within ANY area, so multiple rows just widen coverage.
+   * base_location is set to the first area (used for distance ranking).
+   */
+  async setServiceAreas(userId: string, areas: { lat: number; lng: number; radiusMeters: number }[]) {
+    await this.ensureProvider(userId);
+    if (areas.length === 0) {
+      throw new BadRequestException({ code: 'VALIDATION_ERROR', message: 'errors.providers.noServiceArea' });
+    }
+    await this.prisma.service_areas.deleteMany({ where: { provider_id: userId } });
+    for (const a of areas) {
+      await this.prisma.$executeRawUnsafe(
+        `INSERT INTO service_areas (provider_id, center, radius_meters)
+         VALUES ($1::uuid, ST_SetSRID(ST_MakePoint($2,$3),4326)::geography, $4)`,
+        userId, a.lng, a.lat, a.radiusMeters,
+      );
+    }
+    const first = areas[0];
+    await this.prisma.$executeRawUnsafe(
+      `UPDATE providers SET base_location = ST_SetSRID(ST_MakePoint($2,$3),4326)::geography, updated_at = now()
+       WHERE user_id = $1::uuid`,
+      userId, first.lng, first.lat,
+    );
+    return { ok: true, count: areas.length };
+  }
+
   /** Req 2.2: set categories (validate exist + active). */
   async setCategories(userId: string, categoryIds: string[]) {
     await this.ensureProvider(userId);

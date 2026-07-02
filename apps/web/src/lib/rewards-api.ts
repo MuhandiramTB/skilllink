@@ -1,6 +1,7 @@
 'use client';
 
 import { getToken } from './session';
+import { friendlyError } from './api-error';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
 
@@ -11,7 +12,7 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
     headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(init?.headers ?? {}) },
   });
   const body = await res.json().catch(() => ({ data: null, error: { code: 'PARSE', message: 'bad response' } }));
-  if (!res.ok || body.error) throw new Error(`${body.error?.code ?? res.status}: ${body.error?.message ?? 'error'}`);
+  if (!res.ok || body.error) throw new Error(friendlyError(body.error?.code ?? String(res.status), body.error?.message ?? 'error'));
   return body.data as T;
 }
 

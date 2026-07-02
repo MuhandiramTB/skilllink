@@ -6,9 +6,9 @@ import { useTranslations } from 'next-intl';
 import { providerApi } from '@/lib/provider-api';
 import { getToken } from '@/lib/session';
 import { Button, Card, ErrorBanner, Spinner, StatusBadge } from '@/components/ui';
-import { LocationPicker, KANDY, type LatLng } from '@/components/LocationPicker';
 import { FileUpload } from '@/components/FileUpload';
 import { fileToDataUrl } from '@/lib/image';
+import { TOWNS } from '@/lib/towns';
 
 interface Cat { id: string; key: string; name: { en: string }; children: Cat[] }
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
@@ -30,7 +30,19 @@ export default function ProviderRegisterPage() {
   const [categoryId, setCategoryId] = useState('');
   const [years, setYears] = useState('');
   const [radius, setRadius] = useState(10000);
-  const [loc, setLoc] = useState<LatLng>(KANDY);
+  const [towns, setTowns] = useState<Set<string>>(new Set(['kandy'])); // selected town keys
+
+  function toggleTown(key: string) {
+    setTowns((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  }
+  async function saveAreas() {
+    const areas = TOWNS.filter((tn) => towns.has(tn.key)).map((tn) => ({ lat: tn.lat, lng: tn.lng, radiusMeters: radius, label: tn.name }));
+    await providerApi.setServiceAreas(areas);
+  }
   const [docs, setDocs] = useState<Record<string, boolean>>({});
   const [days, setDays] = useState('Mon–Sat');
   const [hours, setHours] = useState('08:00–18:00');
@@ -133,15 +145,43 @@ export default function ProviderRegisterPage() {
 
           {step === 2 && (
             <>
-              <p className="text-sm font-medium">{t('workingRadius')}</p>
-              <div className="grid grid-cols-3 gap-2">
-                {RADII.map((r) => (
-                  <button key={r.m} onClick={() => setRadius(r.m)}
-                    className={`rounded-base border p-3 text-sm font-medium transition-all ${radius === r.m ? 'border-primary bg-primary/10' : 'border-line dark:border-gray-700'}`}>{t(r.labelKey)}</button>
-                ))}
+              <div>
+                <p className="text-sm font-semibold text-ink dark:text-gray-100">{t('townsTitle')}</p>
+                <p className="mt-0.5 text-xs text-slate">{t('townsHint')}</p>
               </div>
-              <LocationPicker value={loc} onChange={setLoc} label={t('baseLocation')} />
-              <Button className="w-full" onClick={() => guard(() => providerApi.setServiceArea(loc.lat, loc.lng, radius))}>{t('continue')}</Button>
+              {/* Multi-town selection — each selected town becomes a service area. */}
+              <div className="flex flex-wrap gap-2">
+                {TOWNS.map((tn) => {
+                  const on = towns.has(tn.key);
+                  return (
+                    <button
+                      key={tn.key}
+                      type="button"
+                      onClick={() => toggleTown(tn.key)}
+                      aria-pressed={on}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-all ${on ? 'border-primary bg-primary/10 text-primary' : 'border-line text-slate hover:border-ink hover:text-ink dark:border-gray-700'}`}
+                    >
+                      {on && (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true"><path d="M20 6L9 17l-5-5" /></svg>
+                      )}
+                      {tn.name}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div>
+                <p className="mt-2 text-sm font-medium text-ink dark:text-gray-100">{t('coverageRadius')}</p>
+                <div className="mt-1.5 grid grid-cols-3 gap-2">
+                  {RADII.map((r) => (
+                    <button key={r.m} type="button" onClick={() => setRadius(r.m)}
+                      className={`rounded-base border p-3 text-sm font-medium transition-all ${radius === r.m ? 'border-primary bg-primary/10 text-primary' : 'border-line text-slate dark:border-gray-700'}`}>{t(r.labelKey)}</button>
+                  ))}
+                </div>
+              </div>
+
+              <p className="text-xs text-slate">{t('townsSelected', { count: towns.size })}</p>
+              <Button className="w-full" disabled={towns.size === 0} onClick={() => guard(saveAreas)}>{t('continue')}</Button>
             </>
           )}
 

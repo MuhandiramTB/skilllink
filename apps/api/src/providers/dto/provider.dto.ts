@@ -14,6 +14,7 @@ import {
   Max,
   Min,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
 
 export class BecomeProviderDto {
@@ -31,6 +32,20 @@ export class ServiceAreaDto {
   @Type(() => Number) @IsLatitude() lat!: number;
   @Type(() => Number) @IsLongitude() lng!: number;
   @Type(() => Number) @IsNumber() @Min(500) @Max(50000) radiusMeters!: number;
+}
+
+/** One area within a multi-town selection; optional label = the town name. */
+export class ServiceAreaItemDto {
+  @Type(() => Number) @IsLatitude() lat!: number;
+  @Type(() => Number) @IsLongitude() lng!: number;
+  @Type(() => Number) @IsNumber() @Min(500) @Max(50000) radiusMeters!: number;
+  @IsOptional() @IsString() label?: string;
+}
+
+export class ServiceAreasDto {
+  @IsArray() @ArrayNotEmpty()
+  @ValidateNested({ each: true }) @Type(() => ServiceAreaItemDto)
+  areas!: ServiceAreaItemDto[];
 }
 
 export class SetCategoriesDto {

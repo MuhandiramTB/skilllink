@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { TokenService, Role } from '../token.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 export interface RequestUser {
   userId: string;
@@ -19,7 +20,10 @@ export interface RequestUser {
  */
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(private readonly tokens: TokenService) {}
+  constructor(
+    private readonly tokens: TokenService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<Request & { user?: RequestUser }>();
@@ -28,12 +32,22 @@ export class JwtAuthGuard implements CanActivate {
     if (!token) {
       throw new UnauthorizedException({ code: 'UNAUTHORIZED', message: 'errors.auth.noToken' });
     }
+    let claims;
     try {
-      const claims = await this.tokens.verifyAccessToken(token);
-      req.user = { userId: claims.sub, roles: claims.roles, mode: claims.mode };
-      return true;
+      claims = await this.tokens.verifyAccessToken(token);
     } catch {
       throw new UnauthorizedException({ code: 'UNAUTHORIZED', message: 'errors.auth.tokenInvalid' });
     }
+    // Enforce suspension on every request: a token issued before suspension must
+    // stop working immediately, not just be blocked at the next login.
+    const user = await this.prisma.users.findUnique({
+      where: { id: claims.sub },
+      select: { is_active: true },
+    });
+    if (!user || !user.is_active) {
+      throw new UnauthorizedException({ code: 'ACCOUNT_SUSPENDED', message: 'errors.auth.suspended' });
+    }
+    req.user = { userId: claims.sub, roles: claims.roles, mode: claims.mode };
+    return true;
   }
 }

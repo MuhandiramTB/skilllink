@@ -13,6 +13,7 @@ import {
   AvailabilityDto,
   BecomeProviderDto,
   ServiceAreaDto,
+  ServiceAreasDto,
   SetCategoriesDto,
   VerificationDecisionDto,
   WalletTopupDto,
@@ -69,6 +70,13 @@ export class ProvidersController {
   @UseGuards(JwtAuthGuard)
   setArea(@CurrentUser() u: RequestUser, @Body() dto: ServiceAreaDto) {
     return this.providers.setServiceArea(u.userId, dto);
+  }
+
+  /** Multi-town service areas — replaces the provider's areas with the given set. */
+  @Put('me/service-areas')
+  @UseGuards(JwtAuthGuard)
+  setAreas(@CurrentUser() u: RequestUser, @Body() dto: ServiceAreasDto) {
+    return this.providers.setServiceAreas(u.userId, dto.areas);
   }
 
   @Put('me/categories')

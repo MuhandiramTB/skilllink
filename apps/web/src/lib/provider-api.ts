@@ -1,6 +1,7 @@
 'use client';
 
 import { getToken, setToken } from './admin-api';
+import { friendlyError } from './api-error';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
 
@@ -17,7 +18,7 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
   const body = await res.json().catch(() => ({ data: null, error: { code: 'PARSE', message: 'bad response' } }));
   if (!res.ok || body.error) {
     const err = body.error ?? { code: String(res.status), message: 'error' };
-    throw new Error(`${err.code}: ${err.message}`);
+    throw new Error(friendlyError(err.code, err.message));
   }
   return body.data as T;
 }
@@ -42,6 +43,8 @@ export const providerApi = {
     req(`/providers/me/verifications`, { method: 'POST', body: JSON.stringify({ type, mediaUrl }) }),
   setServiceArea: (lat: number, lng: number, radiusMeters: number) =>
     req(`/providers/me/service-area`, { method: 'PUT', body: JSON.stringify({ lat, lng, radiusMeters }) }),
+  setServiceAreas: (areas: { lat: number; lng: number; radiusMeters: number; label?: string }[]) =>
+    req<{ ok: boolean; count: number }>(`/providers/me/service-areas`, { method: 'PUT', body: JSON.stringify({ areas }) }),
   setCategories: (categoryIds: string[]) =>
     req(`/providers/me/categories`, { method: 'PUT', body: JSON.stringify({ categoryIds }) }),
   setAvailability: (isAvailable: boolean) =>
