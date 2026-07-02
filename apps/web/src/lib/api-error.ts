@@ -35,3 +35,28 @@ export function friendlyError(code: string, message: string): string {
   if (/^errors\./.test(message)) return CODE_MESSAGES.INTERNAL_ERROR;
   return message || CODE_MESSAGES.INTERNAL_ERROR;
 }
+
+// ---- Global session-expiry signal -----------------------------------------
+// When any API call comes back 401 (expired/invalid token or a now-suspended
+// account), we fire one event; a top-level listener shows the "session expired"
+// modal instead of every page rendering a raw "UNAUTHORIZED" string.
+const SESSION_EXPIRED_EVENT = 'skilllink:session-expired';
+
+/** Codes that mean "your session is no longer valid — sign in again". */
+export function isSessionError(code: string): boolean {
+  return code === 'UNAUTHORIZED' || code === 'ACCOUNT_SUSPENDED';
+}
+
+/** Fire the global session-expired event (browser only). `reason` = suspended|expired. */
+export function emitSessionExpired(reason: 'expired' | 'suspended' = 'expired') {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent(SESSION_EXPIRED_EVENT, { detail: { reason } }));
+}
+
+/** Subscribe to session-expiry; returns an unsubscribe fn. */
+export function onSessionExpired(cb: (reason: 'expired' | 'suspended') => void): () => void {
+  if (typeof window === 'undefined') return () => {};
+  const handler = (e: Event) => cb((e as CustomEvent).detail?.reason ?? 'expired');
+  window.addEventListener(SESSION_EXPIRED_EVENT, handler);
+  return () => window.removeEventListener(SESSION_EXPIRED_EVENT, handler);
+}

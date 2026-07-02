@@ -17,6 +17,7 @@ import { AppSidebar } from '@/components/AppSidebar';
 import { AppMobileMenu } from '@/components/AppMobileMenu';
 import { AvatarButton } from '@/components/AvatarButton';
 import { ToastProvider } from '@/components/Toast';
+import { SessionExpiredModal } from '@/components/SessionExpiredModal';
 
 // Inline script: apply saved theme before paint to avoid a flash of light mode.
 const THEME_SCRIPT = `try{var t=localStorage.getItem('skilllink_theme');if(t==='dark')document.documentElement.classList.add('dark');}catch(e){}`;
@@ -80,6 +81,7 @@ export default async function LocaleLayout({
             {/* Role-aware bottom tabs — signed-in, mobile only. */}
             <AppBottomNav />
           </div>
+          <SessionExpiredModal />
         </ToastProvider>
         </NextIntlClientProvider>
       </body>

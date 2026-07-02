@@ -549,5 +549,12 @@
     "alerts": "Alerts",
     "markAllRead": "Mark all read",
     "none": "No notifications."
+  },
+  "session": {
+    "title": "Session expired",
+    "body": "Your session has ended for security. Please sign in again to continue.",
+    "suspendedTitle": "Account suspended",
+    "suspendedBody": "This account has been suspended. Please contact support if you think this is a mistake.",
+    "signIn": "Sign in"
   }
 }

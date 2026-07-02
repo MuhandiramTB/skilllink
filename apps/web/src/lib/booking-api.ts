@@ -1,7 +1,7 @@
 'use client';
 
 import { getToken, setToken } from './admin-api';
-import { friendlyError } from './api-error';
+import { friendlyError, isSessionError, emitSessionExpired } from './api-error';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
 
@@ -18,6 +18,9 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
   const body = await res.json().catch(() => ({ data: null, error: { code: 'PARSE', message: 'bad response' } }));
   if (!res.ok || body.error) {
     const err = body.error ?? { code: String(res.status), message: 'error' };
+    if (res.status === 401 || isSessionError(err.code)) {
+      emitSessionExpired(err.code === 'ACCOUNT_SUSPENDED' ? 'suspended' : 'expired');
+    }
     throw new Error(friendlyError(err.code, err.message));
   }
   return body.data as T;
