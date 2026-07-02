@@ -10,7 +10,7 @@ const CODE_MESSAGES: Record<string, string> = {
   INTERNAL_ERROR: 'Something went wrong on our side. Please try again in a moment.',
   RATE_LIMIT: 'Too many attempts. Please wait a minute and try again.',
   UNAUTHORIZED: 'Your session expired. Please sign in again.',
-  ACCOUNT_SUSPENDED: 'This account has been suspended. Please contact support.',
+  ACCOUNT_SUSPENDED: 'Your account has been suspended. Please contact SkillLink support for help.',
   FORBIDDEN: "You don't have access to do that.",
   NOT_FOUND: 'We couldn’t find what you were looking for.',
   VALIDATION_ERROR: 'Please check the details and try again.',
@@ -23,8 +23,10 @@ const KEY_MESSAGES: Record<string, string> = {
   'errors.booking.categoryInvalid': 'That service isn’t available right now. Please pick another.',
   'errors.booking.providerNotApproved': 'That provider isn’t available. Please choose another.',
   'errors.booking.invalidTransition': 'That action isn’t allowed for this booking right now.',
-  'errors.auth.suspended': 'This account has been suspended. Please contact support.',
-  'errors.auth.otpInvalid': 'That code is invalid or expired.',
+  'errors.auth.suspended': 'Your account has been suspended. Please contact SkillLink support for help.',
+  'errors.auth.otpInvalid': 'That code is invalid or expired. Please try again.',
+  'errors.auth.tokenInvalid': 'Your session has expired. Please sign in again.',
+  'errors.auth.noToken': 'Please sign in to continue.',
 };
 
 /** Build a friendly message from a raw error code + message (i18n key or text). */

@@ -9,6 +9,8 @@
  * mode, which re-issues the token. The dashboard follows `mode`.
  */
 
+import { friendlyError } from './api-error';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
 const TOKEN_KEY = 'skilllink_admin_token'; // kept for back-compat with existing api clients
 
@@ -79,8 +81,11 @@ function authed(extra: Record<string, string> = {}): AuthedReq {
 }
 
 async function unwrap<T>(r: Response): Promise<T> {
-  const b = await r.json().catch(() => ({ error: { message: 'Bad response' } }));
-  if (!r.ok || b.error) throw new Error(b.error?.message ?? `Request failed (${r.status})`);
+  const b = await r.json().catch(() => ({ error: { code: 'PARSE', message: 'Bad response' } }));
+  if (!r.ok || b.error) {
+    const code = b.error?.code ?? String(r.status);
+    throw new Error(friendlyError(code, b.error?.message ?? 'error'));
+  }
   return b.data as T;
 }
 

@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { createPortal } from 'react-dom';
 import { onSessionExpired } from '@/lib/api-error';
-import { clearToken } from '@/lib/session';
+import { clearToken, getSession } from '@/lib/session';
 
 /**
  * Global session-expiry handler. Listens for the session-expired event any API
@@ -16,16 +16,22 @@ export function SessionExpiredModal() {
   const locale = (useParams().locale as string) ?? 'en';
   const t = useTranslations('session');
   const [reason, setReason] = useState<null | 'expired' | 'suspended'>(null);
+  const [wasAdmin, setWasAdmin] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
-  useEffect(() => onSessionExpired((r) => setReason(r)), []);
+  useEffect(() => onSessionExpired((r) => {
+    // Capture the role from the (still-present) token BEFORE it's cleared, so we
+    // can route back to the right login: admin → /admin/login, others → /login.
+    setWasAdmin(getSession()?.roles.includes('admin') ?? false);
+    setReason(r);
+  }), []);
 
   if (!mounted || !reason) return null;
 
   function signIn() {
     clearToken();
-    window.location.href = `/${locale}/login`;
+    window.location.href = wasAdmin ? `/${locale}/admin/login` : `/${locale}/login`;
   }
 
   return createPortal(
