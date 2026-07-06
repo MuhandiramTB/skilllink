@@ -52,6 +52,23 @@ export class ProvidersService {
     return { id: row.id, type: row.type, status: row.status };
   }
 
+  /**
+   * Resolve the district a coordinate falls in (nearest active district by center).
+   * A provider onboarding by phone starts with a NULL district_id; without this the
+   * matching engine's district-rollout gate would make them permanently unmatchable
+   * even with a valid service area. Setting a service area assigns their district.
+   */
+  private async districtForPoint(lat: number, lng: number): Promise<string | null> {
+    const rows = await this.prisma.$queryRawUnsafe<{ id: string }[]>(
+      `SELECT id FROM districts
+       WHERE is_active = true
+       ORDER BY ST_Distance(center, ST_SetSRID(ST_MakePoint($1,$2),4326)::geography) ASC
+       LIMIT 1`,
+      lng, lat,
+    );
+    return rows[0]?.id ?? null;
+  }
+
   /** Req 2.1: set service area (PostGIS point) via raw SQL. */
   async setServiceArea(userId: string, dto: ServiceAreaDto) {
     await this.ensureProvider(userId);
@@ -65,13 +82,16 @@ export class ProvidersService {
       dto.lat,
       dto.radiusMeters,
     );
-    // also set provider base_location to the same point (used by matching)
+    // Set base_location (distance ranking) + district (rollout gate) from this area.
+    const districtId = await this.districtForPoint(dto.lat, dto.lng);
     await this.prisma.$executeRawUnsafe(
-      `UPDATE providers SET base_location = ST_SetSRID(ST_MakePoint($2,$3),4326)::geography, updated_at = now()
+      `UPDATE providers SET base_location = ST_SetSRID(ST_MakePoint($2,$3),4326)::geography,
+              district_id = COALESCE($4::uuid, district_id), updated_at = now()
        WHERE user_id = $1::uuid`,
       userId,
       dto.lng,
       dto.lat,
+      districtId,
     );
     return { ok: true };
   }
@@ -96,10 +116,12 @@ export class ProvidersService {
       );
     }
     const first = areas[0];
+    const districtId = await this.districtForPoint(first.lat, first.lng);
     await this.prisma.$executeRawUnsafe(
-      `UPDATE providers SET base_location = ST_SetSRID(ST_MakePoint($2,$3),4326)::geography, updated_at = now()
+      `UPDATE providers SET base_location = ST_SetSRID(ST_MakePoint($2,$3),4326)::geography,
+              district_id = COALESCE($4::uuid, district_id), updated_at = now()
        WHERE user_id = $1::uuid`,
-      userId, first.lng, first.lat,
+      userId, first.lng, first.lat, districtId,
     );
     return { ok: true, count: areas.length };
   }
