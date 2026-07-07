@@ -8,17 +8,22 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PaymentGateway } from './gateway/payment-gateway';
 import { WalletService } from '../providers/wallet.service';
 import { RewardsService } from '../rewards/rewards.service';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable()
 export class PaymentsService {
-  private readonly rate = Number(process.env.PAYMENT_COMMISSION_RATE ?? 0.12);
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly gateway: PaymentGateway,
     private readonly wallet: WalletService,
     private readonly rewards: RewardsService,
+    private readonly settings: SettingsService,
   ) {}
+
+  /** Live commission rate (admin-editable via app_settings). */
+  private commissionRate(): Promise<number> {
+    return this.settings.get('commission_rate');
+  }
 
   /** Req 1/2: initiate payment for a completed booking (idempotent on booking). */
   async initiate(customerId: string, bookingId: string, amountCents: number, method: 'cash' | 'in_app' = 'in_app') {
@@ -37,7 +42,7 @@ export class PaymentsService {
       return { paymentId: existing.id, status: existing.status, gatewayRef: existing.gateway_ref };
     }
 
-    const commission = Math.round(amountCents * this.rate);
+    const commission = Math.round(amountCents * (await this.commissionRate()));
     const created = await this.prisma.payments.create({
       data: {
         booking_id: bookingId,
@@ -118,7 +123,7 @@ export class PaymentsService {
       return { paymentId: existing.id, status: existing.status, method: existing.method };
     }
 
-    const commission = Math.round(amount * this.rate);
+    const commission = Math.round(amount * (await this.commissionRate()));
     const created = await this.prisma.$transaction(async (tx) => {
       return tx.payments.create({
         data: {

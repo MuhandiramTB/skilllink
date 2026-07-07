@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { SettingsService } from '../settings/settings.service';
 
 /**
  * Customer loyalty (Spec 11 Req 6). Points awarded internally on paid-completion
@@ -7,11 +8,15 @@ import { PrismaService } from '../prisma/prisma.service';
  */
 @Injectable()
 export class RewardsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly settings: SettingsService,
+  ) {}
 
-  /** Req 6.1: base points = floor(amount_cents / 10000) (1 pt / LKR 100). Idempotent. */
+  /** Req 6.1: base points = pointsPerLKR100 × (amount / LKR 100), admin-editable. Idempotent. */
   async awardBookingCompletion(userId: string, bookingId: string, amountCents: number) {
-    const points = Math.floor(amountCents / 10000);
+    const rate = await this.settings.get('points_per_lkr100');
+    const points = Math.floor((amountCents / 10000) * rate);
     if (points <= 0) return { awarded: false, points: 0 };
     return this.award(userId, bookingId, 'booking_completed', points);
   }

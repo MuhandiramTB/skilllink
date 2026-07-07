@@ -94,7 +94,21 @@ export const adminApi = {
   setUserActive: (id: string, isActive: boolean) =>
     req(`/admin/users/${id}/active`, { method: 'PATCH', body: JSON.stringify({ isActive }) }),
   forceLogout: (id: string) => req(`/admin/users/${id}/force-logout`, { method: 'POST' }),
+  // Editable platform settings (spec 16).
+  getSettings: () => req<PlatformSettings>(`/admin/settings`),
+  updateSettings: (patch: Partial<PlatformSettings>) =>
+    req<PlatformSettings>(`/admin/settings`, { method: 'PUT', body: JSON.stringify(patch) }),
 };
+
+export interface PlatformSettings {
+  commission_rate: number;
+  points_per_lkr100: number;
+  referrer_points: number;
+  referee_points: number;
+  match_w_proximity: number;
+  match_w_rating: number;
+  match_w_response: number;
+}
 
 export interface AdminBooking {
   id: string; status: string; categoryKey: string | null; price_cents: number | null; created_at: string;

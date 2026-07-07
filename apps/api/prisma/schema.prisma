@@ -257,6 +257,8 @@ model bookings {
   accepted_at      DateTime? @db.Timestamptz(6)
   started_at       DateTime? @db.Timestamptz(6)
   completed_at     DateTime? @db.Timestamptz(6)
+  // Spec 17: preferred date/time (NULL = ASAP / on-demand). Enables reschedule.
+  scheduled_for    DateTime? @db.Timestamptz(6)
 
   district      districts?      @relation(fields: [district_id], references: [id])
   booking_media booking_media[]
@@ -391,4 +393,13 @@ model audit_log {
   entity_id  String?  @db.Uuid
   meta       Json?
   created_at DateTime @default(now()) @db.Timestamptz(6)
+}
+
+// Spec 16: admin-editable platform config (key-value). Services read live values
+// with env fallbacks — commission rate, reward rates, matching weights.
+model app_settings {
+  key        String   @id
+  value      String
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_by String?  @db.Uuid
 }

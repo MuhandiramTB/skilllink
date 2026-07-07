@@ -592,6 +592,21 @@ UPDATE users
  WHERE referral_code IS NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS uq_users_referral_code ON users (referral_code);
 
+-- ============================================================================
+-- ===== migrations/013_app_settings.sql =====
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS app_settings (
+    key        text PRIMARY KEY,
+    value      text NOT NULL,
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    updated_by uuid REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- ============================================================================
+-- ===== migrations/014_booking_scheduling.sql =====
+-- ============================================================================
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS scheduled_for timestamptz;
+
 -- ===== seeds/001_seed_kandy_and_categories.sql =====
 -- ============================================================================
 -- Seed data — v1 Kandy district + service categories (incl. Solar)

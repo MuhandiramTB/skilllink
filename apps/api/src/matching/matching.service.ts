@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { SettingsService } from '../settings/settings.service';
 
 export interface MatchResult {
   provider_id: string;
@@ -22,13 +23,13 @@ export interface MatchResult {
  */
 @Injectable()
 export class MatchingService {
-  private readonly wProximity = Number(process.env.MATCH_W_PROXIMITY ?? 0.5);
-  private readonly wRating = Number(process.env.MATCH_W_RATING ?? 0.3);
-  private readonly wResponse = Number(process.env.MATCH_W_RESPONSE ?? 0.2);
   // Spec 11 Req 4.4: exclude providers whose wallet is below the threshold (owe too much).
   private readonly walletMinCents = Number(process.env.WALLET_MIN_CENTS ?? -200000);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly settings: SettingsService,
+  ) {}
 
   async match(params: {
     categoryKey: string;
@@ -38,6 +39,12 @@ export class MatchingService {
   }): Promise<MatchResult[]> {
     const { categoryKey, lat, lng } = params;
     const limit = params.limit ?? 20;
+    // Live, admin-editable ranking weights.
+    const [wProximity, wRating, wResponse] = await Promise.all([
+      this.settings.get('match_w_proximity'),
+      this.settings.get('match_w_rating'),
+      this.settings.get('match_w_response'),
+    ]);
 
     // Raw SQL because geography/ST_* are outside Prisma's type system.
     const rows = await this.prisma.$queryRawUnsafe<MatchResult[]>(
@@ -81,9 +88,9 @@ export class MatchingService {
       `,
       lng,
       lat,
-      this.wProximity,
-      this.wRating,
-      this.wResponse,
+      wProximity,
+      wRating,
+      wResponse,
       categoryKey,
       limit,
       this.walletMinCents,
