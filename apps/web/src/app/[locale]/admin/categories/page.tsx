@@ -6,6 +6,7 @@ import { adminApi, type AdminCategory } from '@/lib/admin-api';
 import { PageHeader, Card, Button, Field, inputCls, ErrorBanner, SuccessBanner } from '@/components/ui';
 import { IconButton, ConfirmModal } from '@/components/IconButton';
 import { ICONS } from '@/components/nav-config';
+import { Reveal } from '@/components/Reveal';
 
 /** Slugify an English name into a valid category key (lowercase, _ separated). */
 function toKey(name: string) {
@@ -121,10 +122,11 @@ export default function AdminCategoriesPage() {
 
       {/* Tree: categories with their sub-services nested — rename / activate. */}
       <div className="space-y-3">
-        {tops.map((cat) => {
+        {tops.map((cat, i) => {
           const subs = subsByParent(cat.id);
           return (
-            <Card key={cat.id} className="space-y-3">
+            <Reveal key={cat.id} delay={i * 40}>
+            <Card className="space-y-3">
               {editing === cat.id ? editRow : (
                 <div className="flex items-center gap-2">
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface text-slate dark:bg-gray-800" aria-hidden="true">{ICONS.grid}</span>
@@ -150,6 +152,7 @@ export default function AdminCategoriesPage() {
                 </ul>
               )}
             </Card>
+            </Reveal>
           );
         })}
       </div>

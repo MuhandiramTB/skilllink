@@ -6,7 +6,8 @@ import { useTranslations } from 'next-intl';
 import { bookingApi, type Match } from '@/lib/booking-api';
 import { favouritesApi } from '@/lib/favourites-api';
 import { getToken } from '@/lib/session';
-import { Button, Card, ErrorBanner, EmptyState, Spinner, PageHeader, Field, inputCls } from '@/components/ui';
+import { Button, Card, ErrorBanner, EmptyState, Spinner, PageHeader, Field, StatusBadge, inputCls } from '@/components/ui';
+import { Reveal } from '@/components/Reveal';
 import { LocationPicker, KANDY, type LatLng } from '@/components/LocationPicker';
 import { ICONS, HEART_PATH, HEART_OUTLINE_PATH } from '@/components/nav-config';
 
@@ -151,53 +152,54 @@ export default function CategoryBookingPage() {
             )}
           </div>
           {matches.length === 0 && <EmptyState>{t('noProvidersNearby')}</EmptyState>}
-          {sortedMatches.map((m) => (
-            <Card key={m.provider_id} className="flex items-center gap-3 rounded-xl2">
-              {/* Work-photo thumbnail (spec 12): the strongest trust signal. */}
-              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface dark:bg-gray-800">
-                {m.cover_photo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={m.cover_photo} alt={m.business_name ?? ''} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-slate/50 [&>svg]:h-6 [&>svg]:w-6">{ICONS.tools}</div>
-                )}
-                {m.photo_count > 1 && (
-                  <span className="absolute bottom-0.5 right-0.5 rounded bg-black/60 px-1 text-[10px] font-medium text-white">
-                    +{m.photo_count - 1}
-                  </span>
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <p className="truncate font-medium">{m.business_name}</p>
-                  {m.verified && (
-                    <span className="shrink-0 rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-medium text-success" title={t('verifiedProvider')}>
-                      ✓ {t('verified')}
+          {sortedMatches.map((m, i) => (
+            <Reveal key={m.provider_id} delay={i * 40}>
+              <Card className="flex items-center gap-3 rounded-xl2 transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lift">
+                {/* Work-photo thumbnail (spec 12): the strongest trust signal. */}
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface dark:bg-gray-800">
+                  {m.cover_photo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={m.cover_photo} alt={m.business_name ?? ''} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-slate/50 [&>svg]:h-6 [&>svg]:w-6">{ICONS.tools}</div>
+                  )}
+                  {m.photo_count > 1 && (
+                    <span className="absolute bottom-0.5 right-0.5 rounded bg-black/60 px-1 text-[10px] font-medium text-white">
+                      +{m.photo_count - 1}
                     </span>
                   )}
                 </div>
-                <p className="mt-0.5 text-xs text-slate">
-                  {(m.distance_m / 1000).toFixed(1)} km · ★ {m.rating_avg.toFixed(1)}
-                  {m.rating_count > 0 && <span className="text-slate"> ({m.rating_count})</span>}
-                </p>
-                {m.photo_count > 0 && (
-                  <p className="mt-0.5 text-[11px] text-primary">{t('photosCount', { count: m.photo_count })}</p>
-                )}
-              </div>
-              <div className="flex flex-col items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => toggleFav(m.provider_id)}
-                  aria-label={favIds.has(m.provider_id) ? t('removeFavourite') : t('addFavourite')}
-                  aria-pressed={favIds.has(m.provider_id)}
-                  className={`transition-transform hover:scale-110 ${favIds.has(m.provider_id) ? 'text-danger' : 'text-slate'}`}
-                  title={favIds.has(m.provider_id) ? t('removeFavourite') : t('addFavourite')}
-                >
-                  <svg viewBox="0 0 16 16" fill="currentColor" className="h-5 w-5" aria-hidden="true"><path d={favIds.has(m.provider_id) ? HEART_PATH : HEART_OUTLINE_PATH} /></svg>
-                </button>
-                <Button variant="success" onClick={() => book(m.provider_id)}>{t('book')}</Button>
-              </div>
-            </Card>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <p className="truncate font-semibold text-ink dark:text-gray-50">{m.business_name}</p>
+                    {m.verified && <StatusBadge status="approved" />}
+                  </div>
+                  <p className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate">
+                    <span className="inline-flex items-center gap-1 font-semibold text-warn [&>svg]:h-3.5 [&>svg]:w-3.5" aria-hidden="true">{ICONS.star}</span>
+                    <span className="font-semibold tabular-nums text-ink dark:text-gray-100">{m.rating_avg.toFixed(1)}</span>
+                    {m.rating_count > 0 && <span>({m.rating_count})</span>}
+                    <span aria-hidden="true">·</span>
+                    <span className="tabular-nums">{(m.distance_m / 1000).toFixed(1)} km</span>
+                  </p>
+                  {m.photo_count > 0 && (
+                    <p className="mt-0.5 text-[11px] font-medium text-primary">{t('photosCount', { count: m.photo_count })}</p>
+                  )}
+                </div>
+                <div className="flex flex-col items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleFav(m.provider_id)}
+                    aria-label={favIds.has(m.provider_id) ? t('removeFavourite') : t('addFavourite')}
+                    aria-pressed={favIds.has(m.provider_id)}
+                    className={`transition-transform hover:scale-110 ${favIds.has(m.provider_id) ? 'text-danger' : 'text-slate'}`}
+                    title={favIds.has(m.provider_id) ? t('removeFavourite') : t('addFavourite')}
+                  >
+                    <svg viewBox="0 0 16 16" fill="currentColor" className="h-5 w-5" aria-hidden="true"><path d={favIds.has(m.provider_id) ? HEART_PATH : HEART_OUTLINE_PATH} /></svg>
+                  </button>
+                  <Button onClick={() => book(m.provider_id)}>{t('book')}</Button>
+                </div>
+              </Card>
+            </Reveal>
           ))}
         </div>
       )}

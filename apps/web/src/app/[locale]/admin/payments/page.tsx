@@ -10,9 +10,9 @@ import {
   ErrorBanner,
   StatusBadge,
   PageHeader,
-  StatCard,
   Money,
 } from '@/components/ui';
+import { KpiCard } from '@/components/charts';
 import { ICONS } from '@/components/nav-config';
 
 export default function AdminPaymentsPage() {
@@ -36,9 +36,9 @@ export default function AdminPaymentsPage() {
       {!rows && !err && <Spinner />}
 
       {rows && (
-        <div className="grid grid-cols-2 gap-3">
-          <StatCard label={t('payments.commissionEarned')} value={<Money cents={totalCommission} />} tone="primary" />
-          <StatCard label={t('payments.paidToProviders')} value={<Money cents={totalNet} />} tone="primary" />
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <KpiCard icon={ICONS.wallet} label={t('payments.commissionEarned')} value={<Money cents={totalCommission} />} tone="primary" />
+          <KpiCard icon={ICONS.briefcase} label={t('payments.paidToProviders')} value={<Money cents={totalNet} />} tone="success" />
         </div>
       )}
 

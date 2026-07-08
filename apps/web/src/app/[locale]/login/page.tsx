@@ -68,26 +68,31 @@ export default function LoginPage() {
 
   return (
     // Break out of the app-shell content padding for a full-bleed two-column auth screen.
-    <div className="-mx-4 -my-5 grid min-h-[calc(100vh-61px)] md:-my-8 lg:grid-cols-2">
-      {/* Left: branded navy panel (desktop only). */}
-      <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#131b2e] p-12 text-white lg:flex">
-        <div className="pointer-events-none absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '22px 22px' }} aria-hidden="true" />
-        <div className="pointer-events-none absolute -right-20 top-1/4 h-72 w-72 rounded-full bg-primary/25 blur-3xl" aria-hidden="true" />
+    <div className="-mx-4 -my-5 grid min-h-[calc(100vh-61px)] md:-my-8 lg:grid-cols-[1.05fr_1fr]">
+      {/* Left: branded ink panel with an accent glow (desktop only). */}
+      <aside className="relative hidden flex-col justify-between overflow-hidden bg-ink p-12 text-white lg:flex xl:p-16">
+        {/* Dotted grid texture. */}
+        <div className="pointer-events-none absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '22px 22px' }} aria-hidden="true" />
+        {/* Layered accent glows. */}
+        <div className="pointer-events-none absolute -right-24 top-1/4 h-80 w-80 rounded-full bg-primary/30 blur-3xl" aria-hidden="true" />
+        <div className="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
+        {/* Top fade so the logo sits crisp. */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/[0.06] to-transparent" aria-hidden="true" />
 
         <div className="relative z-10 flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-black text-white">S</span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-black text-white shadow-lift">S</span>
           <span className="font-display text-xl font-extrabold tracking-tightest">SkillLink</span>
         </div>
 
         <div className="relative z-10 max-w-md">
-          <h2 className="font-display text-4xl font-extrabold leading-tight tracking-tightest" style={{ textWrap: 'balance' } as React.CSSProperties}>
+          <h2 className="font-display text-4xl font-extrabold leading-[1.1] tracking-tightest xl:text-[2.75rem]" style={{ textWrap: 'balance' } as React.CSSProperties}>
             {t('panelTitle')}
           </h2>
-          <p className="mt-4 text-base leading-relaxed text-white/65">{t('panelSub')}</p>
-          <ul className="mt-8 space-y-3.5">
+          <p className="mt-5 text-base leading-relaxed text-white/60">{t('panelSub')}</p>
+          <ul className="mt-9 space-y-4">
             {[t('panelPoint1'), t('panelPoint2'), t('panelPoint3')].map((p) => (
               <li key={p} className="flex items-center gap-3 text-sm font-medium text-white/85">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary-fixed-dim">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary-fixed-dim ring-1 ring-inset ring-white/10">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true"><path d="M20 6L9 17l-5-5" /></svg>
                 </span>
                 {p}
@@ -104,14 +109,14 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Brand mark above the card — anchors the screen on mobile (panel hidden). */}
         <div className="mb-8 text-center">
-          <span className="inline-flex h-14 w-14 items-center justify-center rounded-xl2 bg-ink text-lg font-extrabold text-white shadow-card lg:hidden dark:bg-primary">SL</span>
-          <h1 className="mt-4 font-display text-2xl font-extrabold tracking-tightest text-ink dark:text-white">{t('title')}</h1>
-          <p className="mt-2 text-sm text-slate">
+          <span className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl2 bg-ink text-lg font-extrabold text-white shadow-lift lg:hidden dark:bg-primary">SL</span>
+          <h1 className="font-display text-2xl font-extrabold tracking-tightest text-ink dark:text-white sm:text-[28px]">{t('title')}</h1>
+          <p className="mt-2 text-sm leading-relaxed text-slate">
             {step === 'phone' ? t('subtitlePhone') : t('subtitleCode', { phone: prettyPhone })}
           </p>
         </div>
 
-        <div className="rounded-xl2 border border-line bg-white p-7 shadow-card dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-xl2 border border-line bg-white p-6 shadow-card dark:border-gray-800 dark:bg-gray-900 sm:p-7">
           {step === 'phone' ? (
             <form onSubmit={sendCode} className="space-y-4" noValidate>
               <div>

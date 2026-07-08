@@ -91,7 +91,7 @@ export default function ProviderRegisterPage() {
 
   if (done) {
     return (
-      <div className="mx-auto max-w-md text-center">
+      <div className="mx-auto max-w-2xl text-center">
         <Card className="space-y-3">
           <StatusBadge status="pending" />
           <h1 className="font-display text-xl font-bold text-ink dark:text-gray-50">{t('submittedForReview')}</h1>
@@ -105,7 +105,7 @@ export default function ProviderRegisterPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md space-y-4">
+    <div className="mx-auto max-w-2xl space-y-4">
       <div>
         <h1 className="font-display text-xl font-bold text-ink dark:text-gray-50">{t('registerTitle')}</h1>
         {/* stepper */}

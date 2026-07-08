@@ -7,6 +7,7 @@ import { getToken } from '@/lib/session';
 import { fetchCategories, type CategoryNode } from '@/lib/api';
 import { CategoryIcon } from '@/components/category-icon';
 import { Spinner, ErrorBanner, EmptyState } from '@/components/ui';
+import { Reveal } from '@/components/Reveal';
 
 type Locale = 'en' | 'si' | 'ta';
 
@@ -46,7 +47,7 @@ export default function BookPage() {
   }, [cats, locale, q]);
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6">
       <header>
         <h1 className="font-display text-2xl font-bold text-ink dark:text-gray-50">{t('title')}</h1>
         <p className="text-sm text-slate dark:text-gray-400">{t('subtitle')}</p>
@@ -80,18 +81,20 @@ export default function BookPage() {
         <EmptyState>{t('noResults')}</EmptyState>
       ) : (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {items.map((it) => (
+          {items.map((it, i) => (
             <li key={it.key}>
-              <a
-                href={`/${locale}/category/${it.key}`}
-                className="group flex h-full flex-col gap-3 rounded-xl2 border border-line bg-white p-4 shadow-card transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lift dark:border-gray-700 dark:bg-gray-800"
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white">
-                  <CategoryIcon keyName={it.key} />
-                </span>
-                <span className="font-medium leading-tight">{it.name}</span>
-                {it.parent && <span className="-mt-1 text-xs text-slate dark:text-gray-400">{it.parent}</span>}
-              </a>
+              <Reveal delay={Math.min(i, 12) * 40} className="h-full">
+                <a
+                  href={`/${locale}/category/${it.key}`}
+                  className="group flex h-full flex-col gap-3 rounded-xl2 border border-line bg-white p-4 shadow-card transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lift dark:border-gray-700 dark:bg-gray-800"
+                >
+                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white">
+                    <CategoryIcon keyName={it.key} />
+                  </span>
+                  <span className="font-medium leading-tight">{it.name}</span>
+                  {it.parent && <span className="-mt-1 text-xs text-slate dark:text-gray-400">{it.parent}</span>}
+                </a>
+              </Reveal>
             </li>
           ))}
         </ul>

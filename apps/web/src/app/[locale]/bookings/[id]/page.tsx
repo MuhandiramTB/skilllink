@@ -110,7 +110,7 @@ export default function BookingDetailPage() {
           labels={[t('stepRequested'), t('stepMatched'), t('stepAccepted'), t('stepInProgress'), t('stepCompleted')]}
         />
         {(booking.acceptedAt || booking.startedAt || booking.completedAt) && (
-          <ul className="mt-3 space-y-0.5 border-t border-line pt-3 text-xs text-slate dark:border-gray-700 dark:text-gray-400">
+          <ul className="mt-3 space-y-0.5 border-t border-line-soft pt-3 text-xs text-slate dark:border-gray-800 dark:text-gray-400">
             {booking.acceptedAt && <li>{t('stepAccepted')}: {new Date(booking.acceptedAt).toLocaleString()}</li>}
             {booking.startedAt && <li>{t('stepInProgress')}: {new Date(booking.startedAt).toLocaleString()}</li>}
             {booking.completedAt && <li>{t('stepCompleted')}: {new Date(booking.completedAt).toLocaleString()}</li>}
@@ -123,7 +123,7 @@ export default function BookingDetailPage() {
         <p className="mt-1.5 text-sm text-slate dark:text-gray-300">{booking.description || t('noDescription')}</p>
 
         {/* Scheduled time (or ASAP) + reschedule. */}
-        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line pt-3 text-sm dark:border-gray-700">
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line-soft pt-3 text-sm dark:border-gray-800">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-primary" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
           <span className="font-medium text-ink dark:text-gray-100">
             {booking.scheduledFor ? new Date(booking.scheduledFor).toLocaleString() : t('scheduledAsap')}

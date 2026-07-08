@@ -7,6 +7,7 @@ import { PageHeader, Card, Button, Spinner, EmptyState, ErrorBanner, SuccessBann
 import { TrilingualNames, useTrilingual } from '@/components/TrilingualNames';
 import { IconButton, ConfirmModal } from '@/components/IconButton';
 import { ICONS } from '@/components/nav-config';
+import { Reveal } from '@/components/Reveal';
 
 export default function AdminDistrictsPage() {
   const t = useTranslations('admin');
@@ -100,9 +101,9 @@ export default function AdminDistrictsPage() {
         // Mobile-first: each district is a stacked row-card with one full-size toggle
         // button (>=44px) instead of a cramped inline link.
         <ul className="space-y-2">
-          {districts?.map((d) => (
+          {districts?.map((d, i) => (
+            <Reveal key={d.id} delay={i * 40} className="block">
             <li
-              key={d.id}
               className="rounded-xl2 border border-line bg-white p-3 shadow-card dark:border-gray-800 dark:bg-gray-900"
             >
               {editing === d.id ? (
@@ -137,6 +138,7 @@ export default function AdminDistrictsPage() {
                 </div>
               )}
             </li>
+            </Reveal>
           ))}
         </ul>
       )}

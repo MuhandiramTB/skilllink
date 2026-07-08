@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { fetchDistricts, saveProfile, getToken, type District } from '@/lib/session';
-import { Button, Card, ErrorBanner, Spinner, PageHeader, Field, inputCls } from '@/components/ui';
+import { Button, Card, ErrorBanner, Spinner, Field, inputCls } from '@/components/ui';
 
 /** Customer registration — simple, under 30 seconds (spec 10, Req 2). */
 export default function RegisterPage() {
@@ -35,9 +35,15 @@ export default function RegisterPage() {
   const dName = (d: District) => (language === 'si' ? d.name_si : language === 'ta' ? d.name_ta : d.name_en);
 
   return (
-    <div className="mx-auto max-w-md space-y-5">
-      <PageHeader title="Welcome to SkillLink" subtitle="Just a few details and you're ready to book." />
-      <Card className="rounded-2xl">
+    <div className="flex min-h-[calc(100vh-61px)] flex-col justify-center py-8">
+      <div className="mx-auto w-full max-w-md">
+        {/* Brand mark + heading — mirrors the login form panel. */}
+        <div className="mb-8 text-center">
+          <span className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl2 bg-ink text-lg font-extrabold text-white shadow-lift dark:bg-primary">SL</span>
+          <h1 className="font-display text-2xl font-extrabold tracking-tightest text-ink dark:text-white sm:text-[28px]">Welcome to SkillLink</h1>
+          <p className="mt-2 text-sm leading-relaxed text-slate">Just a few details and you&apos;re ready to book.</p>
+        </div>
+        <Card className="p-6 sm:p-7">
         {!districts ? <Spinner /> : (
           <form onSubmit={submit} className="space-y-4">
             <Field label="Full name">
@@ -64,7 +70,8 @@ export default function RegisterPage() {
             {err && <ErrorBanner message={err} />}
           </form>
         )}
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }

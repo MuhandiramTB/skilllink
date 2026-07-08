@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { adminApi, type Dispute } from '@/lib/admin-api';
 import { Button, Card, EmptyState, ErrorBanner, StatusBadge, PageHeader } from '@/components/ui';
 import { ICONS } from '@/components/nav-config';
+import { Reveal } from '@/components/Reveal';
 
 export default function AdminDisputesPage() {
   const t = useTranslations('admin');
@@ -35,8 +36,9 @@ export default function AdminDisputesPage() {
 
       {disputes.length > 0 && (
         <ul className="space-y-2.5">
-          {disputes.map((d) => (
+          {disputes.map((d, i) => (
             <li key={d.id}>
+              <Reveal delay={i * 40}>
               <Card>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex min-w-0 items-center gap-3">
@@ -57,6 +59,7 @@ export default function AdminDisputesPage() {
                   </Button>
                 </div>
               </Card>
+              </Reveal>
             </li>
           ))}
         </ul>
