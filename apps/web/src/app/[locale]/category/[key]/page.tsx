@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { bookingApi, type Match } from '@/lib/booking-api';
 import { favouritesApi } from '@/lib/favourites-api';
 import { getToken } from '@/lib/session';
+import { TOWNS } from '@/lib/towns';
 import { Button, Card, ErrorBanner, EmptyState, Spinner, PageHeader, Field, StatusBadge, inputCls } from '@/components/ui';
 import { Reveal } from '@/components/Reveal';
 import { LocationPicker, KANDY, type LatLng } from '@/components/LocationPicker';
@@ -15,6 +16,7 @@ export default function CategoryBookingPage() {
   const p = useParams();
   const key = p.key as string;
   const locale = (p.locale as string) ?? 'en';
+  const searchParams = useSearchParams();
   const t = useTranslations('dash');
   // null = checking (server + first client paint match), then resolved client-side —
   // avoids a hydration mismatch from reading localStorage during render.
@@ -54,6 +56,15 @@ export default function CategoryBookingPage() {
   });
 
   useEffect(() => { setAuthed(!!getToken()); }, []);
+
+  // Pre-set the location from a ?loc=<townKey> handoff (landing-page search), so
+  // the map + matches start centered on the visitor's chosen area.
+  useEffect(() => {
+    const locKey = searchParams.get('loc');
+    if (!locKey) return;
+    const town = TOWNS.find((tn) => tn.key === locKey);
+    if (town) setLocation({ lat: town.lat, lng: town.lng });
+  }, [searchParams]);
 
   function fail(e: unknown) { setErr((e as Error).message); }
 
