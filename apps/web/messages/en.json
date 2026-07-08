@@ -368,6 +368,9 @@
     "bookAService": "Book a service",
     "becomeProvider": "Become a provider",
     "settingUp": "Setting up…",
+    "becomeProviderConfirmTitle": "Become a provider?",
+    "becomeProviderConfirmBody": "Your account will also work as a provider so you can offer services and accept jobs. You can switch back to customer mode anytime.",
+    "becomeProviderConfirmYes": "Yes, continue",
     "yourBookings": "Your bookings",
     "loadingBookings": "Loading bookings…",
     "noBookingsYet": "No bookings yet. Tap “Book a service” to get started.",
@@ -589,7 +592,8 @@
     "title": "Notifications",
     "alerts": "Alerts",
     "markAllRead": "Mark all read",
-    "none": "No notifications."
+    "none": "No notifications.",
+    "close": "Close"
   },
   "session": {
     "title": "Session expired",

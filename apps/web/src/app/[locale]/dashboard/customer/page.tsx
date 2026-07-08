@@ -12,6 +12,7 @@ import { ICONS } from '@/components/nav-config';
 import { CategoryIcon } from '@/components/category-icon';
 import { KpiCard, CountUp } from '@/components/charts';
 import { Reveal } from '@/components/Reveal';
+import { ConfirmModal } from '@/components/ConfirmModal';
 
 // Popular service shortcuts shown in Quick Rebook before a customer has favourites.
 const QUICK_SERVICES: { key: string; label: string }[] = [
@@ -47,6 +48,7 @@ export default function CustomerDashboard() {
   const [bookings, setBookings] = useState<BookingListItem[] | null>(null);
   const [err, setErr] = useState('');
   const [becoming, setBecoming] = useState(false);
+  const [confirmProvider, setConfirmProvider] = useState(false);
   const [rewards, setRewards] = useState<RewardsSummary | null>(null);
   const [favourites, setFavourites] = useState<Favourite[]>([]);
 
@@ -68,6 +70,7 @@ export default function CustomerDashboard() {
     favouritesApi.list().then(setFavourites).catch(() => {});
   }, [locale]);
 
+  // Becoming a provider changes the account's mode — confirm before switching.
   async function onBecomeProvider() {
     setErr('');
     setBecoming(true);
@@ -77,6 +80,7 @@ export default function CustomerDashboard() {
     } catch (e) {
       setErr((e as Error).message);
       setBecoming(false);
+      setConfirmProvider(false);
     }
   }
 
@@ -99,7 +103,7 @@ export default function CustomerDashboard() {
         <div className="flex flex-wrap gap-3">
           <a href={`/${locale}/book`}><AccentButton>{t('bookAService')}</AccentButton></a>
           {!hasProvider && (
-            <Button variant="ghost" disabled={becoming} onClick={onBecomeProvider}>
+            <Button variant="ghost" disabled={becoming} onClick={() => setConfirmProvider(true)}>
               {becoming ? t('settingUp') : t('becomeProvider')}
             </Button>
           )}
@@ -269,6 +273,19 @@ export default function CustomerDashboard() {
           </ul>
         )}
       </section>
+
+      {/* Confirm before switching this account into provider mode. */}
+      <ConfirmModal
+        open={confirmProvider}
+        title={t('becomeProviderConfirmTitle')}
+        body={t('becomeProviderConfirmBody')}
+        confirmLabel={becoming ? t('settingUp') : t('becomeProviderConfirmYes')}
+        cancelLabel={t('cancel')}
+        busy={becoming}
+        icon={ICONS.briefcase}
+        onConfirm={onBecomeProvider}
+        onCancel={() => setConfirmProvider(false)}
+      />
     </div>
   );
 }

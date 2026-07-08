@@ -60,11 +60,11 @@ export function NotificationBell() {
 
   return (
     <div className="relative">
-      <button onClick={toggle} aria-label={t('title')} title={t('title')}
-        className="relative flex h-9 w-9 items-center justify-center rounded-base border text-gray-600 transition hover:border-primary hover:text-primary dark:border-gray-600 dark:text-gray-300">
-        {/* Bell icon */}
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
-          <path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0" />
+      <button onClick={toggle} aria-label={t('title')} title={t('title')} aria-expanded={open}
+        className="relative flex h-9 w-9 items-center justify-center rounded-base border border-line text-slate transition hover:border-primary hover:text-primary dark:border-gray-700 dark:text-gray-300">
+        {/* Bell icon (Bootstrap bell-fill) */}
+        <svg viewBox="0 0 16 16" fill="currentColor" className="h-[18px] w-[18px]" aria-hidden="true">
+          <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" />
         </svg>
         {count > 0 && (
           <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
@@ -74,24 +74,47 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 z-30 mt-2 w-72 rounded-base border bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
-          <div className="flex items-center justify-between border-b px-3 py-2 text-sm font-medium dark:border-gray-700">
-            <span>{t('title')}</span>
-            {count > 0 && <button onClick={markAll} className="text-xs text-primary">{t('markAllRead')}</button>}
+        <>
+          {/* Backdrop — dims + captures the click-away. On mobile it makes the panel
+              read as a clear overlay; on desktop it's an invisible click catcher. */}
+          <button
+            type="button"
+            aria-label={t('close')}
+            tabIndex={-1}
+            onClick={() => setOpen(false)}
+            className="fixed inset-0 z-40 cursor-default bg-ink/40 backdrop-blur-[1px] sm:bg-transparent sm:backdrop-blur-0"
+          />
+          {/* Panel — mobile: a fixed sheet pinned near the top, almost full-width and
+              clearly visible; desktop (sm+): an anchored dropdown under the bell. */}
+          <div className="fixed inset-x-3 top-16 z-50 overflow-hidden rounded-xl2 border border-line bg-white shadow-lift dark:border-gray-800 dark:bg-gray-900 sm:absolute sm:inset-x-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80">
+            <div className="flex items-center justify-between border-b border-line px-4 py-3 dark:border-gray-800">
+              <span className="font-display text-sm font-bold text-ink dark:text-gray-50">{t('title')}</span>
+              {count > 0 && <button onClick={markAll} className="text-xs font-semibold text-primary hover:underline">{t('markAllRead')}</button>}
+            </div>
+            <ul className="max-h-[60vh] overflow-y-auto sm:max-h-96">
+              {items.length === 0 && (
+                <li className="flex flex-col items-center gap-2 px-4 py-10 text-center">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface text-slate-2 dark:bg-gray-800" aria-hidden="true">
+                    <svg viewBox="0 0 16 16" fill="currentColor" className="h-5 w-5"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" /></svg>
+                  </span>
+                  <span className="text-sm text-slate">{t('none')}</span>
+                </li>
+              )}
+              {items.map((n) => (
+                <li key={n.id} className="border-b border-line-soft last:border-b-0 dark:border-gray-800/60">
+                  <button onClick={() => openItem(n)}
+                    className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-surface dark:hover:bg-gray-800 ${n.read_at ? '' : 'bg-primary-soft/60 dark:bg-primary/10'}`}>
+                    {!n.read_at && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" aria-hidden="true" />}
+                    <span className={`min-w-0 flex-1 ${n.read_at ? 'pl-5' : ''}`}>
+                      <span className="block truncate text-sm font-semibold text-ink dark:text-gray-100">{n.title}</span>
+                      {n.body && <span className="mt-0.5 block text-xs text-slate">{n.body}</span>}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul className="max-h-80 overflow-y-auto">
-            {items.length === 0 && <li className="px-3 py-6 text-center text-sm text-gray-400">{t('none')}</li>}
-            {items.map((n) => (
-              <li key={n.id}>
-                <button onClick={() => openItem(n)}
-                  className={`block w-full px-3 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 ${n.read_at ? '' : 'bg-primary/5 dark:bg-primary/10'}`}>
-                  <p className="font-medium">{n.title}</p>
-                  {n.body && <p className="text-xs text-gray-500 dark:text-gray-400">{n.body}</p>}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+        </>
       )}
     </div>
   );

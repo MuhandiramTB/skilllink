@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { getSession, clearToken, becomeProvider, homeForMode, onAuthChange, type Session } from '@/lib/session';
 import { NAV, ICONS } from './nav-config';
 import { ModeSwitch } from './ModeSwitch';
+import { ConfirmModal } from './ConfirmModal';
 
 /**
  * Unified role-aware navigation.
@@ -19,7 +20,10 @@ function NavBody({ onNavigate }: { onNavigate?: () => void }) {
   const locale = (useParams().locale as string) ?? 'en';
   const pathname = usePathname();
   const t = useTranslations('nav');
+  const td = useTranslations('dash');
   const [session, setSession] = useState<Session | null>(null);
+  const [confirmProvider, setConfirmProvider] = useState(false);
+  const [becoming, setBecoming] = useState(false);
 
   useEffect(() => {
     const sync = () => setSession(getSession());
@@ -33,10 +37,11 @@ function NavBody({ onNavigate }: { onNavigate?: () => void }) {
   // A customer who isn't yet a provider gets a clear upgrade path in the nav.
   const canBecomeProvider = session.mode === 'customer' && !session.roles.includes('provider');
   async function goProvider() {
+    setBecoming(true);
     try {
       const s = await becomeProvider();
       window.location.href = homeForMode(locale, s.mode);
-    } catch { /* surfaced on the dashboard; nav stays put */ }
+    } catch { setBecoming(false); setConfirmProvider(false); /* surfaced on the dashboard */ }
   }
 
   return (
@@ -74,7 +79,7 @@ function NavBody({ onNavigate }: { onNavigate?: () => void }) {
       {canBecomeProvider && (
         <div className="border-t border-line pt-4 dark:border-gray-800">
           <button
-            onClick={() => { onNavigate?.(); void goProvider(); }}
+            onClick={() => { onNavigate?.(); setConfirmProvider(true); }}
             className="flex min-h-[44px] w-full items-center gap-3 rounded-base bg-primary/10 px-3 text-sm font-semibold text-primary transition hover:bg-primary/20"
           >
             {ICONS.briefcase}
@@ -89,6 +94,18 @@ function NavBody({ onNavigate }: { onNavigate?: () => void }) {
         {ICONS.user}
         <span>{t('signOut')}</span>
       </button>
+
+      <ConfirmModal
+        open={confirmProvider}
+        title={td('becomeProviderConfirmTitle')}
+        body={td('becomeProviderConfirmBody')}
+        confirmLabel={becoming ? td('settingUp') : td('becomeProviderConfirmYes')}
+        cancelLabel={td('cancel')}
+        busy={becoming}
+        icon={ICONS.briefcase}
+        onConfirm={() => void goProvider()}
+        onCancel={() => setConfirmProvider(false)}
+      />
     </nav>
   );
 }
