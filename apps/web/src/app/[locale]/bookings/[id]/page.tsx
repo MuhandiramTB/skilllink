@@ -120,7 +120,7 @@ export default function BookingDetailPage() {
 
       <Card className="rounded-xl2">
         <p className="text-sm font-medium uppercase tracking-wide text-slate">{t('details')}</p>
-        <p className="mt-1.5 text-sm text-gray-700 dark:text-gray-300">{booking.description || t('noDescription')}</p>
+        <p className="mt-1.5 text-sm text-slate dark:text-gray-300">{booking.description || t('noDescription')}</p>
 
         {/* Scheduled time (or ASAP) + reschedule. */}
         <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line pt-3 text-sm dark:border-gray-700">
@@ -151,7 +151,7 @@ export default function BookingDetailPage() {
         <Card className="space-y-3 rounded-xl2">
           <h2 className="font-display font-bold text-ink dark:text-gray-50">{t('setYourPrice')}</h2>
           {quoteStatus === 'quoted' && booking.priceCents != null && (
-            <p className="text-sm text-gray-600 dark:text-gray-300">{t('currentQuote')}: <Money cents={booking.priceCents} /></p>
+            <p className="text-sm text-slate dark:text-gray-300">{t('currentQuote')}: <Money cents={booking.priceCents} /></p>
           )}
           <Field label={t('yourPrice')} hint={t('setYourPriceHint')}>
             <div className="flex items-center gap-2">

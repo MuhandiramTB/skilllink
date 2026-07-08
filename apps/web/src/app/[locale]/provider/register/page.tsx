@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { providerApi } from '@/lib/provider-api';
 import { getToken } from '@/lib/session';
-import { Button, Card, ErrorBanner, Spinner, StatusBadge } from '@/components/ui';
+import { Button, Card, ErrorBanner, Spinner, StatusBadge, inputCls } from '@/components/ui';
 import { FileUpload } from '@/components/FileUpload';
 import { fileToDataUrl } from '@/lib/image';
 import { TOWNS } from '@/lib/towns';
@@ -124,7 +124,7 @@ export default function ProviderRegisterPage() {
             <>
               <label className="block"><span className="mb-1 block text-sm font-medium">{t('businessName')}</span>
                 <input autoFocus value={business} onChange={(e) => setBusiness(e.target.value)}
-                  className="w-full rounded-base border border-line px-3 py-2.5 dark:border-gray-700 dark:bg-gray-900" placeholder={t('businessNamePlaceholder')} /></label>
+                  className={inputCls} placeholder={t('businessNamePlaceholder')} /></label>
               <Button className="w-full" onClick={() => guard(() => providerApi.become(business || 'My Service'))}>{t('continue')}</Button>
             </>
           )}
@@ -133,12 +133,12 @@ export default function ProviderRegisterPage() {
             <>
               <label className="block"><span className="mb-1 block text-sm font-medium">{t('serviceCategory')}</span>
                 <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full rounded-base border border-line px-3 py-2.5 dark:border-gray-700 dark:bg-gray-900">
+                  className={inputCls}>
                   {cats.map((c) => <option key={c.id} value={c.id}>{c.name.en}</option>)}
                 </select></label>
               <label className="block"><span className="mb-1 block text-sm font-medium">{t('yearsExperience')}</span>
                 <input inputMode="numeric" value={years} onChange={(e) => setYears(e.target.value)}
-                  className="w-full rounded-base border border-line px-3 py-2.5 dark:border-gray-700 dark:bg-gray-900" placeholder={t('yearsExperiencePlaceholder')} /></label>
+                  className={inputCls} placeholder={t('yearsExperiencePlaceholder')} /></label>
               <Button className="w-full" onClick={() => guard(() => providerApi.setCategories([categoryId]))}>{t('continue')}</Button>
             </>
           )}
@@ -204,10 +204,10 @@ export default function ProviderRegisterPage() {
             <>
               <label className="block"><span className="mb-1 block text-sm font-medium">{t('workingDays')}</span>
                 <input value={days} onChange={(e) => setDays(e.target.value)}
-                  className="w-full rounded-base border border-line px-3 py-2.5 dark:border-gray-700 dark:bg-gray-900" /></label>
+                  className={inputCls} /></label>
               <label className="block"><span className="mb-1 block text-sm font-medium">{t('workingHours')}</span>
                 <input value={hours} onChange={(e) => setHours(e.target.value)}
-                  className="w-full rounded-base border border-line px-3 py-2.5 dark:border-gray-700 dark:bg-gray-900" /></label>
+                  className={inputCls} /></label>
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={emergency} onChange={(e) => setEmergency(e.target.checked)} />
                 {t('emergencyCalls')}

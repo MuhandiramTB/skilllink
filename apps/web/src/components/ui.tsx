@@ -3,19 +3,22 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 /**
- * Shared UI primitives — "Bold marketplace" design system.
- * Near-black ink + a single electric-blue accent. Crisp 1px-bordered cards with
- * a confident hover lift (no shadow at rest), tight radius, strong type hierarchy.
+ * Shared UI primitives — "Modern SaaS / clean" design system.
+ * Near-white ground, near-black ink, a single electric-indigo accent. Crisp
+ * 1px-bordered cards with layered depth, tight radius, strong type hierarchy,
+ * state encoded in color + shape (dot-led pills) not just words.
  */
 
 export function Button({
   variant = 'primary',
   className = '',
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'success' | 'danger' | 'ghost' }) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'ink' | 'success' | 'danger' | 'ghost' }) {
   const styles: Record<string, string> = {
-    // Primary = ink (near-black), the confident default action.
-    primary: 'bg-ink text-white hover:bg-black active:translate-y-px',
+    // Primary = the indigo accent, the confident default action.
+    primary: 'bg-primary text-white shadow-card hover:bg-primary-600 focus-visible:shadow-ring active:translate-y-px',
+    // Ink = near-black, for a secondary-but-strong action or on tinted grounds.
+    ink: 'bg-ink text-white hover:bg-black active:translate-y-px',
     success: 'bg-success text-white hover:brightness-110 active:translate-y-px',
     danger: 'bg-danger text-white hover:brightness-110 active:translate-y-px',
     ghost: 'border border-line bg-white text-ink hover:border-ink hover:bg-surface dark:border-gray-700 dark:bg-transparent dark:text-gray-100 dark:hover:border-gray-500',
@@ -28,12 +31,13 @@ export function Button({
   );
 }
 
-/** Accent (electric-blue) button — for the single most important CTA on a view. */
+/** Accent (indigo) button — alias of the primary button; kept so existing
+ *  callers that reached for the "most important CTA" primitive keep working. */
 export function AccentButton({ className = '', ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       {...props}
-      className={`inline-flex items-center justify-center gap-1.5 rounded-base bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-card transition-all duration-150 hover:bg-primary-700 active:translate-y-px disabled:opacity-40 ${className}`}
+      className={`inline-flex items-center justify-center gap-1.5 rounded-base bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-card transition-all duration-150 hover:bg-primary-600 focus-visible:shadow-ring active:translate-y-px disabled:opacity-40 ${className}`}
     />
   );
 }
@@ -56,24 +60,25 @@ export function CardLink({ children, className = '' }: { children: ReactNode; cl
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  requested: 'bg-slate/10 text-slate ring-slate/20',
-  matched: 'bg-blue-50 text-blue-700 ring-blue-200 dark:bg-blue-500/10 dark:text-blue-300',
-  accepted: 'bg-amber-50 text-warn ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300',
-  in_progress: 'bg-indigo-50 text-indigo-700 ring-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-300',
-  completed: 'bg-green-50 text-success ring-green-200 dark:bg-green-500/10 dark:text-green-300',
-  cancelled: 'bg-slate/10 text-slate ring-slate/20',
-  rejected: 'bg-red-50 text-danger ring-red-200 dark:bg-red-500/10 dark:text-red-300',
-  approved: 'bg-green-50 text-success ring-green-200 dark:bg-green-500/10 dark:text-green-300',
-  pending: 'bg-amber-50 text-warn ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300',
-  open: 'bg-amber-50 text-warn ring-amber-200',
-  resolved: 'bg-green-50 text-success ring-green-200',
-  paid: 'bg-green-50 text-success ring-green-200',
+  requested: 'bg-slate/10 text-slate ring-slate/15',
+  matched: 'bg-primary-soft text-primary ring-primary/15 dark:bg-primary/10 dark:text-primary-fixed-dim',
+  accepted: 'bg-amber-50 text-warn ring-amber-200/70 dark:bg-amber-500/10 dark:text-amber-300',
+  in_progress: 'bg-primary-soft text-primary ring-primary/15 dark:bg-primary/10 dark:text-primary-fixed-dim',
+  completed: 'bg-green-50 text-success ring-green-200/70 dark:bg-green-500/10 dark:text-green-300',
+  cancelled: 'bg-slate/10 text-slate ring-slate/15',
+  rejected: 'bg-red-50 text-danger ring-red-200/70 dark:bg-red-500/10 dark:text-red-300',
+  approved: 'bg-green-50 text-success ring-green-200/70 dark:bg-green-500/10 dark:text-green-300',
+  pending: 'bg-amber-50 text-warn ring-amber-200/70 dark:bg-amber-500/10 dark:text-amber-300',
+  open: 'bg-amber-50 text-warn ring-amber-200/70',
+  resolved: 'bg-green-50 text-success ring-green-200/70',
+  paid: 'bg-green-50 text-success ring-green-200/70',
 };
 
 export function StatusBadge({ status }: { status: string }) {
-  const cls = STATUS_STYLES[status] ?? 'bg-slate/10 text-slate ring-slate/20';
+  const cls = STATUS_STYLES[status] ?? 'bg-slate/10 text-slate ring-slate/15';
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ring-1 ring-inset ${cls}`}>
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold capitalize ring-1 ring-inset ${cls}`}>
+      <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
       {status.replace(/_/g, ' ')}
     </span>
   );

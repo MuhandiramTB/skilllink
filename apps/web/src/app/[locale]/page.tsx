@@ -4,29 +4,9 @@ import { LandingGate } from '@/components/LandingGate';
 import { HeroSlider } from '@/components/HeroSlider';
 import { Reveal } from '@/components/Reveal';
 import { ICONS } from '@/components/nav-config';
+import { CategoryIcon } from '@/components/category-icon';
 
 type Locale = 'en' | 'si' | 'ta';
-
-// Small inline glyphs keyed by category key prefix — gives the grid real visual
-// identity instead of plain text tiles.
-function categoryIcon(key: string) {
-  const d: Record<string, string> = {
-    electrician: 'M13 2L3 14h7l-1 8 10-12h-7z',
-    plumber: 'M9 3v6a3 3 0 003 3 3 3 0 003-3V3M7 21h10M12 12v9',
-    ac_tech: 'M3 7h18M3 12h18M3 17h18',
-    welder: 'M12 2l2 7h7l-6 4 2 7-5-4-5 4 2-7-6-4h7z',
-    carpenter: 'M2 20l6-6M14 4l6 6-9 9-6-6z',
-    mechanic: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 01-1 3l2 2-2 2-2-2a7 7 0 01-3 1l-1 2-2-2',
-    painter: 'M5 3h14v6H5zM9 9v3a3 3 0 003 3v6',
-    mason: 'M3 8h7v4H3zM14 8h7v4h-7zM7 14h10v4H7z',
-    cctv: 'M2 7l16-4 2 6-16 4zM6 13v6M12 11l3 8',
-    cleaning: 'M19 3l-7 7M5 21l4-10 5 5-10 4zM14 8l2-2',
-    solar: 'M4 14h16l-2-9H6zM2 18h20M9 5v9M15 5v9',
-    auto_ac: 'M5 11l2-5h10l2 5M5 11h14v5H5zM7 16v2M17 16v2',
-  };
-  const match = Object.keys(d).find((k) => key.startsWith(k));
-  return d[match ?? ''] ?? 'M4 6h16M4 12h16M4 18h10';
-}
 
 export default async function HomePage({ params }: { params: { locale: string } }) {
   const locale = params.locale as Locale;
@@ -125,9 +105,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
                 className="group flex h-full flex-col items-center gap-3 rounded-xl2 border border-line bg-white p-5 text-center shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift dark:border-gray-800 dark:bg-gray-900"
               >
                 <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6" aria-hidden="true">
-                    <path d={categoryIcon(c.key)} />
-                  </svg>
+                  <CategoryIcon keyName={c.key} className="h-6 w-6" />
                 </span>
                 <span className="text-sm font-semibold text-ink dark:text-gray-100">{c.name[locale]}</span>
               </a>
@@ -147,13 +125,14 @@ export default async function HomePage({ params }: { params: { locale: string } 
           </div>
           <div className="grid gap-8 md:grid-cols-3">
             {[
-              { title: t('whyVerifiedTitle'), body: t('whyVerifiedBody'), d: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z' },
-              { title: t('whyPricingTitle'), body: t('whyPricingBody'), d: 'M21 12V7H5a2 2 0 010-4h14v4M3 5v14a2 2 0 002 2h16v-5M18 12a2 2 0 000 4h4v-4z' },
-              { title: t('whyGuaranteeTitle'), body: t('whyGuaranteeBody'), d: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM9 12l2 2 4-4' },
+              // Bootstrap Icons (16×16 fill): shield-check, cash-coin, patch-check-fill
+              { title: t('whyVerifiedTitle'), body: t('whyVerifiedBody'), d: 'M5.338 1.59a61 61 0 0 0-2.837.856.48.48 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.7 10.7 0 0 0 2.287 2.233c.346.244.652.42.893.533q.18.085.293.118a1 1 0 0 0 .101.025 1 1 0 0 0 .1-.025q.114-.034.294-.118c.24-.113.547-.29.893-.533a10.7 10.7 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.8 11.8 0 0 1-2.517 2.453 7 7 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7 7 0 0 1-1.048-.625 11.8 11.8 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 63 63 0 0 1 5.072.56M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0' },
+              { title: t('whyPricingTitle'), body: t('whyPricingBody'), d: 'M11 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8m5-4a5 5 0 1 1-10 0 5 5 0 0 1 10 0M9.438 5.482a5 5 0 0 0-.35.13 2.6 2.6 0 0 1 .567.518 3 3 0 0 1 .453-.083l-.72-.565zM11 3.5A3.5 3.5 0 0 0 7.5 0a3.5 3.5 0 0 0-3.482 3.16A3.5 3.5 0 0 0 4 3.5c0 .316.041.622.12.913a5.5 5.5 0 0 1 1.416-.647A2.5 2.5 0 0 1 7.5 1a2.5 2.5 0 0 1 2.474 2.85q.5.06.966.201A3.5 3.5 0 0 0 11 3.5m-6.633 4.7a3 3 0 0 1-.4.313 5 5 0 0 1-.437-.166l-.017.006L1.5 9.146A3.5 3.5 0 0 1 4.02 5.16a5.5 5.5 0 0 0 .347 3.04' },
+              { title: t('whyGuaranteeTitle'), body: t('whyGuaranteeBody'), d: 'M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01zm.287 5.984-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7 8.293l2.646-2.647a.5.5 0 0 1 .708.708' },
             ].map((f) => (
               <div key={f.title} className="flex flex-col items-start gap-3">
                 <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6" aria-hidden="true"><path d={f.d} /></svg>
+                  <svg viewBox="0 0 16 16" fill="currentColor" className="h-6 w-6" aria-hidden="true"><path d={f.d} /></svg>
                 </span>
                 <h3 className="font-display text-xl font-bold text-ink dark:text-gray-50">{f.title}</h3>
                 <p className="text-sm leading-relaxed text-slate">{f.body}</p>

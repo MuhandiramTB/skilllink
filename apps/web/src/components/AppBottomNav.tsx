@@ -47,7 +47,7 @@ export function AppBottomNav() {
               active ? 'text-primary' : 'text-slate hover:text-ink dark:hover:text-gray-200'
             }`}
           >
-            <span className={active ? 'scale-105 transition-transform' : 'transition-transform'}>{ICONS[tab.icon]}</span>
+            <span className={`flex h-8 w-14 items-center justify-center rounded-full transition-all ${active ? 'bg-primary/10 dark:bg-primary/15' : 'bg-transparent'}`}>{ICONS[tab.icon]}</span>
             <span className={`text-[11px] ${active ? 'font-semibold' : 'font-medium'}`}>{t(tab.labelKey)}</span>
           </a>
         );
@@ -60,7 +60,7 @@ export function AppBottomNav() {
           profileActive ? 'text-primary' : 'text-slate hover:text-ink dark:hover:text-gray-200'
         }`}
       >
-        <span className={profileActive ? 'scale-105 transition-transform' : 'transition-transform'}>{ICONS.user}</span>
+        <span className={`flex h-8 w-14 items-center justify-center rounded-full transition-all ${profileActive ? 'bg-primary/10 dark:bg-primary/15' : 'bg-transparent'}`}>{ICONS.user}</span>
         <span className={`text-[11px] ${profileActive ? 'font-semibold' : 'font-medium'}`}>{t('you')}</span>
       </a>
     </nav>

@@ -8,7 +8,7 @@
 
 body {
   /* Cool off-white ground (surface), near-black ink text. */
-  @apply bg-surface text-ink antialiased dark:bg-[#0B0D12] dark:text-gray-100;
+  @apply bg-surface text-ink antialiased dark:bg-[#0A0B0F] dark:text-gray-100;
   font-feature-settings: 'cv05', 'ss01';
 }
 
@@ -30,9 +30,9 @@ h1, h2, h3, .font-display {
   }
 }
 
-/* Visible keyboard focus — accessible and on-brand (electric blue ring). */
+/* Visible keyboard focus — accessible and on-brand (electric indigo ring). */
 :focus-visible {
-  outline: 2px solid #1D4ED8;
+  outline: 2px solid #4F46E5;
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -46,7 +46,11 @@ h1, h2, h3, .font-display {
 
 /* Chat bubbles + neutral chips adapt in dark mode. */
 .dark .bg-gray-50 { @apply bg-gray-800; }
-.dark .bg-surface { @apply bg-[#0B0D12]; }
+.dark .bg-surface { @apply bg-[#0A0B0F]; }
+.dark .bg-surface-2 { @apply bg-[#14161C]; }
+/* Soft in-card hairline maps to a subtle dark divider. */
+.dark .bg-line-soft { @apply bg-white/5; }
+.dark .border-line-soft { @apply border-white/[0.06]; }
 
 /* ============================================================================
    Motion system — reusable keyframes + utilities. All gated by reduced-motion.

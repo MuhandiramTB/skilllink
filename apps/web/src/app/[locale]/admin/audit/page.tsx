@@ -72,15 +72,15 @@ export default function AdminAuditPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-line text-left dark:border-gray-800">
-                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate">{t('audit.colWhen')}</th>
-                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate">{t('audit.colAction')}</th>
-                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate">{t('audit.colEntity')}</th>
+                  <tr className="border-b border-line bg-surface-2 text-left dark:border-gray-800 dark:bg-gray-800/40">
+                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate">{t('audit.colWhen')}</th>
+                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate">{t('audit.colAction')}</th>
+                    <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate">{t('audit.colEntity')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((r) => (
-                    <tr key={r.id} className="border-b border-line last:border-0 dark:border-gray-800">
+                    <tr key={r.id} className="border-b border-line-soft transition-colors last:border-0 hover:bg-surface dark:border-gray-800 dark:hover:bg-gray-800/40">
                       <td className="px-4 py-3 text-xs text-slate tabular-nums">{new Date(r.created_at).toLocaleString()}</td>
                       <td className="px-4 py-3">
                         <span className="flex items-center gap-2">

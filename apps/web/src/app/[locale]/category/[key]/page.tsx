@@ -8,7 +8,7 @@ import { favouritesApi } from '@/lib/favourites-api';
 import { getToken } from '@/lib/session';
 import { Button, Card, ErrorBanner, EmptyState, Spinner, PageHeader, Field, inputCls } from '@/components/ui';
 import { LocationPicker, KANDY, type LatLng } from '@/components/LocationPicker';
-import { ICONS, HEART_PATH } from '@/components/nav-config';
+import { ICONS, HEART_PATH, HEART_OUTLINE_PATH } from '@/components/nav-config';
 
 export default function CategoryBookingPage() {
   const p = useParams();
@@ -154,7 +154,7 @@ export default function CategoryBookingPage() {
           {sortedMatches.map((m) => (
             <Card key={m.provider_id} className="flex items-center gap-3 rounded-xl2">
               {/* Work-photo thumbnail (spec 12): the strongest trust signal. */}
-              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
+              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface dark:bg-gray-800">
                 {m.cover_photo ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={m.cover_photo} alt={m.business_name ?? ''} className="h-full w-full object-cover" />
@@ -193,7 +193,7 @@ export default function CategoryBookingPage() {
                   className={`transition-transform hover:scale-110 ${favIds.has(m.provider_id) ? 'text-danger' : 'text-slate'}`}
                   title={favIds.has(m.provider_id) ? t('removeFavourite') : t('addFavourite')}
                 >
-                  <svg viewBox="0 0 24 24" fill={favIds.has(m.provider_id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true"><path d={HEART_PATH} /></svg>
+                  <svg viewBox="0 0 16 16" fill="currentColor" className="h-5 w-5" aria-hidden="true"><path d={favIds.has(m.provider_id) ? HEART_PATH : HEART_OUTLINE_PATH} /></svg>
                 </button>
                 <Button variant="success" onClick={() => book(m.provider_id)}>{t('book')}</Button>
               </div>

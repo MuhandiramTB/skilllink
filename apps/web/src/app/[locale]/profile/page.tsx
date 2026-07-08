@@ -199,7 +199,7 @@ export default function ProfilePage() {
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate">{t('preferences')}</h2>
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium">{t('theme')}</span>
-          <div className="flex gap-1 rounded-base bg-gray-100 p-0.5 dark:bg-gray-800">
+          <div className="flex gap-1 rounded-base bg-surface p-0.5 dark:bg-gray-800">
             {(['light', 'dark'] as Theme[]).map((m) => (
               <button key={m} type="button" onClick={() => applyTheme(m)}
                 aria-pressed={theme === m}
