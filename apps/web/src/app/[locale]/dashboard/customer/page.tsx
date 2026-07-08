@@ -7,9 +7,11 @@ import { getSession, homeForMode, becomeProvider } from '@/lib/session';
 import { bookingApi, type BookingListItem } from '@/lib/booking-api';
 import { rewardsApi, type RewardsSummary } from '@/lib/rewards-api';
 import { favouritesApi, type Favourite } from '@/lib/favourites-api';
-import { Button, AccentButton, Card, MetricCard, StatusBadge, SkeletonList, EmptyState, ErrorBanner } from '@/components/ui';
+import { Button, AccentButton, Card, StatusBadge, SkeletonList, EmptyState, ErrorBanner } from '@/components/ui';
 import { ICONS } from '@/components/nav-config';
 import { CategoryIcon } from '@/components/category-icon';
+import { KpiCard, CountUp } from '@/components/charts';
+import { Reveal } from '@/components/Reveal';
 
 // Popular service shortcuts shown in Quick Rebook before a customer has favourites.
 const QUICK_SERVICES: { key: string; label: string }[] = [
@@ -106,11 +108,11 @@ export default function CustomerDashboard() {
 
       {err && <ErrorBanner message={err} />}
 
-      {/* Summary metrics */}
+      {/* Summary metrics — animated KPI cards, 3-up (responsive) */}
       <div className="grid grid-cols-3 gap-3">
-        <MetricCard icon={ICONS.chat} tone="primary" label={t('activeBookings')} value={active.length} />
-        <MetricCard icon={ICONS.star} tone="success" label={t('completed')} value={completed} />
-        <MetricCard icon={ICONS.briefcase} label={t('totalBookings')} value={bookings?.length ?? 0} />
+        <KpiCard icon={ICONS.chat} tone="primary" label={t('activeBookings')} value={<CountUp value={active.length} />} />
+        <KpiCard icon={ICONS.star} tone="success" label={t('completed')} value={<CountUp value={completed} />} />
+        <KpiCard icon={ICONS.briefcase} tone="sky" label={t('totalBookings')} value={<CountUp value={bookings?.length ?? 0} />} />
       </div>
 
       {/* Bento grid: active bookings (main) + side column */}
@@ -128,8 +130,9 @@ export default function CustomerDashboard() {
             <EmptyState>{t('noActiveBookings')} <a href={`/${locale}/book`} className="font-semibold text-primary hover:underline">{t('bookAService')}</a></EmptyState>
           ) : (
             <div className="flex flex-col gap-4">
-              {active.map((b) => (
-                <div key={b.id} className="group relative flex flex-col gap-4 overflow-hidden rounded-xl2 border border-line bg-white p-4 shadow-card transition-all duration-150 hover:shadow-lift dark:border-gray-800 dark:bg-gray-900 sm:flex-row">
+              {active.map((b, i) => (
+                <Reveal key={b.id} delay={i * 50}>
+                <div className="group relative flex flex-col gap-4 overflow-hidden rounded-xl2 border border-line bg-white p-4 shadow-card transition-all duration-150 hover:-translate-y-0.5 hover:shadow-lift dark:border-gray-800 dark:bg-gray-900 sm:flex-row">
                   {/* Status ribbon, top-right */}
                   <span className="absolute right-0 top-0 rounded-bl-xl bg-secondary-container px-4 py-1 text-xs font-semibold capitalize text-white">
                     {b.status.replace(/_/g, ' ')}
@@ -151,6 +154,7 @@ export default function CustomerDashboard() {
                     </div>
                   </div>
                 </div>
+                </Reveal>
               ))}
             </div>
           )}

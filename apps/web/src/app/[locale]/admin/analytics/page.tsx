@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { adminApi, type Analytics } from '@/lib/admin-api';
-import { PageHeader, Card, StatCard, Money, Spinner, EmptyState, ErrorBanner } from '@/components/ui';
+import { PageHeader, Card, Money, Spinner, EmptyState, ErrorBanner } from '@/components/ui';
+import { KpiCard, CountUp } from '@/components/charts';
+import { ICONS } from '@/components/nav-config';
 
 export default function AdminAnalyticsPage() {
   const t = useTranslations('admin');
@@ -28,14 +30,14 @@ export default function AdminAnalyticsPage() {
       ) : a ? (
         <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            <StatCard label={t('analytics.totalBookings')} value={a.bookings.total} tone="primary" />
-            <StatCard label={t('analytics.completedJobs')} value={a.bookings.completed} tone="success" />
-            <StatCard label={t('analytics.grossRevenue')} value={<Money cents={a.revenue.grossCents} />} />
-            <StatCard label={t('analytics.commissionEarned')} value={<Money cents={a.revenue.commissionCents} />} tone="success" />
-            <StatCard label={t('analytics.approvedProviders')} value={a.providers.approved} />
-            <StatCard label={t('analytics.pendingProviders')} value={a.providers.pending} tone="danger" />
-            <StatCard label={t('analytics.customers')} value={a.customers} />
-            <StatCard label={t('analytics.activeDistricts')} value={a.activeDistricts} />
+            <KpiCard icon={ICONS.chat} tone="primary" label={t('analytics.totalBookings')} value={<CountUp value={a.bookings.total} />} />
+            <KpiCard icon={ICONS.star} tone="success" label={t('analytics.completedJobs')} value={<CountUp value={a.bookings.completed} />} />
+            <KpiCard icon={ICONS.wallet} tone="success" label={t('analytics.grossRevenue')} value={<Money cents={a.revenue.grossCents} />} />
+            <KpiCard icon={ICONS.receipt} tone="primary" label={t('analytics.commissionEarned')} value={<Money cents={a.revenue.commissionCents} />} />
+            <KpiCard icon={ICONS.shield} tone="primary" label={t('analytics.approvedProviders')} value={<CountUp value={a.providers.approved} />} />
+            <KpiCard icon={ICONS.shield} tone={a.providers.pending > 0 ? 'warn' : 'primary'} label={t('analytics.pendingProviders')} value={<CountUp value={a.providers.pending} />} />
+            <KpiCard icon={ICONS.user} tone="sky" label={t('analytics.customers')} value={<CountUp value={a.customers} />} />
+            <KpiCard icon={ICONS.map} tone="success" label={t('analytics.activeDistricts')} value={<CountUp value={a.activeDistricts} />} />
           </div>
 
           <section>

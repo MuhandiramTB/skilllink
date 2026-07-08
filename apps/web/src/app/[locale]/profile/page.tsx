@@ -109,7 +109,7 @@ export default function ProfilePage() {
     : '';
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <header>
         <h1 className="font-display text-2xl font-bold text-ink dark:text-gray-50">{t('title')}</h1>
         <p className="text-sm text-slate dark:text-gray-400">{t('subtitle')}</p>

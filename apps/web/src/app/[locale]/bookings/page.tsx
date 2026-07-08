@@ -20,7 +20,7 @@ export default function BookingsListPage() {
   }, [locale]);
 
   return (
-    <div className="space-y-5">
+    <div className="mx-auto max-w-4xl space-y-5">
       <PageHeader
         title={t('myBookings')}
         subtitle={t('myBookingsSubtitle')}

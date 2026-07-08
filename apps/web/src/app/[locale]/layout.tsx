@@ -50,12 +50,16 @@ export default async function LocaleLayout({
                 utilities) → content → fixed bottom tab bar. Full menu via the drawer.
               Desktop (md+): top bar spans the width, then [left sidebar | content].
               No page renders its own header/sidebar. */}
-          <div className="mx-auto flex min-h-screen max-w-[520px] flex-col bg-surface md:max-w-7xl md:bg-white dark:bg-[#0B0D12] dark:md:bg-gray-900">
-            <header className="sticky top-0 z-30 flex items-center justify-between gap-2 border-b border-line bg-white/80 px-4 py-3 backdrop-blur-md dark:border-gray-800 dark:bg-[#0B0D12]/80">
+          {/* Full-bleed shell. Mobile: single column on the surface ground. Desktop:
+              the whole viewport is used — sidebar + a content area that spans the
+              canvas. Pages control their own inner max-width (dashboards go wide via
+              PageShell 'wide'; forms/detail stay centered via PageShell 'narrow'). */}
+          <div className="flex min-h-screen flex-col bg-surface dark:bg-[#0A0B0F]">
+            <header className="sticky top-0 z-30 flex items-center justify-between gap-2 border-b border-line bg-white/80 px-4 py-3 backdrop-blur-md dark:border-gray-800 dark:bg-[#0A0B0F]/80 md:px-6">
               <div className="flex min-w-0 items-center gap-2.5">
                 <AppMobileMenu />
                 <a href={`/${locale}`} className="flex shrink-0 items-center gap-2 font-display text-lg font-extrabold tracking-tightest text-ink dark:text-gray-50">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-sm font-black text-white">S</span>
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-sm font-black text-white shadow-card">S</span>
                   SkillLink
                 </a>
               </div>
@@ -73,9 +77,9 @@ export default async function LocaleLayout({
             <div className="flex flex-1">
               {/* Desktop left rail (role-aware); hidden on mobile (drawer + tabs cover it). */}
               <AppSidebar />
-              {/* Content. Narrow pages stay centered & readable; pb-24 on mobile clears
-                  the fixed tab bar. */}
-              <main className="min-w-0 flex-1 px-4 py-5 pb-24 md:pb-8 [&>*:not(:has(aside))]:mx-auto [&>*:not(:has(aside))]:max-w-3xl">{children}</main>
+              {/* Content. Full width; each page sizes itself with PageShell. pb-24 on
+                  mobile clears the fixed tab bar. Wide max so 2K screens don't sprawl. */}
+              <main className="mx-auto min-w-0 w-full max-w-[1400px] flex-1 px-4 py-5 pb-24 sm:px-6 md:py-7 md:pb-10">{children}</main>
             </div>
 
             {/* Role-aware bottom tabs — signed-in, mobile only. */}
