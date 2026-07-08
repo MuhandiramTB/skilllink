@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsDateString,
   IsIn,
   IsInt,
   IsLatitude,
@@ -25,10 +26,18 @@ export class CreateBookingDto {
   @Type(() => Number) @IsLatitude() lat!: number;
   @Type(() => Number) @IsLongitude() lng!: number;
 
+  // Preferred date/time (ISO 8601). Omitted / null = ASAP (on-demand).
+  @IsOptional() @IsDateString() scheduledFor?: string;
+
   @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => MediaItemDto)
   media?: MediaItemDto[];
 
   @IsOptional() @IsObject() solarSpecs?: Record<string, unknown>;
+}
+
+/** Reschedule: propose a new date/time (ISO). Either party (customer or assigned provider). */
+export class RescheduleDto {
+  @IsDateString() scheduledFor!: string;
 }
 
 export class AssignDto {

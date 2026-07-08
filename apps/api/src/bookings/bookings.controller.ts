@@ -8,6 +8,7 @@ import {
   AssignDto,
   CreateBookingDto,
   QuoteDto,
+  RescheduleDto,
   RespondDto,
   SendMessageDto,
   UpdateStatusDto,
@@ -64,6 +65,12 @@ export class BookingsController {
   @Post(':id/cancel')
   cancel(@CurrentUser() u: RequestUser, @Param('id') id: string) {
     return this.bookings.cancel(u.userId, id);
+  }
+
+  /** Spec 17: reschedule to a new preferred date/time (customer or assigned provider). */
+  @Patch(':id/reschedule')
+  reschedule(@CurrentUser() u: RequestUser, @Param('id') id: string, @Body() dto: RescheduleDto) {
+    return this.bookings.reschedule(u.userId, id, dto.scheduledFor);
   }
 
   /** Spec 11 Req 1: provider sets/updates the quote. */

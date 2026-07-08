@@ -24,7 +24,9 @@ export default function BookingDetailPage() {
   const [stars, setStars] = useState('5');
   const [price, setPrice] = useState('');
   // Guards against double-submitting money/state actions (a real double-tap risk on mobile).
-  const [busy, setBusy] = useState<null | 'quote' | 'accept' | 'pay' | 'review' | 'cancel' | 'send'>(null);
+  const [busy, setBusy] = useState<null | 'quote' | 'accept' | 'pay' | 'review' | 'cancel' | 'send' | 'reschedule'>(null);
+  const [rescheduleOpen, setRescheduleOpen] = useState(false);
+  const [newTime, setNewTime] = useState('');
 
   function fail(e: unknown) { setErr((e as Error).message); }
 
@@ -74,6 +76,16 @@ export default function BookingDetailPage() {
     setBusy('cancel');
     try { await bookingApi.cancel(id); await load(); } catch (e) { fail(e); } finally { setBusy(null); }
   }
+  async function doReschedule() {
+    if (busy || !newTime) return;
+    setBusy('reschedule');
+    try {
+      await bookingApi.reschedule(id, new Date(newTime).toISOString());
+      toast.show(t('rescheduled'), 'success');
+      setRescheduleOpen(false); setNewTime('');
+      await load();
+    } catch (e) { fail(e); toast.show((e as Error).message, 'error'); } finally { setBusy(null); }
+  }
 
   if (err && !booking) return <ErrorBanner message={err} />;
   if (!booking) return <Spinner />;
@@ -109,6 +121,28 @@ export default function BookingDetailPage() {
       <Card className="rounded-xl2">
         <p className="text-sm font-medium uppercase tracking-wide text-slate">{t('details')}</p>
         <p className="mt-1.5 text-sm text-gray-700 dark:text-gray-300">{booking.description || t('noDescription')}</p>
+
+        {/* Scheduled time (or ASAP) + reschedule. */}
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line pt-3 text-sm dark:border-gray-700">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-primary" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
+          <span className="font-medium text-ink dark:text-gray-100">
+            {booking.scheduledFor ? new Date(booking.scheduledFor).toLocaleString() : t('scheduledAsap')}
+          </span>
+          {canCancel && !rescheduleOpen && (
+            <button type="button" onClick={() => { setRescheduleOpen(true); setNewTime(booking.scheduledFor ? new Date(booking.scheduledFor).toISOString().slice(0, 16) : ''); }}
+              className="text-xs font-semibold text-primary hover:underline">{t('reschedule')}</button>
+          )}
+        </div>
+        {rescheduleOpen && (
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <input type="datetime-local" value={newTime}
+              min={new Date(Date.now() + 30 * 60000).toISOString().slice(0, 16)}
+              onChange={(e) => setNewTime(e.target.value)} className={`${inputCls} max-w-[16rem]`} />
+            <Button disabled={busy === 'reschedule' || !newTime} onClick={doReschedule}>{busy === 'reschedule' ? t('saving') : t('saveTime')}</Button>
+            <Button variant="ghost" onClick={() => setRescheduleOpen(false)}>{t('cancelBooking') === '' ? '' : t('cancel')}</Button>
+          </div>
+        )}
+
         {canCancel && <Button variant="ghost" className="mt-4" disabled={busy === 'cancel'} onClick={cancel}>{busy === 'cancel' ? t('saving') : t('cancelBooking')}</Button>}
       </Card>
 

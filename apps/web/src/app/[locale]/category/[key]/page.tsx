@@ -20,6 +20,8 @@ export default function CategoryBookingPage() {
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [desc, setDesc] = useState('');
   const [location, setLocation] = useState<LatLng>(KANDY);
+  const [when, setWhen] = useState<'asap' | 'scheduled'>('asap');
+  const [scheduledFor, setScheduledFor] = useState(''); // datetime-local value
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
   const [sort, setSort] = useState<'best' | 'nearest' | 'rating'>('best');
@@ -57,9 +59,11 @@ export default function CategoryBookingPage() {
   async function findProviders() {
     setErr('');
     if (desc.trim().length < 5) { setErr(t('describeRequired')); return; }
+    if (when === 'scheduled' && !scheduledFor) { setErr(t('pickTimeRequired')); return; }
     setBusy(true);
     try {
-      const b = await bookingApi.create(key, desc, location.lat, location.lng);
+      const iso = when === 'scheduled' && scheduledFor ? new Date(scheduledFor).toISOString() : undefined;
+      const b = await bookingApi.create(key, desc, location.lat, location.lng, iso);
       setBookingId(b.id);
       const m = await bookingApi.matches(b.id);
       setMatches(m.results);
@@ -98,6 +102,35 @@ export default function CategoryBookingPage() {
               className={inputCls} rows={3} />
           </Field>
           <LocationPicker value={location} onChange={setLocation} label={t('whereService')} />
+
+          {/* When: ASAP (on-demand) or a scheduled date/time. */}
+          <Field label={t('whenService')}>
+            <div className="flex gap-2">
+              {(['asap', 'scheduled'] as const).map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => setWhen(opt)}
+                  aria-pressed={when === opt}
+                  className={`flex-1 rounded-base border px-4 py-2.5 text-sm font-semibold transition-all ${
+                    when === opt ? 'border-primary bg-primary/10 text-primary' : 'border-line text-slate hover:border-ink hover:text-ink dark:border-gray-700'
+                  }`}
+                >
+                  {opt === 'asap' ? t('whenAsap') : t('whenScheduled')}
+                </button>
+              ))}
+            </div>
+            {when === 'scheduled' && (
+              <input
+                type="datetime-local"
+                value={scheduledFor}
+                min={new Date(Date.now() + 30 * 60000).toISOString().slice(0, 16)}
+                onChange={(e) => setScheduledFor(e.target.value)}
+                className={`${inputCls} mt-2`}
+              />
+            )}
+          </Field>
+
           <Button onClick={findProviders} disabled={busy} className="w-full">{busy ? t('searching') : t('findProviders')}</Button>
         </Card>
       )}

@@ -27,8 +27,8 @@ export class BookingsService {
     const user = await this.prisma.users.findUniqueOrThrow({ where: { id: customerId } });
 
     const rows = await this.prisma.$queryRawUnsafe<{ id: string }[]>(
-      `INSERT INTO bookings (customer_id, category_id, district_id, description, location, status, solar_specs)
-       VALUES ($1::uuid, $2::uuid, $3, $4, ST_SetSRID(ST_MakePoint($5,$6),4326)::geography, 'requested', $7::jsonb)
+      `INSERT INTO bookings (customer_id, category_id, district_id, description, location, status, solar_specs, scheduled_for)
+       VALUES ($1::uuid, $2::uuid, $3, $4, ST_SetSRID(ST_MakePoint($5,$6),4326)::geography, 'requested', $7::jsonb, $8::timestamptz)
        RETURNING id`,
       customerId,
       category.id,
@@ -37,6 +37,7 @@ export class BookingsService {
       dto.lng,
       dto.lat,
       dto.solarSpecs ? JSON.stringify(dto.solarSpecs) : null,
+      dto.scheduledFor ?? null,
     );
     const bookingId = rows[0].id;
 
@@ -218,7 +219,40 @@ export class BookingsService {
       acceptedAt: b.accepted_at,
       startedAt: b.started_at,
       completedAt: b.completed_at,
+      scheduledFor: b.scheduled_for,
     };
+  }
+
+  /**
+   * Spec 17: reschedule — set a new preferred date/time. Either the customer who
+   * owns it or the assigned provider may reschedule, only before the job starts
+   * (requested/matched/accepted). Notifies the other party.
+   */
+  async reschedule(userId: string, bookingId: string, scheduledFor: string) {
+    const b = await this.prisma.bookings.findUnique({ where: { id: bookingId } });
+    if (!b) throw new NotFoundException({ code: 'NOT_FOUND', message: 'errors.booking.notFound' });
+    const isCustomer = b.customer_id === userId;
+    const isProvider = b.provider_id === userId;
+    if (!isCustomer && !isProvider) {
+      throw new ForbiddenException({ code: 'FORBIDDEN', message: 'errors.booking.notYours' });
+    }
+    if (!['requested', 'matched', 'accepted'].includes(b.status)) {
+      throw new BadRequestException({ code: 'BOOKING_INVALID_TRANSITION', message: 'errors.booking.rescheduleNotAllowed' });
+    }
+    const when = new Date(scheduledFor);
+    await this.prisma.bookings.update({
+      where: { id: bookingId },
+      data: { scheduled_for: when, updated_at: new Date() },
+    });
+    // Tell the other party a new time was proposed.
+    const notifyUser = isCustomer ? b.provider_id : b.customer_id;
+    if (notifyUser) {
+      await this.notifier.notify({
+        userId: notifyUser, type: 'booking.rescheduled',
+        title: 'Booking rescheduled', body: 'A new time was proposed for a booking.', link: `/bookings/${bookingId}`,
+      });
+    }
+    return { id: bookingId, scheduledFor: when };
   }
 
   // ---- helpers ----

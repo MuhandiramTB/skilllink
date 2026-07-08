@@ -56,6 +56,7 @@ export interface Booking {
   acceptedAt?: string | null;
   startedAt?: string | null;
   completedAt?: string | null;
+  scheduledFor?: string | null;
 }
 export interface Message { sender_id: string; body: string; created_at: string }
 
@@ -68,8 +69,10 @@ export interface BookingListItem {
 }
 
 export const bookingApi = {
-  create: (categoryKey: string, description: string, lat: number, lng: number) =>
-    req<Booking>(`/bookings`, { method: 'POST', body: JSON.stringify({ categoryKey, description, lat, lng }) }),
+  create: (categoryKey: string, description: string, lat: number, lng: number, scheduledFor?: string) =>
+    req<Booking>(`/bookings`, { method: 'POST', body: JSON.stringify({ categoryKey, description, lat, lng, scheduledFor }) }),
+  reschedule: (id: string, scheduledFor: string) =>
+    req<{ id: string; scheduledFor: string }>(`/bookings/${id}/reschedule`, { method: 'PATCH', body: JSON.stringify({ scheduledFor }) }),
   list: (role: 'customer' | 'provider' = 'customer') =>
     req<BookingListItem[]>(`/bookings?role=${role}`),
   providerJobs: () => req<BookingListItem[]>(`/bookings/provider/jobs`),
