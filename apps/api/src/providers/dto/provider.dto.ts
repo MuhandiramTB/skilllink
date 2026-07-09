@@ -58,6 +58,10 @@ export class AvailabilityDto {
   @IsBoolean() isAvailable!: boolean;
 }
 
+export class BusyUntilDto {
+  @IsOptional() @IsString() until?: string | null; // ISO datetime, or null to clear
+}
+
 export class VerificationDecisionDto {
   @IsIn(['approve', 'reject']) decision!: 'approve' | 'reject';
   @IsOptional() @IsString() reason?: string;

@@ -7,6 +7,9 @@ import { bookingApi, type Booking, type Message } from '@/lib/booking-api';
 import { getToken, getSession } from '@/lib/session';
 import { Button, Card, Spinner, ErrorBanner, SuccessBanner, SuccessBurst, StatusBadge, PageHeader, Money, Field, BookingProgress, inputCls } from '@/components/ui';
 import { useToast } from '@/components/Toast';
+import { ConfirmModal } from '@/components/ConfirmModal';
+import { SafetyButton } from '@/components/SafetyButton';
+import { ICONS } from '@/components/nav-config';
 
 export default function BookingDetailPage() {
   const p = useParams();
@@ -27,6 +30,11 @@ export default function BookingDetailPage() {
   const [busy, setBusy] = useState<null | 'quote' | 'accept' | 'pay' | 'review' | 'cancel' | 'send' | 'reschedule'>(null);
   const [rescheduleOpen, setRescheduleOpen] = useState(false);
   const [newTime, setNewTime] = useState('');
+  // Safety + policy dialogs / one-shot states.
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [noShowOpen, setNoShowOpen] = useState(false);
+  const [cashReported, setCashReported] = useState(false);
 
   function fail(e: unknown) { setErr((e as Error).message); }
 
@@ -74,7 +82,42 @@ export default function BookingDetailPage() {
   async function cancel() {
     if (busy) return;
     setBusy('cancel');
-    try { await bookingApi.cancel(id); await load(); } catch (e) { fail(e); } finally { setBusy(null); }
+    setErr(''); setMsg('');
+    try {
+      const res = await bookingApi.cancel(id, cancelReason || undefined);
+      setCancelOpen(false); setCancelReason('');
+      if (res.cancelFeeCents > 0) {
+        setErr('');
+        setMsg('');
+        // Surface the fee explicitly rather than a generic success.
+        setFeeCents(res.cancelFeeCents);
+      } else {
+        setFeeCents(null);
+      }
+      await load();
+    } catch (e) { fail(e); } finally { setBusy(null); }
+  }
+  async function reportNoShow() {
+    if (busy) return;
+    setBusy('cancel');
+    setErr(''); setMsg('');
+    try {
+      await bookingApi.noShow(id);
+      setNoShowOpen(false);
+      setMsg(t('noShowReported'));
+      toast.show(t('noShowReported'), 'success');
+      await load();
+    } catch (e) { fail(e); toast.show((e as Error).message, 'error'); } finally { setBusy(null); }
+  }
+  async function reportCash() {
+    if (busy) return;
+    setBusy('pay');
+    setErr('');
+    try {
+      await bookingApi.reportCash(id);
+      setCashReported(true);
+      toast.show(t('reportCashDone'), 'success');
+    } catch (e) { fail(e); toast.show((e as Error).message, 'error'); } finally { setBusy(null); }
   }
   async function doReschedule() {
     if (busy || !newTime) return;

@@ -11,6 +11,7 @@ import {
   AddPhotoDto,
   AddVerificationDto,
   AvailabilityDto,
+  BusyUntilDto,
   BecomeProviderDto,
   ServiceAreaDto,
   ServiceAreasDto,
@@ -89,6 +90,12 @@ export class ProvidersController {
   @UseGuards(JwtAuthGuard)
   availability(@CurrentUser() u: RequestUser, @Body() dto: AvailabilityDto) {
     return this.providers.setAvailability(u.userId, dto.isAvailable);
+  }
+
+  @Patch('me/busy-until')
+  @UseGuards(JwtAuthGuard)
+  busyUntil(@CurrentUser() u: RequestUser, @Body() dto: BusyUntilDto) {
+    return this.providers.setBusyUntil(u.userId, dto.until ?? null);
   }
 
   @Patch('me/details')

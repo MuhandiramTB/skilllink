@@ -16,6 +16,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { FavouritesModule } from './favourites/favourites.module';
 import { ReferralsModule } from './referrals/referrals.module';
 import { SettingsModule } from './settings/settings.module';
+import { SafetyModule } from './safety/safety.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 
@@ -39,6 +40,7 @@ import { APP_GUARD } from '@nestjs/core';
     FavouritesModule,
     ReferralsModule,
     SettingsModule,
+    SafetyModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
   controllers: [HealthController],

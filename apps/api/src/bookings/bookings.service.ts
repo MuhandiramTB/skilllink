@@ -158,11 +158,83 @@ export class BookingsService {
     return { id: bookingId, quoteStatus: 'accepted' };
   }
 
-  /** Req 5.2: customer cancels (from requested/matched/accepted). */
-  async cancel(customerId: string, bookingId: string) {
+  /**
+   * Cancellation policy (product analysis gap: fair cancellation). Cancelling
+   * BEFORE the provider has accepted is always free. Cancelling an ACCEPTED job
+   * charges a cancellation fee (a % of the quoted price, capped) — this protects
+   * the provider's reserved time and discourages abuse. The fee is recorded on the
+   * booking (settled with the provider's next payout / the wallet). `by` marks who
+   * cancelled for audit + fairness (a provider-initiated cancel is never charged to
+   * the customer).
+   */
+  async cancel(customerId: string, bookingId: string, reason?: string) {
     const b = await this.ownedByCustomer(customerId, bookingId);
     this.assertTransition(b.status as BookingStatus, 'cancelled');
-    return this.setStatus(bookingId, 'cancelled');
+    // Fee only when a provider had committed (accepted). 15% of quote, capped LKR 500.
+    const chargeable = b.status === 'accepted';
+    const feeCents = chargeable && b.price_cents ? Math.min(50000, Math.round(b.price_cents * 0.15)) : 0;
+    const res = await this.setStatus(bookingId, 'cancelled', {
+      cancelled_by: 'customer',
+      cancel_reason: reason ?? null,
+      cancelled_at: new Date(),
+      cancel_fee_cents: feeCents,
+    });
+    if (b.provider_id) {
+      await this.notifier.notify({
+        userId: b.provider_id, type: 'booking.cancelled',
+        title: 'Booking cancelled', body: 'The customer cancelled this job.', link: `/bookings/${bookingId}`,
+      });
+    }
+    return { ...res, cancelFeeCents: feeCents };
+  }
+
+  /**
+   * Report a provider no-show (customer-initiated). Terminal state; the provider
+   * takes a strike (repeated strikes → admin review / suspension) and the customer
+   * owes nothing. A strong deterrent for the "provider no-show kills the customer"
+   * failure mode.
+   */
+  async markNoShow(customerId: string, bookingId: string) {
+    const b = await this.ownedByCustomer(customerId, bookingId);
+    this.assertTransition(b.status as BookingStatus, 'no_show');
+    const res = await this.setStatus(bookingId, 'no_show', {
+      cancelled_by: 'customer',
+      cancel_reason: 'provider_no_show',
+      cancelled_at: new Date(),
+    });
+    if (b.provider_id) {
+      await this.prisma.providers.update({
+        where: { user_id: b.provider_id },
+        data: { strikes: { increment: 1 }, updated_at: new Date() },
+      });
+      await this.notifier.notify({
+        userId: b.provider_id, type: 'booking.no_show',
+        title: 'No-show recorded', body: 'A customer reported you did not arrive. Repeated no-shows affect your standing.', link: `/bookings/${bookingId}`,
+      });
+    }
+    return res;
+  }
+
+  /**
+   * Disintermediation defense (product analysis gap #3): a provider self-reports a
+   * job they settled in CASH off the booking flow, so commission is still owed and
+   * the job counts toward their on-platform record. Honesty is incentivised
+   * elsewhere (rewards + rating weight); here we record it + flag commission.
+   */
+  async reportCashJob(providerId: string, bookingId: string) {
+    const b = await this.assignedToProvider(providerId, bookingId);
+    if (b.cash_reported) {
+      throw new BadRequestException({ code: 'ALREADY_REPORTED', message: 'errors.booking.cashAlreadyReported' });
+    }
+    await this.prisma.bookings.update({
+      where: { id: bookingId },
+      data: { cash_reported: true, cash_reported_at: new Date(), updated_at: new Date() },
+    });
+    await this.notifier.notify({
+      userId: providerId, type: 'booking.cash_reported',
+      title: 'Cash job recorded', body: 'Thanks for keeping it honest — this counts toward your record.', link: `/bookings/${bookingId}`,
+    });
+    return { ok: true };
   }
 
   async history(userId: string, role: 'customer' | 'provider') {

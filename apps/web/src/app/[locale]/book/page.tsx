@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { getToken } from '@/lib/session';
-import { fetchCategories, type CategoryNode } from '@/lib/api';
+import { fetchCategories, type CategoryNode, type CategoryPrice } from '@/lib/api';
 import { CategoryIcon } from '@/components/category-icon';
 import { Spinner, ErrorBanner, EmptyState } from '@/components/ui';
+import { PriceHint } from '@/components/PriceHint';
 import { Reveal } from '@/components/Reveal';
 
 type Locale = 'en' | 'si' | 'ta';
@@ -15,6 +16,7 @@ export default function BookPage() {
   const params = useParams();
   const locale = (params.locale as Locale) ?? 'en';
   const t = useTranslations('book');
+  const td = useTranslations('dash');
 
   // Seed the search from the hero's ?q= so "what do you need" carries through.
   const sp = useSearchParams();
@@ -37,10 +39,10 @@ export default function BookPage() {
   // Flatten top-level + sub-services into one searchable list of bookable items.
   const items = useMemo(() => {
     if (!cats) return [];
-    const flat: { key: string; name: string; parent?: string }[] = [];
+    const flat: { key: string; name: string; parent?: string; price: CategoryPrice | null }[] = [];
     for (const c of cats) {
-      flat.push({ key: c.key, name: c.name[locale] });
-      for (const child of c.children) flat.push({ key: child.key, name: child.name[locale], parent: c.name[locale] });
+      flat.push({ key: c.key, name: c.name[locale], price: c.price });
+      for (const child of c.children) flat.push({ key: child.key, name: child.name[locale], parent: c.name[locale], price: child.price });
     }
     const term = q.trim().toLowerCase();
     return term ? flat.filter((i) => i.name.toLowerCase().includes(term) || i.key.includes(term)) : flat;
@@ -93,6 +95,11 @@ export default function BookPage() {
                   </span>
                   <span className="font-medium leading-tight">{it.name}</span>
                   {it.parent && <span className="-mt-1 text-xs text-slate dark:text-gray-400">{it.parent}</span>}
+                  {it.price && (
+                    <span className="mt-auto pt-1">
+                      <PriceHint price={it.price} fromLabel={td('priceFrom')} rangeLabel={td('priceRange')} />
+                    </span>
+                  )}
                 </a>
               </Reveal>
             </li>

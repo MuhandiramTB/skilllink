@@ -52,6 +52,9 @@ export const providerApi = {
     req(`/providers/me/categories`, { method: 'PUT', body: JSON.stringify({ categoryIds }) }),
   setAvailability: (isAvailable: boolean) =>
     req(`/providers/me/availability`, { method: 'PATCH', body: JSON.stringify({ isAvailable }) }),
+  // Availability realism: mark busy until an ISO time (or null to clear).
+  setBusyUntil: (until: string | null) =>
+    req<{ busyUntil: string | null }>(`/providers/me/busy-until`, { method: 'PATCH', body: JSON.stringify({ until }) }),
   earnings: () => req<{ totalNetCents: number; paidJobs: number }>(`/providers/me/earnings`),
   setDetails: (d: { yearsExperience?: number; workingDays?: string; workingHours?: string; emergencyService?: boolean }) =>
     req(`/providers/me/details`, { method: 'PATCH', body: JSON.stringify(d) }),

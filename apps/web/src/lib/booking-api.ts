@@ -101,5 +101,10 @@ export const bookingApi = {
     req<Booking>(`/bookings/${id}/respond`, { method: 'PATCH', body: JSON.stringify({ action }) }),
   advance: (id: string, status: 'in_progress' | 'completed') =>
     req<Booking>(`/bookings/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
-  cancel: (id: string) => req<Booking>(`/bookings/${id}/cancel`, { method: 'POST' }),
+  cancel: (id: string, reason?: string) =>
+    req<{ id: string; status: string; cancelFeeCents: number }>(`/bookings/${id}/cancel`, { method: 'POST', body: JSON.stringify({ reason }) }),
+  // Customer reports the assigned provider never arrived (terminal no-show).
+  noShow: (id: string) => req<{ id: string; status: string }>(`/bookings/${id}/no-show`, { method: 'POST' }),
+  // Provider self-reports a job settled in cash (disintermediation defense).
+  reportCash: (id: string) => req<{ ok: boolean }>(`/bookings/${id}/report-cash`, { method: 'POST' }),
 };

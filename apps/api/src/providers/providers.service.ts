@@ -167,9 +167,23 @@ export class ProvidersService {
     await this.ensureProvider(userId);
     await this.prisma.providers.update({
       where: { user_id: userId },
-      data: { is_available: isAvailable, updated_at: new Date() },
+      // Going available clears any stale "busy until" so the toggle is truthful.
+      data: { is_available: isAvailable, ...(isAvailable ? { busy_until: null } : {}), updated_at: new Date() },
     });
     return { isAvailable };
+  }
+
+  /**
+   * Availability realism (product analysis gap): mark the provider busy until a
+   * time (e.g. on a job) so "available" reflects reality. Pass null to clear.
+   */
+  async setBusyUntil(userId: string, until: string | null) {
+    await this.ensureProvider(userId);
+    await this.prisma.providers.update({
+      where: { user_id: userId },
+      data: { busy_until: until ? new Date(until) : null, updated_at: new Date() },
+    });
+    return { busyUntil: until };
   }
 
   /** Provider's own profile + verification status. */

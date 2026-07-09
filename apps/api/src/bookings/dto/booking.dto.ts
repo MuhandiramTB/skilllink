@@ -10,6 +10,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  MaxLength,
   Min,
   MinLength,
   ValidateNested,
@@ -58,4 +59,8 @@ export class SendMessageDto {
 
 export class QuoteDto {
   @IsInt() @Min(1) amountCents!: number;
+}
+
+export class CancelDto {
+  @IsOptional() @IsString() @MaxLength(300) reason?: string;
 }

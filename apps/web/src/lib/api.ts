@@ -10,10 +10,12 @@ export interface Envelope<T> {
   error: { code: string; message: string } | null;
 }
 
+export interface CategoryPrice { minCents: number; maxCents: number; unit: string | null }
 export interface CategoryNode {
   id: string;
   key: string;
   name: { en: string; si: string; ta: string };
+  price: CategoryPrice | null;
   children: CategoryNode[];
 }
 

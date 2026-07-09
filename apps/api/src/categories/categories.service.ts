@@ -5,6 +5,9 @@ export interface CategoryNode {
   id: string;
   key: string;
   name: { en: string; si: string; ta: string };
+  // Pricing transparency: a typical LKR band shown to customers BEFORE booking so
+  // there are no surprises. null when the admin hasn't set guidance for a category.
+  price: { minCents: number; maxCents: number; unit: string | null } | null;
   children: CategoryNode[];
 }
 
@@ -23,6 +26,10 @@ export class CategoriesService {
       id: c.id,
       key: c.key,
       name: { en: c.name_en, si: c.name_si, ta: c.name_ta },
+      price:
+        c.price_min_cents != null && c.price_max_cents != null
+          ? { minCents: c.price_min_cents, maxCents: c.price_max_cents, unit: c.price_unit ?? null }
+          : null,
       children: [],
     });
 

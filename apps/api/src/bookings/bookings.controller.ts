@@ -6,6 +6,7 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import type { RequestUser } from '../auth/guards/jwt-auth.guard';
 import {
   AssignDto,
+  CancelDto,
   CreateBookingDto,
   QuoteDto,
   RescheduleDto,
@@ -63,8 +64,20 @@ export class BookingsController {
   }
 
   @Post(':id/cancel')
-  cancel(@CurrentUser() u: RequestUser, @Param('id') id: string) {
-    return this.bookings.cancel(u.userId, id);
+  cancel(@CurrentUser() u: RequestUser, @Param('id') id: string, @Body() dto: CancelDto) {
+    return this.bookings.cancel(u.userId, id, dto.reason);
+  }
+
+  /** Customer reports the assigned provider never arrived (terminal no-show). */
+  @Post(':id/no-show')
+  noShow(@CurrentUser() u: RequestUser, @Param('id') id: string) {
+    return this.bookings.markNoShow(u.userId, id);
+  }
+
+  /** Provider self-reports a job settled in cash (disintermediation defense). */
+  @Post(':id/report-cash')
+  reportCash(@CurrentUser() u: RequestUser, @Param('id') id: string) {
+    return this.bookings.reportCashJob(u.userId, id);
   }
 
   /** Spec 17: reschedule to a new preferred date/time (customer or assigned provider). */

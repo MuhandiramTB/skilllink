@@ -6,6 +6,7 @@ import { Reveal } from '@/components/Reveal';
 import { ICONS } from '@/components/nav-config';
 import { CategoryIcon } from '@/components/category-icon';
 import { LandingSearch } from '@/components/LandingSearch';
+import { PriceHint } from '@/components/PriceHint';
 
 type Locale = 'en' | 'si' | 'ta';
 
@@ -13,6 +14,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
   const locale = params.locale as Locale;
   setRequestLocale(locale);
   const t = await getTranslations('home');
+  const td = await getTranslations('dash');
 
   let categories: CategoryNode[] = [];
   let failed = false;
@@ -149,6 +151,9 @@ export default async function HomePage({ params }: { params: { locale: string } 
                   <CategoryIcon keyName={c.key} className="h-6 w-6" />
                 </span>
                 <span className="text-sm font-semibold text-ink dark:text-gray-100">{c.name[locale]}</span>
+                {c.price && (
+                  <PriceHint price={c.price} fromLabel={td('priceFrom')} rangeLabel={td('priceRange')} className="justify-center" />
+                )}
               </a>
               </Reveal>
             </li>
