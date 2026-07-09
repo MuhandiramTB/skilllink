@@ -26,11 +26,14 @@ export function LandingSearch({ locale, categories }: { locale: string; categori
   const [openList, setOpenList] = useState<'cat' | 'loc' | null>(null);
   const catBtn = useRef<HTMLDivElement>(null);
 
-  // Town suggestions filtered by what the user types (name match, diacritic-naive).
+  // Town suggestions filtered by what the user types — matches town OR district
+  // (island-wide), capped so the dropdown stays tidy.
   const townMatches = useMemo(() => {
     const q = locQuery.trim().toLowerCase();
-    if (!q) return TOWNS;
-    return TOWNS.filter((tn) => tn.name.toLowerCase().includes(q));
+    const base = q
+      ? TOWNS.filter((tn) => tn.name.toLowerCase().includes(q) || tn.district.toLowerCase().includes(q))
+      : TOWNS;
+    return base.slice(0, 8);
   }, [locQuery]);
 
   const selectedCat = categories.find((c) => c.key === catKey);
@@ -116,7 +119,10 @@ export function LandingSearch({ locale, categories }: { locale: string; categori
                     className="flex w-full items-center gap-2.5 rounded-base px-2.5 py-2 text-left text-sm text-ink transition-colors hover:bg-surface dark:text-gray-100 dark:hover:bg-gray-800"
                   >
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-surface text-slate [&>svg]:h-4 [&>svg]:w-4 dark:bg-gray-800" aria-hidden="true">{ICONS.map}</span>
-                    <span>{tn.name}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-medium">{tn.name}</span>
+                      <span className="block truncate text-xs text-slate-2">{tn.district}</span>
+                    </span>
                   </button>
                 </li>
               ))}

@@ -475,6 +475,8 @@
     "workingRadius": "ඔබේ ස්ථානයේ සිට වැඩ කරන අරය",
     "townsTitle": "ඔබ සේවය කරන නගර",
     "townsHint": "ඔබ යන සෑම නගරයක්ම තෝරන්න. ඒවායින් ඕනෑම එකක ගනුදෙනුකරුවන් සමඟ ඔබ ගැළපේ.",
+    "townSearchPlaceholder": "නගරය හෝ දිස්ත්‍රික්කය සොයන්න…",
+    "noTownsFound": "ඔබේ සෙවීමට නගර නොමැත.",
     "coverageRadius": "සෑම නගරයක් වටා ආවරණ අරය",
     "townsSelected": "{count, plural, =0 {නගර තෝරා නැත} one {නගර #ක් තෝරා ඇත} other {නගර #ක් තෝරා ඇත}}",
     "baseLocation": "ඔබේ මූලික ස්ථානය",

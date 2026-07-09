@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { providerApi } from '@/lib/provider-api';
@@ -8,7 +8,7 @@ import { getToken } from '@/lib/session';
 import { Button, Card, ErrorBanner, Spinner, StatusBadge, inputCls } from '@/components/ui';
 import { FileUpload } from '@/components/FileUpload';
 import { fileToDataUrl } from '@/lib/image';
-import { TOWNS } from '@/lib/towns';
+import { TOWNS, townsByDistrict } from '@/lib/towns';
 import { CoverageMap } from '@/components/CoverageMap';
 
 interface Cat { id: string; key: string; name: { en: string }; children: Cat[] }
@@ -32,6 +32,20 @@ export default function ProviderRegisterPage() {
   const [years, setYears] = useState('');
   const [radius, setRadius] = useState(10000);
   const [towns, setTowns] = useState<Set<string>>(new Set(['kandy'])); // selected town keys
+  const [townQuery, setTownQuery] = useState(''); // island-wide town search
+
+  // District-grouped towns, filtered by the search box. Selected towns always show.
+  const townGroups = useMemo(() => {
+    const q = townQuery.trim().toLowerCase();
+    return townsByDistrict()
+      .map((g) => ({
+        district: g.district,
+        towns: q
+          ? g.towns.filter((tn) => tn.name.toLowerCase().includes(q) || g.district.toLowerCase().includes(q) || towns.has(tn.key))
+          : g.towns,
+      }))
+      .filter((g) => g.towns.length > 0);
+  }, [townQuery, towns]);
 
   function toggleTown(key: string) {
     setTowns((prev) => {
@@ -150,25 +164,42 @@ export default function ProviderRegisterPage() {
                 <p className="text-sm font-semibold text-ink dark:text-gray-100">{t('townsTitle')}</p>
                 <p className="mt-0.5 text-xs text-slate">{t('townsHint')}</p>
               </div>
-              {/* Multi-town selection — each selected town becomes a service area. */}
-              <div className="flex flex-wrap gap-2">
-                {TOWNS.map((tn) => {
-                  const on = towns.has(tn.key);
-                  return (
-                    <button
-                      key={tn.key}
-                      type="button"
-                      onClick={() => toggleTown(tn.key)}
-                      aria-pressed={on}
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-all ${on ? 'border-primary bg-primary/10 text-primary' : 'border-line text-slate hover:border-ink hover:text-ink dark:border-gray-700'}`}
-                    >
-                      {on && (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true"><path d="M20 6L9 17l-5-5" /></svg>
-                      )}
-                      {tn.name}
-                    </button>
-                  );
-                })}
+              {/* Island-wide: search + district-grouped selection (75+ towns). */}
+              <input
+                type="text"
+                value={townQuery}
+                onChange={(e) => setTownQuery(e.target.value)}
+                placeholder={t('townSearchPlaceholder')}
+                className={inputCls}
+              />
+              <div className="max-h-72 space-y-4 overflow-y-auto rounded-xl2 border border-line p-3 dark:border-gray-800">
+                {townGroups.length === 0 && (
+                  <p className="py-4 text-center text-sm text-slate">{t('noTownsFound')}</p>
+                )}
+                {townGroups.map((g) => (
+                  <div key={g.district}>
+                    <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-2">{g.district}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {g.towns.map((tn) => {
+                        const on = towns.has(tn.key);
+                        return (
+                          <button
+                            key={tn.key}
+                            type="button"
+                            onClick={() => toggleTown(tn.key)}
+                            aria-pressed={on}
+                            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${on ? 'border-primary bg-primary/10 text-primary' : 'border-line text-slate hover:border-ink hover:text-ink dark:border-gray-700'}`}
+                          >
+                            {on && (
+                              <svg viewBox="0 0 16 16" fill="currentColor" className="h-3 w-3" aria-hidden="true"><path d="M13.485 1.929a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 1 1 1.06-1.06L5.5 8.94l6.97-6.97a.75.75 0 0 1 1.015-.04z" /></svg>
+                            )}
+                            {tn.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
 
               <div>

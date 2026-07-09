@@ -487,6 +487,8 @@
     "workingRadius": "Working radius from your location",
     "townsTitle": "Towns you serve",
     "townsHint": "Pick every town you'll travel to. You'll be matched with customers in any of them.",
+    "townSearchPlaceholder": "Search town or district…",
+    "noTownsFound": "No towns match your search.",
     "coverageRadius": "Coverage radius around each town",
     "townsSelected": "{count, plural, =0 {No towns selected} one {# town selected} other {# towns selected}}",
     "baseLocation": "Your base location",
