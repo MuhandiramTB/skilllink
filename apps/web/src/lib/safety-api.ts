@@ -18,8 +18,8 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
   const body = await res.json().catch(() => ({ data: null, error: { code: 'PARSE', message: 'bad response' } }));
   if (!res.ok || body.error) {
     const err = body.error ?? { code: String(res.status), message: 'error' };
-    if (isSessionError(err)) emitSessionExpired();
-    throw new Error(friendlyError(err));
+    if (res.status === 401 || isSessionError(err.code)) emitSessionExpired();
+    throw new Error(friendlyError(err.code, err.message));
   }
   return body.data as T;
 }

@@ -88,14 +88,8 @@ export default function BookingDetailPage() {
     try {
       const res = await bookingApi.cancel(id, cancelReason || undefined);
       setCancelOpen(false); setCancelReason('');
-      if (res.cancelFeeCents > 0) {
-        setErr('');
-        setMsg('');
-        // Surface the fee explicitly rather than a generic success.
-        setFeeCents(res.cancelFeeCents);
-      } else {
-        setFeeCents(null);
-      }
+      // Surface any cancellation fee explicitly (LKR cents from the API).
+      setFeeCents(res.cancelFeeCents > 0 ? res.cancelFeeCents : null);
       await load();
     } catch (e) { fail(e); } finally { setBusy(null); }
   }

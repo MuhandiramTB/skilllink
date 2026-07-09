@@ -157,7 +157,7 @@ export default function ProviderProfilePage() {
               </Field>
               <div className="flex flex-col-reverse gap-2 sm:flex-row">
                 <Button type="button" variant="ghost" onClick={() => setReportOpen(false)} disabled={reportBusy} className="flex-1">
-                  {t('backToMyBookings')}
+                  {t('cancel')}
                 </Button>
                 <Button type="submit" variant="danger" disabled={reportBusy} className="flex-1">
                   {reportBusy && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden />}
