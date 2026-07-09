@@ -9,6 +9,7 @@ import { Button, Card, ErrorBanner, Spinner, StatusBadge, inputCls } from '@/com
 import { FileUpload } from '@/components/FileUpload';
 import { fileToDataUrl } from '@/lib/image';
 import { TOWNS } from '@/lib/towns';
+import { CoverageMap } from '@/components/CoverageMap';
 
 interface Cat { id: string; key: string; name: { en: string }; children: Cat[] }
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
@@ -179,6 +180,14 @@ export default function ProviderRegisterPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Visual coverage confirmation — circles for each selected town. */}
+              {towns.size > 0 && (
+                <div>
+                  <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-slate">{t('coveragePreview')}</p>
+                  <CoverageMap selectedKeys={towns} radiusMeters={radius} />
+                </div>
+              )}
 
               <p className="text-xs text-slate">{t('townsSelected', { count: towns.size })}</p>
               <Button className="w-full" disabled={towns.size === 0} onClick={() => guard(saveAreas)}>{t('continue')}</Button>

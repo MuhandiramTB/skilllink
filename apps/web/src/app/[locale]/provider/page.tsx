@@ -5,10 +5,11 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { providerApi, type ProviderMe } from '@/lib/provider-api';
 import { getToken } from '@/lib/session';
-import { Button, Card, StatusBadge, ErrorBanner, SuccessBanner, PageHeader, MetricCard } from '@/components/ui';
+import { Button, Card, StatusBadge, ErrorBanner, SuccessBanner, PageHeader, MetricCard, Field } from '@/components/ui';
 import { Reveal } from '@/components/Reveal';
 import { CountUp } from '@/components/charts';
 import { ICONS } from '@/components/nav-config';
+import { LocationPicker, KANDY, type LatLng } from '@/components/LocationPicker';
 
 interface Cat { id: string; key: string; name: { en: string }; children: Cat[] }
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
@@ -19,6 +20,9 @@ export default function ProviderPage() {
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [me, setMe] = useState<ProviderMe | null>(null);
   const [cats, setCats] = useState<Cat[]>([]);
+  const [area, setArea] = useState<LatLng>(KANDY);
+  const [radiusKm, setRadiusKm] = useState(10);
+  const [savingArea, setSavingArea] = useState(false);
   const [err, setErr] = useState('');
   const [msg, setMsg] = useState('');
 
@@ -53,9 +57,13 @@ export default function ProviderPage() {
     } catch (e) { setErr((e as Error).message); }
   }
 
-  async function setArea() {
-    try { await providerApi.setServiceArea(7.2906, 80.6350, 10000); setMsg(t('serviceAreaSet')); }
-    catch (e) { setErr((e as Error).message); }
+  async function saveServiceArea() {
+    setErr(''); setSavingArea(true);
+    try {
+      await providerApi.setServiceArea(area.lat, area.lng, Math.round(radiusKm * 1000));
+      setMsg(t('serviceAreaSet'));
+    } catch (e) { setErr((e as Error).message); }
+    finally { setSavingArea(false); }
   }
 
   async function pickCategory(id: string) {
@@ -181,10 +189,17 @@ export default function ProviderPage() {
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-surface text-slate dark:bg-gray-800 [&>svg]:h-[18px] [&>svg]:w-[18px]" aria-hidden="true">{ICONS.map}</span>
                 <h2 className="font-display font-bold text-ink dark:text-gray-50">{t('sectionServiceArea')}</h2>
               </div>
-              <button onClick={setArea}
-                className="rounded-base border border-line px-3.5 py-2 text-sm font-medium text-slate transition-all hover:border-primary hover:text-primary dark:border-gray-700">
-                {t('setAreaKandy')}
-              </button>
+              <LocationPicker value={area} onChange={setArea} label={t('serviceAreaLabel')} />
+              <Field label={t('serviceRadius', { km: radiusKm })}>
+                <input
+                  type="range" min={2} max={50} step={1} value={radiusKm}
+                  onChange={(e) => setRadiusKm(Number(e.target.value))}
+                  className="w-full accent-primary"
+                />
+              </Field>
+              <Button className="w-full" disabled={savingArea} onClick={saveServiceArea}>
+                {savingArea ? t('saving') : t('saveServiceArea')}
+              </Button>
             </Card>
           </Reveal>
         </div>

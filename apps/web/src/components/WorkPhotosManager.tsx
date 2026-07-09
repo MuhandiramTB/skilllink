@@ -18,6 +18,7 @@ export default function WorkPhotosManager() {
   const [photos, setPhotos] = useState<WorkPhoto[] | null>(null);
   const [err, setErr] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null); // optimistic thumbnail while uploading
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -32,13 +33,25 @@ export default function WorkPhotosManager() {
     setErr('');
     setUploading(true);
     try {
+      // Downscale + validate on the client, then show the result instantly while
+      // it persists — the provider sees their photo appear with no perceived wait.
       const dataUrl = await fileToDataUrl(file, 1200); // keep work photos sharp
+      setPreview(dataUrl);
       const created = await providerApi.addPhoto(dataUrl);
       setPhotos((prev) => [created, ...(prev ?? [])]);
     } catch (e) {
-      setErr(e instanceof ImageError ? e.message : (e as Error).message);
+      // Specific, actionable messages: ImageError already carries a user-facing
+      // reason (type/size); a rejected large payload surfaces as a clear hint
+      // rather than a raw status string.
+      if (e instanceof ImageError) {
+        setErr(e.message);
+      } else {
+        const msg = (e as Error).message ?? '';
+        setErr(/413|payload|large|entity too/i.test(msg) ? t('uploadTooLargeServer') : t('uploadFailed'));
+      }
     } finally {
       setUploading(false);
+      setPreview(null);
     }
   }
 
@@ -92,6 +105,16 @@ export default function WorkPhotosManager() {
       ) : (
         <>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+            {/* Optimistic preview of the photo currently uploading. */}
+            {uploading && preview && (
+              <div className="relative aspect-square overflow-hidden rounded-base border border-primary/40">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={preview} alt="" className="h-full w-full object-cover opacity-60" />
+                <div className="absolute inset-0 flex items-center justify-center bg-ink/20">
+                  <span className="h-6 w-6 animate-spin rounded-full border-2 border-white/50 border-t-white" aria-hidden="true" />
+                </div>
+              </div>
+            )}
             {photos!.map((p) => (
               <div key={p.id} className="group relative aspect-square overflow-hidden rounded-base border border-line dark:border-gray-800">
                 {/* eslint-disable-next-line @next/next/no-img-element */}

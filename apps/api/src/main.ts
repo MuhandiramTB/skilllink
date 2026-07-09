@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
 import { EnvelopeInterceptor } from './common/envelope.interceptor';
 import { AllExceptionsFilter } from './common/all-exceptions.filter';
@@ -32,6 +33,14 @@ async function bootstrap() {
 
   // Security headers (OWASP baseline).
   app.use(helmet());
+
+  // Body size limit. Work photos / verification docs are uploaded as base64 data
+  // URLs (image.ts downscales to ~1200px). A 1200px JPEG data URL can be several
+  // hundred KB, which blows past Express's ~100 KB default and makes uploads fail.
+  // 12 MB comfortably covers a downscaled image (the client already caps raw files
+  // at 5 MB, and base64 inflates by ~33%) without inviting oversized payloads.
+  app.use(json({ limit: '12mb' }));
+  app.use(urlencoded({ extended: true, limit: '12mb' }));
 
   // /api/v1 prefix (steering: tech.md)
   app.setGlobalPrefix('api/v1');

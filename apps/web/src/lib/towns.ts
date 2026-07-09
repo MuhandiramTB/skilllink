@@ -17,3 +17,25 @@ export const TOWNS: Town[] = [
   { key: 'akurana', name: 'Akurana', lat: 7.3660, lng: 80.6180 },
   { key: 'nawalapitiya', name: 'Nawalapitiya', lat: 7.0540, lng: 80.5340 },
 ];
+
+/**
+ * Nearest town to a coordinate, via the haversine great-circle distance. Used to
+ * tell a customer which area their picked/GPS point resolves to ("Detected: Kandy")
+ * so they can confirm before searching. Returns the town + distance in metres.
+ */
+export function nearestTown(lat: number, lng: number): { town: Town; distanceM: number } {
+  const R = 6371000; // Earth radius (m)
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  let best = TOWNS[0];
+  let bestD = Infinity;
+  for (const tn of TOWNS) {
+    const dLat = toRad(tn.lat - lat);
+    const dLng = toRad(tn.lng - lng);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat)) * Math.cos(toRad(tn.lat)) * Math.sin(dLng / 2) ** 2;
+    const d = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    if (d < bestD) { bestD = d; best = tn; }
+  }
+  return { town: best, distanceM: Math.round(bestD) };
+}
