@@ -114,6 +114,61 @@ export default function ProviderProfilePage() {
         <Button className="w-full">{t('bookAgain')}</Button>
       </a>
 
+      {reportDone && <SuccessBanner message={t('reportThanks')} />}
+
+      {/* Subtle report link near the bottom */}
+      <div className="pt-2 text-center">
+        <button
+          type="button"
+          onClick={() => { setErr(''); setReportOpen(true); }}
+          className="inline-flex items-center gap-1.5 text-sm text-slate transition hover:text-danger"
+        >
+          <span className="[&>svg]:h-3.5 [&>svg]:w-3.5" aria-hidden="true">{ICONS.flag}</span>
+          {t('reportProvider')}
+        </button>
+      </div>
+
+      {reportOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/50 p-4 backdrop-blur-sm sm:items-center"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t('reportProvider')}
+          onClick={() => { if (!reportBusy) setReportOpen(false); }}
+        >
+          <div
+            className="relative w-full max-w-md rounded-xl2 border border-line bg-white p-6 shadow-lift dark:border-gray-800 dark:bg-gray-900"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="font-display text-lg font-bold text-ink dark:text-gray-50">{t('reportProvider')}</h2>
+            {err && <div className="mt-3"><ErrorBanner message={err} /></div>}
+            <form onSubmit={submitReport} className="mt-4 space-y-4">
+              <Field label={t('reportReason')}>
+                <select value={reportReason} onChange={(e) => setReportReason(e.target.value as typeof reportReason)} className={inputCls}>
+                  <option value="safety">{t('reportReasonSafety')}</option>
+                  <option value="fraud">{t('reportReasonFraud')}</option>
+                  <option value="no_show">{t('reportReasonNoShow')}</option>
+                  <option value="quality">{t('reportReasonQuality')}</option>
+                  <option value="other">{t('reportReasonOther')}</option>
+                </select>
+              </Field>
+              <Field label={t('reportDetail')}>
+                <textarea value={reportDetail} onChange={(e) => setReportDetail(e.target.value)} rows={4} className={inputCls} />
+              </Field>
+              <div className="flex flex-col-reverse gap-2 sm:flex-row">
+                <Button type="button" variant="ghost" onClick={() => setReportOpen(false)} disabled={reportBusy} className="flex-1">
+                  {t('backToMyBookings')}
+                </Button>
+                <Button type="submit" variant="danger" disabled={reportBusy} className="flex-1">
+                  {reportBusy && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden />}
+                  {t('reportSubmit')}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {lightbox && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
