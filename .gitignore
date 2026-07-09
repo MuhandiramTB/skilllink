@@ -39,3 +39,6 @@ playwright/.cache/
 
 # TypeScript incremental build cache (generated)
 *.tsbuildinfo
+
+# DB backups (never commit)
+*.dump

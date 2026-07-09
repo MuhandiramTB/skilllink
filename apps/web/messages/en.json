@@ -689,5 +689,19 @@
     "suspendedTitle": "Account suspended",
     "suspendedBody": "This account has been suspended. Please contact support if you think this is a mistake.",
     "signIn": "Sign in"
+  },
+  "safety": {
+    "sos": "SOS",
+    "sosTitle": "Emergency help",
+    "sosBody": "This records a safety alert with your location and notifies your trusted contacts. Only use it in a real emergency.",
+    "sosConfirm": "Send safety alert",
+    "sosSending": "Sending…",
+    "sosSentTitle": "Alert sent",
+    "sosSentContacts": "We alerted {count} trusted contact(s). Call emergency services if you are in danger.",
+    "sosSentNoContacts": "Your alert was recorded. Add trusted contacts in your profile for faster help.",
+    "call119": "Call 119 (Police)",
+    "callContact": "Call {name}",
+    "close": "Close",
+    "cancel": "Cancel"
   }
 }
