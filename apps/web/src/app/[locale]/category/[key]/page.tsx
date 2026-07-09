@@ -31,6 +31,7 @@ export default function CategoryBookingPage() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [sort, setSort] = useState<'best' | 'nearest' | 'rating'>('best');
   const [favIds, setFavIds] = useState<Set<string>>(new Set());
+  const [price, setPrice] = useState<CategoryPrice | null>(null);
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -58,6 +59,19 @@ export default function CategoryBookingPage() {
   });
 
   useEffect(() => { setAuthed(!!getToken()); }, []);
+
+  // Pricing transparency: look up this category's typical price band (best-effort).
+  useEffect(() => {
+    fetchCategories()
+      .then((cats) => {
+        for (const c of cats) {
+          if (c.key === key) { setPrice(c.price); return; }
+          const child = c.children.find((ch) => ch.key === key);
+          if (child) { setPrice(child.price); return; }
+        }
+      })
+      .catch(() => {});
+  }, [key]);
 
   // Pre-set the location from a ?loc=<townKey> handoff (landing-page search), so
   // the map + matches start centered on the visitor's chosen area.
@@ -108,6 +122,16 @@ export default function CategoryBookingPage() {
       <a href={`/${locale}/bookings`} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">{t('backToMyBookings')}</a>
       <PageHeader title={key.replace(/[._]/g, ' ')} subtitle={t('categorySubtitle')} />
       {err && <ErrorBanner message={err} />}
+
+      {price && !bookingId && (
+        <div className="rounded-xl2 border border-line bg-surface px-4 py-3 dark:border-gray-700 dark:bg-gray-800/40">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="text-xs font-semibold uppercase tracking-wide text-slate">{t('priceGuidance')}</span>
+            <PriceHint price={price} fromLabel={t('priceFrom')} rangeLabel={t('priceRange')} className="text-sm" />
+          </div>
+          <p className="mt-1 text-xs text-slate">{t('priceDisclaimer')}</p>
+        </div>
+      )}
 
       {!bookingId && (
         <Card className="space-y-4 rounded-xl2">

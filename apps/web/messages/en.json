@@ -379,6 +379,16 @@
     }
   },
   "dash": {
+    "priceGuidance": "Typical price",
+    "priceFrom": "from",
+    "priceRange": "–",
+    "priceDisclaimer": "Typical price — final quote from your pro",
+    "busyUntil": "Busy until",
+    "busy1h": "Busy 1h",
+    "busy3h": "Busy 3h",
+    "busyRestOfDay": "Rest of day",
+    "imFree": "I'm free",
+    "busySet": "Availability updated.",
     "service": "Service",
     "reportProvider": "Report this provider",
     "reportReason": "Reason",

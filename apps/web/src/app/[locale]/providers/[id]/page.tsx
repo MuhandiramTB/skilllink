@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { publicProviderApi, favouritesApi, type PublicProvider } from '@/lib/favourites-api';
+import { safetyApi } from '@/lib/safety-api';
 import { getToken } from '@/lib/session';
-import { Button, Card, Spinner, ErrorBanner, EmptyState, StatusBadge } from '@/components/ui';
+import { Button, Card, Field, inputCls, Spinner, ErrorBanner, EmptyState, StatusBadge, SuccessBanner } from '@/components/ui';
 import { Reveal } from '@/components/Reveal';
 import { ICONS } from '@/components/nav-config';
 
@@ -19,6 +20,27 @@ export default function ProviderProfilePage() {
   const [err, setErr] = useState('');
   const [fav, setFav] = useState(false);
   const [lightbox, setLightbox] = useState<string | null>(null);
+
+  // Report-a-provider
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState<'safety' | 'fraud' | 'no_show' | 'quality' | 'other'>('safety');
+  const [reportDetail, setReportDetail] = useState('');
+  const [reportBusy, setReportBusy] = useState(false);
+  const [reportDone, setReportDone] = useState(false);
+
+  async function submitReport(e: React.FormEvent) {
+    e.preventDefault();
+    setErr(''); setReportBusy(true);
+    try {
+      await safetyApi.report({ providerId: id, reason: reportReason, detail: reportDetail.trim() || undefined });
+      setReportDone(true);
+      setReportOpen(false);
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setReportBusy(false);
+    }
+  }
 
   useEffect(() => {
     publicProviderApi.profile(id).then(setProvider).catch((e) => setErr((e as Error).message));

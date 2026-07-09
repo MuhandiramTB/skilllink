@@ -35,6 +35,8 @@ export default function BookingDetailPage() {
   const [cancelReason, setCancelReason] = useState('');
   const [noShowOpen, setNoShowOpen] = useState(false);
   const [cashReported, setCashReported] = useState(false);
+  // Non-zero when a cancellation resulted in a fee — shown as a banner.
+  const [feeCents, setFeeCents] = useState<number | null>(null);
 
   function fail(e: unknown) { setErr((e as Error).message); }
 
@@ -135,8 +137,14 @@ export default function BookingDetailPage() {
 
   const me = getSession()?.userId;
   const isProvider = !!me && booking.providerId === me;
+  const isCustomer = !!me && !isProvider;
   const quoteStatus = booking.quoteStatus ?? 'none';
   const canCancel = ['requested', 'matched', 'accepted'].includes(booking.status);
+  // A committed provider ('accepted') means a cancellation fee may apply.
+  const cancelMayHaveFee = booking.status === 'accepted';
+  // Customer safety/policy actions on an active/assigned job.
+  const showSos = isCustomer && ['accepted', 'in_progress'].includes(booking.status);
+  const canReportNoShow = isCustomer && ['matched', 'accepted'].includes(booking.status);
   // Provider can quote once a job is assigned (matched/accepted) and not yet accepted by the customer.
   const canQuote = isProvider && ['matched', 'accepted'].includes(booking.status) && quoteStatus !== 'accepted';
 
@@ -146,6 +154,19 @@ export default function BookingDetailPage() {
       <PageHeader title={t('booking')} action={<StatusBadge status={booking.status} />} />
       {err && <ErrorBanner message={err} />}
       {msg && <SuccessBanner message={msg} />}
+      {feeCents != null && feeCents > 0 && (
+        <div className="flex items-center gap-1.5 rounded-xl2 border border-warn/30 bg-warn/10 px-4 py-3 text-sm font-semibold text-ink dark:text-gray-100">
+          <span>{t('cancelFeeCharged')}</span>
+          <Money cents={feeCents} />
+        </div>
+      )}
+
+      {/* SOS — prominent for the customer during an active in-home job. */}
+      {showSos && (
+        <div className="flex items-center justify-end rounded-xl2 border border-danger/20 bg-danger/5 px-4 py-3">
+          <SafetyButton bookingId={booking.id} />
+        </div>
+      )}
 
       <Card className="rounded-xl2">
         <BookingProgress
@@ -186,7 +207,13 @@ export default function BookingDetailPage() {
           </div>
         )}
 
-        {canCancel && <Button variant="ghost" className="mt-4" disabled={busy === 'cancel'} onClick={cancel}>{busy === 'cancel' ? t('saving') : t('cancelBooking')}</Button>}
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+          {canCancel && <Button variant="ghost" disabled={busy === 'cancel'} onClick={() => { setCancelReason(''); setCancelOpen(true); }}>{busy === 'cancel' ? t('saving') : t('cancelBooking')}</Button>}
+          {canReportNoShow && (
+            <button type="button" onClick={() => setNoShowOpen(true)}
+              className="text-sm font-semibold text-danger hover:underline">{t('noShowAction')}</button>
+          )}
+        </div>
       </Card>
 
       {/* Quote — provider sets a price; customer accepts it. */}
@@ -276,6 +303,61 @@ export default function BookingDetailPage() {
           {reviewed && <SuccessBanner message={t('reviewThanks', { stars })} />}
         </Card>
       )}
+
+      {/* Provider: positively-framed cash-settlement self-report. */}
+      {isProvider && booking.status === 'completed' && (
+        <Card className="space-y-3 rounded-xl2 border-l-4 border-l-primary">
+          <div className="flex items-center gap-2">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-soft text-primary dark:bg-primary/15 [&>svg]:h-4 [&>svg]:w-4" aria-hidden="true">{ICONS.wallet}</span>
+            <h2 className="font-display font-bold text-ink dark:text-gray-50">{t('reportCashTitle')}</h2>
+          </div>
+          <p className="text-sm text-slate dark:text-gray-300">{t('reportCashBody')}</p>
+          {!cashReported ? (
+            <Button onClick={reportCash} disabled={busy === 'pay'}>{busy === 'pay' ? t('saving') : t('reportCashCta')}</Button>
+          ) : (
+            <SuccessBanner message={t('reportCashDone')} />
+          )}
+        </Card>
+      )}
+
+      {/* Cancel — confirm, warn about a possible fee when a provider is committed. */}
+      <ConfirmModal
+        open={cancelOpen}
+        tone="danger"
+        title={t('cancelConfirmTitle')}
+        body={(
+          <span className="block space-y-3 text-left">
+            <span className="block text-center text-sm text-slate">{cancelMayHaveFee ? t('cancelFeeWarning') : t('cancelConfirmBody')}</span>
+            <span className="block">
+              <span className="mb-1 block text-xs font-medium text-slate">{t('cancelReason')}</span>
+              <select value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} className={`${inputCls} w-full`}>
+                <option value="">{t('cancelReasonOther')}</option>
+                <option value="changed_mind">{t('cancelReasonChanged')}</option>
+                <option value="found_other">{t('cancelReasonFound')}</option>
+                <option value="timing">{t('cancelReasonTiming')}</option>
+              </select>
+            </span>
+          </span>
+        )}
+        confirmLabel={t('cancelConfirmYes')}
+        cancelLabel={t('keepBooking')}
+        busy={busy === 'cancel'}
+        onConfirm={cancel}
+        onCancel={() => { if (busy !== 'cancel') setCancelOpen(false); }}
+      />
+
+      {/* No-show — customer reports the provider never arrived. */}
+      <ConfirmModal
+        open={noShowOpen}
+        tone="danger"
+        title={t('noShowConfirmTitle')}
+        body={t('noShowConfirmBody')}
+        confirmLabel={t('noShowConfirmYes')}
+        cancelLabel={t('keepBooking')}
+        busy={busy === 'cancel'}
+        onConfirm={reportNoShow}
+        onCancel={() => { if (busy !== 'cancel') setNoShowOpen(false); }}
+      />
     </div>
   );
 }

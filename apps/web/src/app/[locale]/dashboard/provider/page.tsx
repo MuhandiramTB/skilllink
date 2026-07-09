@@ -34,6 +34,13 @@ function weeklyEarnings(ledger: WalletLedgerEntry[], weeks = 6): number[] {
   return buckets;
 }
 
+// Milliseconds from now until the end of today (local time) — for "Rest of day".
+function endOfDayMs(): number {
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+  return Math.max(0, end.getTime() - Date.now());
+}
+
 export default function ProviderDashboard() {
   const locale = (useParams().locale as string) ?? 'en';
   const t = useTranslations('dash');
@@ -46,6 +53,8 @@ export default function ProviderDashboard() {
   const [topupAmount, setTopupAmount] = useState('');
   const [toppingUp, setToppingUp] = useState(false);
   const [walletMsg, setWalletMsg] = useState('');
+  const [busyMsg, setBusyMsg] = useState('');
+  const [settingBusy, setSettingBusy] = useState(false);
 
   useEffect(() => {
     const s = getSession();
@@ -78,6 +87,21 @@ export default function ProviderDashboard() {
       setErr((e as Error).message);
     } finally {
       setToppingUp(false);
+    }
+  }
+
+  // Availability realism: mark busy for a window (or clear). ISO computed client-side.
+  async function setBusy(ms: number | null, label: string) {
+    setErr('');
+    setSettingBusy(true);
+    try {
+      const until = ms === null ? null : new Date(Date.now() + ms).toISOString();
+      await providerApi.setBusyUntil(until);
+      setBusyMsg(label);
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setSettingBusy(false);
     }
   }
 
@@ -211,6 +235,18 @@ export default function ProviderDashboard() {
                 <p className="mt-0.5 text-xs text-slate">
                   {approved ? (me?.isAvailable ? t('availabilityVisible') : t('availabilityHidden')) : t('availabilityPending')}
                 </p>
+
+                {/* Busy-until quick controls — availability realism. */}
+                <div className="mt-3 border-t border-line pt-3 dark:border-gray-800">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate">{t('busyUntil')}</div>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <Button variant="ghost" disabled={!approved || settingBusy} onClick={() => setBusy(60 * 60 * 1000, t('busySet'))} className="px-3 py-1.5 text-xs">{t('busy1h')}</Button>
+                    <Button variant="ghost" disabled={!approved || settingBusy} onClick={() => setBusy(3 * 60 * 60 * 1000, t('busySet'))} className="px-3 py-1.5 text-xs">{t('busy3h')}</Button>
+                    <Button variant="ghost" disabled={!approved || settingBusy} onClick={() => setBusy(endOfDayMs(), t('busySet'))} className="px-3 py-1.5 text-xs">{t('busyRestOfDay')}</Button>
+                    <Button variant="success" disabled={!approved || settingBusy} onClick={() => setBusy(null, t('busySet'))} className="px-3 py-1.5 text-xs">{t('imFree')}</Button>
+                  </div>
+                  {busyMsg && <p className="mt-2 text-xs font-medium text-success">{busyMsg}</p>}
+                </div>
               </Card>
             </div>
           </div>

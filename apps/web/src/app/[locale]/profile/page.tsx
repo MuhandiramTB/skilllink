@@ -7,10 +7,11 @@ import {
   getSession, fetchMe, fetchDistricts, saveProfile, uploadAvatar, removeAvatar,
   clearToken, logoutAllDevices, type Me, type District, type Role,
 } from '@/lib/session';
-import { Card, Button, Field, inputCls, Spinner, ErrorBanner, SuccessBanner } from '@/components/ui';
+import { Card, Button, Field, inputCls, Spinner, ErrorBanner, SuccessBanner, EmptyState } from '@/components/ui';
 import { ICONS } from '@/components/nav-config';
 import { Reveal } from '@/components/Reveal';
 import ReferralCard from '@/components/ReferralCard';
+import { safetyApi, type TrustedContact } from '@/lib/safety-api';
 
 type Theme = 'light' | 'dark';
 const THEME_KEY = 'skilllink_theme';
@@ -52,6 +53,12 @@ export default function ProfilePage() {
   const [theme, setTheme] = useState<Theme>('light');
   const [notif, setNotif] = useState({ bookings: true, messages: true, promos: false });
 
+  // Trusted contacts (safety)
+  const [contacts, setContacts] = useState<TrustedContact[]>([]);
+  const [contactName, setContactName] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [contactBusy, setContactBusy] = useState(false);
+
   useEffect(() => {
     if (!getSession()) { window.location.href = `/${locale}/login?next=/${locale}/profile`; return; }
     (async () => {
@@ -64,6 +71,7 @@ export default function ProfilePage() {
       setDistrictId(m.districtId ?? '');
       setLanguage(m.language);
       setAvatarUrl(m.avatarUrl);
+      safetyApi.listContacts().then(setContacts).catch(() => {});
     })();
     setTheme((window.localStorage.getItem(THEME_KEY) as Theme) ?? 'light');
     try {
@@ -82,6 +90,33 @@ export default function ProfilePage() {
     const updated = { ...notif, [key]: value };
     setNotif(updated);
     window.localStorage.setItem(NOTIF_KEY, JSON.stringify(updated));
+  }
+
+  async function addContact(e: React.FormEvent) {
+    e.preventDefault();
+    if (!contactName.trim() || !contactPhone.trim()) return;
+    setErr(''); setContactBusy(true);
+    try {
+      const c = await safetyApi.addContact(contactName.trim(), contactPhone.trim());
+      setContacts((prev) => [...prev, c]);
+      setContactName(''); setContactPhone('');
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setContactBusy(false);
+    }
+  }
+
+  async function removeContact(id: string) {
+    setErr('');
+    const prev = contacts;
+    setContacts((cs) => cs.filter((c) => c.id !== id)); // optimistic
+    try {
+      await safetyApi.removeContact(id);
+    } catch (e) {
+      setContacts(prev); // revert
+      setErr((e as Error).message);
+    }
   }
 
   async function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
@@ -294,6 +329,48 @@ export default function ProfilePage() {
                 {t('signOutAll')}
               </button>
             </div>
+          </SettingsCard>
+          </Reveal>
+
+          {/* Safety & trusted contacts */}
+          <Reveal delay={160}>
+          <SettingsCard icon={ICONS.shield} title={t('safetyContactsTitle')}>
+            <p className="text-sm text-slate">{t('safetyContactsHint')}</p>
+
+            {contacts.length === 0 ? (
+              <EmptyState>{t('noContacts')}</EmptyState>
+            ) : (
+              <ul className="space-y-2">
+                {contacts.map((c) => (
+                  <li key={c.id} className="flex items-center justify-between gap-3 rounded-base border border-line-soft bg-surface px-3 py-2.5 dark:border-gray-800 dark:bg-gray-800/50">
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold text-ink dark:text-gray-100">{c.name}</span>
+                      <span className="block truncate text-xs tabular-nums text-slate">{c.phone}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeContact(c.id)}
+                      className="shrink-0 rounded-base px-2.5 py-1.5 text-xs font-semibold text-danger transition hover:bg-danger/10"
+                    >
+                      {t('removeContact')}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <form onSubmit={addContact} className="space-y-3 border-t border-line-soft pt-3 dark:border-gray-800">
+              <Field label={t('contactName')}>
+                <input value={contactName} onChange={(e) => setContactName(e.target.value)} className={inputCls} />
+              </Field>
+              <Field label={t('contactPhone')}>
+                <input type="tel" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} placeholder="+94…" className={inputCls} />
+              </Field>
+              <Button type="submit" variant="ghost" disabled={contactBusy || !contactName.trim() || !contactPhone.trim()} className="w-full">
+                {contactBusy && <span className="h-4 w-4 animate-spin rounded-full border-2 border-current/40 border-t-current" aria-hidden />}
+                {t('addContact')}
+              </Button>
+            </form>
           </SettingsCard>
           </Reveal>
         </div>

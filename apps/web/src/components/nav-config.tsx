@@ -133,6 +133,7 @@ export const NAV: Record<Role, RoleNav> = {
       ]},
       { titleKey: 'groupSupport', items: [
         { labelKey: 'disputes', path: '/admin/disputes', icon: 'flag' },
+        { labelKey: 'safety', path: '/admin/safety', icon: 'shield' },
         { labelKey: 'settings', path: '/admin/settings', icon: 'settings' },
       ]},
     ],
