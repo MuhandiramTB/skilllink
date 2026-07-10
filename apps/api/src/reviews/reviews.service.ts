@@ -73,7 +73,9 @@ export class ReviewsService {
   async listForProvider(providerId: string) {
     const rows = await this.prisma.reviews.findMany({
       where: { provider_id: providerId },
-      select: { rating: true, comment: true, provider_response: true, created_at: true },
+      // `id` lets the provider reply to a specific review; it's just a UUID and the
+      // reply endpoint is ownership-guarded, so exposing it is safe.
+      select: { id: true, rating: true, comment: true, provider_response: true, created_at: true },
       orderBy: { created_at: 'desc' },
     });
     return rows;

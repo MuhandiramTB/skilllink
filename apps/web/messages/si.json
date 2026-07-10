@@ -661,7 +661,13 @@
     "scheduleDetails": "කාලසටහන සහ විස්තර",
     "emergencyService": "හදිසි අවස්ථා සඳහා ලබා ගත හැක",
     "saveDetails": "විස්තර සුරකින්න",
-    "detailsSaved": "විස්තර සුරකින ලදී."
+    "detailsSaved": "විස්තර සුරකින ලදී.",
+    "reviewsTitle": "සමාලෝචන",
+    "noReviewsYet": "තවම සමාලෝචන නැත.",
+    "providerReplyLabel": "සැපයුම්කරුගේ පිළිතුර",
+    "replyToReview": "මෙම සමාලෝචනයට පිළිතුරු දෙන්න",
+    "replyPlaceholder": "වෘත්තීය පිළිතුරක් ලියන්න…",
+    "replySubmit": "පිළිතුර පළ කරන්න"
   },
   "loc": {
     "yourLocation": "ඔබේ ස්ථානය",

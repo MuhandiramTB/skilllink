@@ -661,7 +661,13 @@
     "scheduleDetails": "அட்டவணை & விவரங்கள்",
     "emergencyService": "அவசரங்களுக்குக் கிடைக்கும்",
     "saveDetails": "விவரங்களைச் சேமி",
-    "detailsSaved": "விவரங்கள் சேமிக்கப்பட்டன."
+    "detailsSaved": "விவரங்கள் சேமிக்கப்பட்டன.",
+    "reviewsTitle": "மதிப்புரைகள்",
+    "noReviewsYet": "இன்னும் மதிப்புரைகள் இல்லை.",
+    "providerReplyLabel": "வழங்குநரின் பதில்",
+    "replyToReview": "இந்த மதிப்புரைக்குப் பதிலளி",
+    "replyPlaceholder": "தொழில்முறையான பதிலை எழுதுங்கள்…",
+    "replySubmit": "பதிலை இடு"
   },
   "loc": {
     "yourLocation": "உங்கள் இருப்பிடம்",

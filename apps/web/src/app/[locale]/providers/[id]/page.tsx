@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { publicProviderApi, favouritesApi, type PublicProvider } from '@/lib/favourites-api';
 import { safetyApi } from '@/lib/safety-api';
+import { reviewsApi, type ProviderReview } from '@/lib/reviews-api';
 import { getToken } from '@/lib/session';
 import { Button, Card, Field, inputCls, Spinner, ErrorBanner, EmptyState, StatusBadge, SuccessBanner } from '@/components/ui';
 import { Reveal } from '@/components/Reveal';
@@ -20,6 +21,7 @@ export default function ProviderProfilePage() {
   const [err, setErr] = useState('');
   const [fav, setFav] = useState(false);
   const [lightbox, setLightbox] = useState<string | null>(null);
+  const [reviews, setReviews] = useState<ProviderReview[] | null>(null);
 
   // Report-a-provider
   const [reportOpen, setReportOpen] = useState(false);
@@ -45,6 +47,7 @@ export default function ProviderProfilePage() {
   useEffect(() => {
     publicProviderApi.profile(id).then(setProvider).catch((e) => setErr((e as Error).message));
     if (getToken()) favouritesApi.ids().then((ids) => setFav(ids.includes(id))).catch(() => {});
+    reviewsApi.listForProvider(id).then(setReviews).catch(() => setReviews([]));
   }, [id]);
 
   async function toggleFav() {
@@ -107,6 +110,36 @@ export default function ProviderProfilePage() {
               </Reveal>
             ))}
           </div>
+        )}
+      </section>
+
+      {/* Reviews — the actual comments, a core trust signal before booking. */}
+      <section>
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate dark:text-gray-400">{t('reviewsTitle')}</h2>
+        {reviews === null ? (
+          <Spinner inline label={t('loading')} />
+        ) : reviews.length === 0 ? (
+          <EmptyState>{t('noReviewsYet')}</EmptyState>
+        ) : (
+          <ul className="space-y-2.5">
+            {reviews.map((r, i) => (
+              <Reveal key={r.id} delay={Math.min(i, 6) * 40}>
+                <Card>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-warn" aria-label={`${r.rating} / 5`}>{'★'.repeat(r.rating)}<span className="text-line dark:text-gray-700">{'★'.repeat(5 - r.rating)}</span></span>
+                    <span className="text-xs text-slate-2 tabular-nums">{new Date(r.created_at).toLocaleDateString()}</span>
+                  </div>
+                  {r.comment && <p className="mt-2 text-sm text-ink dark:text-gray-100">{r.comment}</p>}
+                  {r.provider_response && (
+                    <div className="mt-2.5 rounded-base bg-surface px-3 py-2 dark:bg-gray-800/60">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-2">{t('providerReplyLabel')}</p>
+                      <p className="mt-0.5 text-sm text-slate">{r.provider_response}</p>
+                    </div>
+                  )}
+                </Card>
+              </Reveal>
+            ))}
+          </ul>
         )}
       </section>
 

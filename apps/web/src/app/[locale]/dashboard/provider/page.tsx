@@ -11,6 +11,7 @@ import { ICONS } from '@/components/nav-config';
 import { AreaChart, KpiCard, CountUp, Sparkline } from '@/components/charts';
 import { Reveal } from '@/components/Reveal';
 import WorkPhotosManager from '@/components/WorkPhotosManager';
+import ProviderReviews from '@/components/ProviderReviews';
 
 /**
  * Provider dashboard — the "next-level" signature screen. Full-canvas on desktop
@@ -367,6 +368,9 @@ export default function ProviderDashboard() {
           </Card>
 
           <WorkPhotosManager />
+
+          {/* Reviews received + reply (reputation management). */}
+          {(() => { const uid = getSession()?.userId; return uid ? <ProviderReviews providerId={uid} /> : null; })()}
         </>
       )}
     </div>

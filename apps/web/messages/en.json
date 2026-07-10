@@ -673,7 +673,13 @@
     "scheduleDetails": "Schedule & details",
     "emergencyService": "Available for emergencies",
     "saveDetails": "Save details",
-    "detailsSaved": "Details saved."
+    "detailsSaved": "Details saved.",
+    "reviewsTitle": "Reviews",
+    "noReviewsYet": "No reviews yet.",
+    "providerReplyLabel": "Provider’s reply",
+    "replyToReview": "Reply to this review",
+    "replyPlaceholder": "Write a professional reply…",
+    "replySubmit": "Post reply"
   },
   "loc": {
     "yourLocation": "Your location",
