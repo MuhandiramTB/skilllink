@@ -36,3 +36,12 @@ FROM (VALUES
   ('Kegalle',      'කෑගල්ල',       'கேகாலை',           80.3464, 7.2513)
 ) AS d(en, si, ta, lng, lat)
 WHERE NOT EXISTS (SELECT 1 FROM districts x WHERE x.name_en = d.en);
+
+-- Guard against duplicate districts (earlier seeds had no unique constraint on
+-- name_en, so a double-run could create copies). Dedupe (keep active/oldest) then
+-- enforce uniqueness. Idempotent.
+DELETE FROM districts d USING (
+  SELECT id, row_number() OVER (PARTITION BY name_en ORDER BY is_active DESC, created_at ASC) rn
+  FROM districts
+) x WHERE d.id = x.id AND x.rn > 1;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_districts_name_en ON districts (name_en);
