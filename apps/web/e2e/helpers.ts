@@ -41,6 +41,33 @@ export async function signIn(page: Page, phone = ADMIN_PHONE, mode?: string) {
   return user;
 }
 
+/**
+ * Sign in as a PROVIDER: ensure the account has the provider role (become-provider
+ * is safe to call repeatedly), switch its mode to provider, then inject that token.
+ * The mock admin account is customer+admin only, so provider views need this.
+ */
+export async function signInAsProvider(page: Page, phone = ADMIN_PHONE) {
+  const { token } = await mockLogin(page, phone);
+  const auth = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+  // Make sure the account is a provider (idempotent enough for tests).
+  await page.request.post(`${API}/providers`, { headers: auth, data: { businessName: 'E2E Provider' } }).catch(() => {});
+  // Switch active mode → returns a fresh token in provider mode.
+  const switchRes = await page.request.post(`${API}/auth/mode`, { headers: auth, data: { mode: 'provider' } });
+  const sj = await switchRes.json();
+  const provToken = sj.data?.accessToken ?? token;
+  const provUser = sj.data?.user ?? { id: '', phone, roles: ['customer', 'provider'], mode: 'provider' };
+  await page.goto('/en');
+  await page.evaluate(
+    ([tk, sess]) => {
+      localStorage.setItem('skilllink_admin_token', tk as string);
+      localStorage.setItem('skilllink_session', sess as string);
+      localStorage.setItem('skilllink_onboarded', '1');
+    },
+    [provToken, JSON.stringify({ userId: provUser.id, phone: provUser.phone, roles: provUser.roles, mode: 'provider' })],
+  );
+  await page.reload();
+}
+
 /** Create a booking via the API (fast path for lifecycle tests). Returns its id. */
 export async function apiCreateBooking(token: string, opts: { categoryKey?: string; description?: string } = {}) {
   const res = await fetch(`${API}/bookings`, {

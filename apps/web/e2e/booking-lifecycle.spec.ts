@@ -62,7 +62,8 @@ test.describe('booking lifecycle', () => {
     const b = await newBooking(request);
     await signIn(page);
     await page.goto(`/en/bookings/${b.id}`);
-    await expect(page.locator('body')).toContainText(/1 Test Rd, Kandy|Red gate/);
+    // The detail fetch populates the address block after mount.
+    await expect(page.locator('body')).toContainText(/1 Test Rd, Kandy|Red gate/, { timeout: 12000 });
     await request.post(`${API}/bookings/${b.id}/cancel`, { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, data: { reason: 'cleanup' } });
   });
 

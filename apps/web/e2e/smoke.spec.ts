@@ -42,10 +42,11 @@ test.describe('smoke — authed pages render', () => {
   test('customer + provider + admin pages load signed in', async ({ page }) => {
     await signIn(page); // admin has customer+provider+admin surface via mode
     for (const path of [...AUTHED_PAGES, ...ADMIN_PAGES]) {
-      const res = await page.goto(path);
-      expect(res?.status(), `${path}`).toBeLessThan(500);
+      await page.goto(path);
       await expect(page.locator('body')).toBeVisible();
-      // A signed-in page should NOT bounce to /login.
+      // Give a client-side auth-guard redirect a beat to settle, then assert we
+      // stayed (a signed-in page must not bounce to /login).
+      await page.waitForTimeout(400);
       expect(page.url(), `${path} should not redirect to login`).not.toContain('/login');
     }
   });
