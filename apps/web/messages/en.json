@@ -683,7 +683,10 @@
     "bookingConfirmedTitle": "Booking confirmed!",
     "bookingConfirmedSub": "Your pro has been notified. Track it next.",
     "reviewCelebrateTitle": "Thanks for your review!",
-    "reviewCelebrateSub": "You've earned reward points."
+    "reviewCelebrateSub": "You've earned reward points.",
+    "shareLocationTitle": "Share your live location",
+    "shareLocationSub": "Let the customer see you approaching while you head over.",
+    "sharingLocationOn": "Sharing your location live"
   },
   "loc": {
     "yourLocation": "Your location",
@@ -750,5 +753,11 @@
     "sub": "Add to your home screen for faster access.",
     "install": "Install",
     "dismiss": "Dismiss"
+  },
+  "track": {
+    "waitingForLocation": "Waiting for your pro to share their location…",
+    "onTheWay": "Your pro is on the way",
+    "etaMinutes": "Arriving in about {min} min",
+    "lastSeen": "Location paused"
   }
 }

@@ -7,6 +7,7 @@ import type { RequestUser } from '../auth/guards/jwt-auth.guard';
 import {
   AssignDto,
   CancelDto,
+  LiveLocationDto,
   CreateBookingDto,
   QuoteDto,
   RescheduleDto,
@@ -78,6 +79,12 @@ export class BookingsController {
   @Post(':id/report-cash')
   reportCash(@CurrentUser() u: RequestUser, @Param('id') id: string) {
     return this.bookings.reportCashJob(u.userId, id);
+  }
+
+  /** Provider posts their live location while en route (customer tracks it). */
+  @Patch(':id/location')
+  location(@CurrentUser() u: RequestUser, @Param('id') id: string, @Body() dto: LiveLocationDto) {
+    return this.bookings.updateLiveLocation(u.userId, id, dto.lat, dto.lng, dto.etaMinutes);
   }
 
   /** Spec 17: reschedule to a new preferred date/time (customer or assigned provider). */

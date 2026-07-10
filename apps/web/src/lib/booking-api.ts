@@ -59,6 +59,12 @@ export interface Booking {
   scheduledFor?: string | null;
   addressText?: string | null;
   addressNotes?: string | null;
+  providerLat?: number | null;
+  providerLng?: number | null;
+  providerLocAt?: string | null;
+  providerEtaMinutes?: number | null;
+  destLat?: number | null;
+  destLng?: number | null;
 }
 export interface Message { sender_id: string; body: string; created_at: string; pending?: boolean }
 
@@ -115,4 +121,7 @@ export const bookingApi = {
   // Customer or provider opens a dispute on a booking they're part of.
   openDispute: (id: string, reason: string) =>
     req<{ id: string; status: string }>(`/bookings/${id}/dispute`, { method: 'POST', body: JSON.stringify({ reason }) }),
+  // Provider posts their live location while en route (customer tracks it).
+  updateLocation: (id: string, lat: number, lng: number, etaMinutes?: number) =>
+    req<{ ok: boolean }>(`/bookings/${id}/location`, { method: 'PATCH', body: JSON.stringify({ lat, lng, etaMinutes }) }),
 };

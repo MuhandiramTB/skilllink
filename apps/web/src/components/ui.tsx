@@ -1,6 +1,7 @@
 'use client';
 
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { haptic } from '@/lib/haptics';
 
 /**
  * Shared UI primitives — "Modern SaaS / clean" design system.
@@ -12,6 +13,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 export function Button({
   variant = 'primary',
   className = '',
+  onClick,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'ink' | 'success' | 'danger' | 'ghost' }) {
   const styles: Record<string, string> = {
@@ -26,6 +28,7 @@ export function Button({
   return (
     <button
       {...props}
+      onClick={(e) => { haptic.tap(); onClick?.(e); }} // tactile feedback on every CTA
       className={`inline-flex items-center justify-center gap-1.5 rounded-base px-4 py-2.5 text-sm font-semibold transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-40 ${styles[variant]} ${className}`}
     />
   );

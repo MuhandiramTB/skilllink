@@ -205,43 +205,47 @@ model provider_categories {
 }
 
 model bookings {
-  id               String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  customer_id      String                   @db.Uuid
-  provider_id      String?                  @db.Uuid
-  category_id      String                   @db.Uuid
-  district_id      String?                  @db.Uuid
-  description      String?
-  location         Unsupported("geography")
-  status           booking_status           @default(requested)
-  price_cents      Int                      @default(0)
-  commission_cents Int                      @default(0)
-  solar_specs      Json?
-  created_at       DateTime                 @default(now()) @db.Timestamptz(6)
-  updated_at       DateTime                 @default(now()) @db.Timestamptz(6)
-  quote_status     quote_status             @default(none)
-  accepted_at      DateTime?                @db.Timestamptz(6)
-  started_at       DateTime?                @db.Timestamptz(6)
-  completed_at     DateTime?                @db.Timestamptz(6)
-  scheduled_for    DateTime?                @db.Timestamptz(6)
-  cancelled_by     String?
-  cancel_reason    String?
-  cancelled_at     DateTime?                @db.Timestamptz(6)
-  cancel_fee_cents Int                      @default(0)
-  cash_reported    Boolean                  @default(false)
-  cash_reported_at DateTime?                @db.Timestamptz(6)
-  address_text     String?
-  address_notes    String?
-  booking_media    booking_media[]
-  categories       categories               @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users            users                    @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  district         districts?               @relation(fields: [district_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  providers        providers?               @relation(fields: [provider_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
-  conversation     conversations?
-  disputes         disputes[]
-  payments         payments?
-  provider_reports provider_reports[]
-  reviews          reviews?
-  safety_alerts    safety_alerts[]
+  id                   String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customer_id          String                   @db.Uuid
+  provider_id          String?                  @db.Uuid
+  category_id          String                   @db.Uuid
+  district_id          String?                  @db.Uuid
+  description          String?
+  location             Unsupported("geography")
+  status               booking_status           @default(requested)
+  price_cents          Int                      @default(0)
+  commission_cents     Int                      @default(0)
+  solar_specs          Json?
+  created_at           DateTime                 @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime                 @default(now()) @db.Timestamptz(6)
+  quote_status         quote_status             @default(none)
+  accepted_at          DateTime?                @db.Timestamptz(6)
+  started_at           DateTime?                @db.Timestamptz(6)
+  completed_at         DateTime?                @db.Timestamptz(6)
+  scheduled_for        DateTime?                @db.Timestamptz(6)
+  cancelled_by         String?
+  cancel_reason        String?
+  cancelled_at         DateTime?                @db.Timestamptz(6)
+  cancel_fee_cents     Int                      @default(0)
+  cash_reported        Boolean                  @default(false)
+  cash_reported_at     DateTime?                @db.Timestamptz(6)
+  address_text         String?
+  address_notes        String?
+  provider_lat         Float?
+  provider_lng         Float?
+  provider_loc_at      DateTime?                @db.Timestamptz(6)
+  provider_eta_minutes Int?
+  booking_media        booking_media[]
+  categories           categories               @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users                users                    @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  district             districts?               @relation(fields: [district_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  providers            providers?               @relation(fields: [provider_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  conversation         conversations?
+  disputes             disputes[]
+  payments             payments?
+  provider_reports     provider_reports[]
+  reviews              reviews?
+  safety_alerts        safety_alerts[]
 
   @@index([category_id], map: "idx_bookings_category")
   @@index([customer_id], map: "idx_bookings_customer")

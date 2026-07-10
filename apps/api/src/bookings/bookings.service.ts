@@ -218,6 +218,23 @@ export class BookingsService {
   }
 
   /**
+   * Live tracking: the assigned provider posts their current location (+ optional
+   * ETA) while en route. Only allowed on an accepted/in_progress job they own.
+   * Stores the latest point on the booking; the customer polls the detail to see it.
+   */
+  async updateLiveLocation(providerId: string, bookingId: string, lat: number, lng: number, etaMinutes?: number) {
+    const b = await this.assignedToProvider(providerId, bookingId);
+    if (!['accepted', 'in_progress'].includes(b.status)) {
+      throw new BadRequestException({ code: 'NOT_EN_ROUTE', message: 'errors.booking.notEnRoute' });
+    }
+    await this.prisma.bookings.update({
+      where: { id: bookingId },
+      data: { provider_lat: lat, provider_lng: lng, provider_loc_at: new Date(), provider_eta_minutes: etaMinutes ?? null, updated_at: new Date() },
+    });
+    return { ok: true };
+  }
+
+  /**
    * Disintermediation defense (product analysis gap #3): a provider self-reports a
    * job they settled in CASH off the booking flow, so commission is still owed and
    * the job counts toward their on-platform record. Honesty is incentivised
@@ -279,9 +296,13 @@ export class BookingsService {
     if (b.customer_id !== userId && b.provider_id !== userId) {
       throw new ForbiddenException({ code: 'FORBIDDEN', message: 'errors.booking.notYours' });
     }
+    // Destination coords (the service location) — needed for the live-tracking map.
+    const dest = await this.bookingPoint(bookingId).catch(() => null);
     return {
       id: b.id,
       status: b.status,
+      destLat: dest?.lat ?? null,
+      destLng: dest?.lng ?? null,
       categoryId: b.category_id,
       description: b.description,
       providerId: b.provider_id,
@@ -296,6 +317,11 @@ export class BookingsService {
       scheduledFor: b.scheduled_for,
       addressText: b.address_text,
       addressNotes: b.address_notes,
+      // Live tracking: latest provider point + ETA (null until en route / posted).
+      providerLat: b.provider_lat,
+      providerLng: b.provider_lng,
+      providerLocAt: b.provider_loc_at,
+      providerEtaMinutes: b.provider_eta_minutes,
     };
   }
 

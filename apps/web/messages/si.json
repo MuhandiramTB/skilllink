@@ -671,7 +671,10 @@
     "bookingConfirmedTitle": "වෙන්කිරීම තහවුරුයි!",
     "bookingConfirmedSub": "ඔබේ වෘත්තිකයාට දැනුම් දී ඇත. දැන් නිරීක්ෂණය කරන්න.",
     "reviewCelebrateTitle": "ඔබේ සමාලෝචනයට ස්තූතියි!",
-    "reviewCelebrateSub": "ඔබ ත්‍යාග ලකුණු උපයා ඇත."
+    "reviewCelebrateSub": "ඔබ ත්‍යාග ලකුණු උපයා ඇත.",
+    "shareLocationTitle": "ඔබේ සජීවී ස්ථානය බෙදාගන්න",
+    "shareLocationSub": "ඔබ එනවිට පැමිණෙනු ගනුදෙනුකරුට පෙනීමට ඉඩ දෙන්න.",
+    "sharingLocationOn": "ඔබේ ස්ථානය සජීවීව බෙදාගනිමින්"
   },
   "loc": {
     "yourLocation": "ඔබේ ස්ථානය",
@@ -738,5 +741,11 @@
     "sub": "වේගවත් ප්‍රවේශය සඳහා මුල් තිරයට එක් කරන්න.",
     "install": "ස්ථාපනය",
     "dismiss": "ඉවතලන්න"
+  },
+  "track": {
+    "waitingForLocation": "ඔබේ වෘත්තිකයා ස්ථානය බෙදාගන්නා තෙක් රැඳී සිටින්න…",
+    "onTheWay": "ඔබේ වෘත්තිකයා පැමිණෙමින් සිටී",
+    "etaMinutes": "විනාඩි {min} කින් පමණ පැමිණේ",
+    "lastSeen": "ස්ථානය තාවකාලිකව නවතා ඇත"
   }
 }

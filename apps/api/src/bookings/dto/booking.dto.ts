@@ -69,3 +69,9 @@ export class QuoteDto {
 export class CancelDto {
   @IsOptional() @IsString() @MaxLength(300) reason?: string;
 }
+
+export class LiveLocationDto {
+  @Type(() => Number) @IsLatitude() lat!: number;
+  @Type(() => Number) @IsLongitude() lng!: number;
+  @IsOptional() @IsInt() @Min(0) etaMinutes?: number;
+}

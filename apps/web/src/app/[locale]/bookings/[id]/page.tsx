@@ -7,6 +7,7 @@ import { bookingApi, type Booking, type Message } from '@/lib/booking-api';
 import { getToken, getSession } from '@/lib/session';
 import { Button, Card, Spinner, ErrorBanner, SuccessBanner, SuccessBurst, StatusBadge, PageHeader, Money, Field, BookingProgress, inputCls } from '@/components/ui';
 import { CelebrationOverlay } from '@/components/CelebrationOverlay';
+import { LiveTrackingMap } from '@/components/LiveTrackingMap';
 import { haptic } from '@/lib/haptics';
 import { useToast } from '@/components/Toast';
 import { ConfirmModal } from '@/components/ConfirmModal';
@@ -41,6 +42,7 @@ export default function BookingDetailPage() {
   const [disputeOpen, setDisputeOpen] = useState(false);
   const [disputeReason, setDisputeReason] = useState('');
   const [disputeDone, setDisputeDone] = useState(false);
+  const [sharingLoc, setSharingLoc] = useState(false);
   // Non-zero when a cancellation resulted in a fee — shown as a banner.
   const [feeCents, setFeeCents] = useState<number | null>(null);
 
@@ -77,10 +79,28 @@ export default function BookingDetailPage() {
     const tick = () => {
       if (document.hidden) return;
       bookingApi.messages(id).then(mergeMessages).catch(() => {});
+      // Refresh the booking too while a job is active, so the customer's live map
+      // + status keep updating (provider location, status changes).
+      if (booking && ['accepted', 'in_progress'].includes(booking.status)) {
+        bookingApi.detail(id).then(setBooking).catch(() => {});
+      }
     };
     const iv = setInterval(tick, 4000);
     return () => clearInterval(iv);
-  }, [id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, booking?.status]);
+
+  // Provider: while "sharing location" is on, stream GPS to the booking so the
+  // customer sees the pin move. Stops on toggle-off / unmount.
+  useEffect(() => {
+    if (!sharingLoc || !('geolocation' in navigator)) return;
+    const watch = navigator.geolocation.watchPosition(
+      (pos) => { bookingApi.updateLocation(id, pos.coords.latitude, pos.coords.longitude).catch(() => {}); },
+      () => { setSharingLoc(false); },
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 },
+    );
+    return () => navigator.geolocation.clearWatch(watch);
+  }, [sharingLoc, id]);
 
   async function send() {
     if (!chat.trim() || busy) return;
@@ -224,6 +244,38 @@ export default function BookingDetailPage() {
           </ul>
         )}
       </Card>
+
+      {/* Live tracking — active job only. Customer watches; provider shares. */}
+      {['accepted', 'in_progress'].includes(booking.status) && booking.destLat != null && booking.destLng != null && (
+        <>
+          {isCustomer && (
+            <LiveTrackingMap
+              provider={booking.providerLat != null && booking.providerLng != null ? { lat: booking.providerLat, lng: booking.providerLng } : null}
+              destination={{ lat: booking.destLat, lng: booking.destLng }}
+              etaMinutes={booking.providerEtaMinutes}
+              updatedAt={booking.providerLocAt}
+            />
+          )}
+          {isProvider && (
+            <Card className="rounded-xl2">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-ink dark:text-gray-50">{t('shareLocationTitle')}</p>
+                  <p className="mt-0.5 text-xs text-slate">{t('shareLocationSub')}</p>
+                </div>
+                <button
+                  type="button" role="switch" aria-checked={sharingLoc}
+                  onClick={() => { haptic.tap(); setSharingLoc((v) => !v); }}
+                  className={`relative h-6 w-11 shrink-0 rounded-full transition ${sharingLoc ? 'bg-success' : 'bg-gray-300 dark:bg-gray-600'}`}
+                >
+                  <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-card transition-all ${sharingLoc ? 'left-[22px]' : 'left-0.5'}`} />
+                </button>
+              </div>
+              {sharingLoc && <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-success"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success" />{t('sharingLocationOn')}</p>}
+            </Card>
+          )}
+        </>
+      )}
 
       <Card className="rounded-xl2">
         <p className="text-sm font-medium uppercase tracking-wide text-slate">{t('details')}</p>
