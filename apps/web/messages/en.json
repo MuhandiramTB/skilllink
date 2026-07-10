@@ -685,7 +685,14 @@
     "gpsFailed": "Couldn't get GPS. Use the map or enter coordinates below.",
     "enterManually": "Enter coordinates manually",
     "latitude": "Latitude",
-    "longitude": "Longitude"
+    "longitude": "Longitude",
+    "serviceAddress": "Service address",
+    "searchAddress": "Search an address or place…",
+    "addressNotes": "Address details",
+    "addressNotesHint": "House/flat no., landmark, gate colour, directions…",
+    "gpsDenied": "Location permission denied. Search or drop the pin instead.",
+    "gpsTimeout": "Locating took too long. Try again or drop the pin.",
+    "gpsUnavailable": "Couldn’t get your location. Search or drop the pin."
   },
   "notif": {
     "title": "Notifications",

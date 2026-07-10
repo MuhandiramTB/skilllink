@@ -27,6 +27,11 @@ export class CreateBookingDto {
   @Type(() => Number) @IsLatitude() lat!: number;
   @Type(() => Number) @IsLongitude() lng!: number;
 
+  // Human-readable service address (searched or reverse-geocoded) + notes
+  // (house/flat no., landmark, directions) so the provider can find the spot.
+  @IsOptional() @IsString() @MaxLength(300) addressText?: string;
+  @IsOptional() @IsString() @MaxLength(500) addressNotes?: string;
+
   // Preferred date/time (ISO 8601). Omitted / null = ASAP (on-demand).
   @IsOptional() @IsDateString() scheduledFor?: string;
 

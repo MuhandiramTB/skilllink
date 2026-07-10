@@ -27,8 +27,8 @@ export class BookingsService {
     const user = await this.prisma.users.findUniqueOrThrow({ where: { id: customerId } });
 
     const rows = await this.prisma.$queryRawUnsafe<{ id: string }[]>(
-      `INSERT INTO bookings (customer_id, category_id, district_id, description, location, status, solar_specs, scheduled_for)
-       VALUES ($1::uuid, $2::uuid, $3::uuid, $4, ST_SetSRID(ST_MakePoint($5,$6),4326)::geography, 'requested', $7::jsonb, $8::timestamptz)
+      `INSERT INTO bookings (customer_id, category_id, district_id, description, location, status, solar_specs, scheduled_for, address_text, address_notes)
+       VALUES ($1::uuid, $2::uuid, $3::uuid, $4, ST_SetSRID(ST_MakePoint($5,$6),4326)::geography, 'requested', $7::jsonb, $8::timestamptz, $9, $10)
        RETURNING id`,
       customerId,
       category.id,
@@ -38,6 +38,8 @@ export class BookingsService {
       dto.lat,
       dto.solarSpecs ? JSON.stringify(dto.solarSpecs) : null,
       dto.scheduledFor ?? null,
+      dto.addressText ?? null,
+      dto.addressNotes ?? null,
     );
     const bookingId = rows[0].id;
 
@@ -292,6 +294,8 @@ export class BookingsService {
       startedAt: b.started_at,
       completedAt: b.completed_at,
       scheduledFor: b.scheduled_for,
+      addressText: b.address_text,
+      addressNotes: b.address_notes,
     };
   }
 

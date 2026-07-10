@@ -11,7 +11,7 @@ import { TOWNS } from '@/lib/towns';
 import { Button, Card, ErrorBanner, EmptyState, Spinner, PageHeader, Field, StatusBadge, inputCls } from '@/components/ui';
 import { PriceHint } from '@/components/PriceHint';
 import { Reveal } from '@/components/Reveal';
-import { LocationPicker, KANDY, type LatLng } from '@/components/LocationPicker';
+import { AddressPicker, KANDY, type AddressValue } from '@/components/AddressPicker';
 import { ICONS, HEART_PATH, HEART_OUTLINE_PATH } from '@/components/nav-config';
 
 export default function CategoryBookingPage() {
@@ -24,7 +24,7 @@ export default function CategoryBookingPage() {
   // avoids a hydration mismatch from reading localStorage during render.
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [desc, setDesc] = useState('');
-  const [location, setLocation] = useState<LatLng>(KANDY);
+  const [location, setLocation] = useState<AddressValue>({ ...KANDY });
   const [when, setWhen] = useState<'asap' | 'scheduled'>('asap');
   const [scheduledFor, setScheduledFor] = useState(''); // datetime-local value
   const [bookingId, setBookingId] = useState<string | null>(null);
@@ -79,7 +79,7 @@ export default function CategoryBookingPage() {
     const locKey = searchParams.get('loc');
     if (!locKey) return;
     const town = TOWNS.find((tn) => tn.key === locKey);
-    if (town) setLocation({ lat: town.lat, lng: town.lng });
+    if (town) setLocation({ lat: town.lat, lng: town.lng, addressText: town.name });
   }, [searchParams]);
 
   function fail(e: unknown) { setErr((e as Error).message); }
@@ -91,7 +91,10 @@ export default function CategoryBookingPage() {
     setBusy(true);
     try {
       const iso = when === 'scheduled' && scheduledFor ? new Date(scheduledFor).toISOString() : undefined;
-      const b = await bookingApi.create(key, desc, location.lat, location.lng, iso);
+      const b = await bookingApi.create(key, desc, location.lat, location.lng, iso, {
+        addressText: location.addressText,
+        addressNotes: location.addressNotes,
+      });
       setBookingId(b.id);
       const m = await bookingApi.matches(b.id);
       setMatches(m.results);
@@ -139,7 +142,7 @@ export default function CategoryBookingPage() {
             <textarea value={desc} onChange={(e) => setDesc(e.target.value)} placeholder={t('describePlaceholder')}
               className={inputCls} rows={3} />
           </Field>
-          <LocationPicker value={location} onChange={setLocation} label={t('whereService')} />
+          <AddressPicker value={location} onChange={setLocation} label={t('whereService')} />
 
           {/* When: ASAP (on-demand) or a scheduled date/time. */}
           <Field label={t('whenService')}>

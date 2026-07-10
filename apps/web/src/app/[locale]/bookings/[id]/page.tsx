@@ -247,6 +247,17 @@ export default function BookingDetailPage() {
           </div>
         )}
 
+        {/* Service address — what the provider needs to actually find the customer. */}
+        {(booking.addressText || booking.addressNotes) && (
+          <div className="mt-3 flex items-start gap-2 border-t border-line-soft pt-3 text-sm dark:border-gray-800">
+            <svg viewBox="0 0 16 16" fill="currentColor" className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6" /></svg>
+            <div>
+              {booking.addressText && <p className="font-medium text-ink dark:text-gray-100">{booking.addressText}</p>}
+              {booking.addressNotes && <p className="mt-0.5 text-slate">{booking.addressNotes}</p>}
+            </div>
+          </div>
+        )}
+
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
           {canCancel && <Button variant="ghost" disabled={busy === 'cancel'} onClick={() => { setCancelReason(''); setCancelOpen(true); }}>{busy === 'cancel' ? t('saving') : t('cancelBooking')}</Button>}
           {canReportNoShow && (

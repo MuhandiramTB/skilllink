@@ -10,7 +10,7 @@ datasource db {
 
 model districts {
   id                String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name_en           String
+  name_en           String                    @unique(map: "uq_districts_name_en")
   name_si           String
   name_ta           String
   center            Unsupported("geography")
@@ -229,6 +229,8 @@ model bookings {
   cancel_fee_cents Int                      @default(0)
   cash_reported    Boolean                  @default(false)
   cash_reported_at DateTime?                @db.Timestamptz(6)
+  address_text     String?
+  address_notes    String?
   booking_media    booking_media[]
   categories       categories               @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users            users                    @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -441,6 +443,18 @@ model trusted_contacts {
   users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([user_id], map: "idx_trusted_contacts_user")
+}
+
+model email_otps {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email       String
+  code_hash   String
+  expires_at  DateTime  @db.Timestamptz(6)
+  attempts    Int       @default(0)
+  consumed_at DateTime? @db.Timestamptz(6)
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@index([email, created_at(sort: Desc)], map: "idx_email_otps_email")
 }
 
 enum user_role {
