@@ -12,7 +12,6 @@ export const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api
 export const ADMIN_PHONE = '+94770000000';
 
 const TOKEN_KEY = 'skilllink_admin_token';
-const SESSION_KEY = 'skilllink_session';
 
 /** Fetch a real JWT from the API for a phone (mock OTP). */
 export async function mockLogin(page: Page, phone: string): Promise<{ token: string; user: any }> {
@@ -24,48 +23,39 @@ export async function mockLogin(page: Page, phone: string): Promise<{ token: str
   return { token: body.data.accessToken, user: body.data.user };
 }
 
-/** Sign a page in by injecting the token + session into localStorage, then reload. */
-export async function signIn(page: Page, phone = ADMIN_PHONE, mode?: string) {
-  const { token, user } = await mockLogin(page, phone);
-  // Must set storage on the right origin — visit first.
-  await page.goto('/en');
+/**
+ * Sign a page in. The app derives the whole session by DECODING the JWT (it does
+ * not read a separate session object), so we only need to store the token. To test
+ * a specific mode, pass a token already issued in that mode (see signInAsProvider).
+ */
+export async function signIn(page: Page, phone = ADMIN_PHONE, tokenOverride?: string) {
+  let token = tokenOverride;
+  let user: any = null;
+  if (!token) { const r = await mockLogin(page, phone); token = r.token; user = r.user; }
+  await page.goto('/en'); // set storage on the right origin
   await page.evaluate(
-    ([tk, sess, tokenKey, sessKey]) => {
+    ([tk, tokenKey]) => {
       localStorage.setItem(tokenKey as string, tk as string);
-      localStorage.setItem(sessKey as string, sess as string);
-      localStorage.setItem('skilllink_onboarded', '1'); // skip onboarding overlay in tests
+      localStorage.setItem('skilllink_onboarded', '1'); // skip the onboarding overlay in tests
     },
-    [token, JSON.stringify({ userId: user.id, phone: user.phone, roles: user.roles, mode: mode ?? user.mode }), TOKEN_KEY, SESSION_KEY],
+    [token, TOKEN_KEY],
   );
-  await page.reload();
+  // Reload can occasionally abort if a navigation is mid-flight; retry once.
+  await page.reload({ waitUntil: 'domcontentloaded' }).catch(async () => {
+    await page.waitForTimeout(300);
+    await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {});
+  });
   return user;
 }
 
-/**
- * Sign in as a PROVIDER: ensure the account has the provider role (become-provider
- * is safe to call repeatedly), switch its mode to provider, then inject that token.
- * The mock admin account is customer+admin only, so provider views need this.
- */
-export async function signInAsProvider(page: Page, phone = ADMIN_PHONE) {
-  const { token } = await mockLogin(page, phone);
-  const auth = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-  // Make sure the account is a provider (idempotent enough for tests).
-  await page.request.post(`${API}/providers`, { headers: auth, data: { businessName: 'E2E Provider' } }).catch(() => {});
-  // Switch active mode → returns a fresh token in provider mode.
-  const switchRes = await page.request.post(`${API}/auth/mode`, { headers: auth, data: { mode: 'provider' } });
-  const sj = await switchRes.json();
-  const provToken = sj.data?.accessToken ?? token;
-  const provUser = sj.data?.user ?? { id: '', phone, roles: ['customer', 'provider'], mode: 'provider' };
-  await page.goto('/en');
-  await page.evaluate(
-    ([tk, sess]) => {
-      localStorage.setItem('skilllink_admin_token', tk as string);
-      localStorage.setItem('skilllink_session', sess as string);
-      localStorage.setItem('skilllink_onboarded', '1');
-    },
-    [provToken, JSON.stringify({ userId: provUser.id, phone: provUser.phone, roles: provUser.roles, mode: 'provider' })],
-  );
-  await page.reload();
+/** Scroll to the bottom so Reveal-on-scroll sections (IntersectionObserver) mount.
+ *  Then wait a beat for the reveal + any data fetch. */
+export async function revealAll(page: Page) {
+  await page.evaluate(async () => {
+    for (let y = 0; y <= document.body.scrollHeight; y += 400) { window.scrollTo(0, y); await new Promise((r) => setTimeout(r, 60)); }
+    window.scrollTo(0, document.body.scrollHeight);
+  });
+  await page.waitForTimeout(400);
 }
 
 /** Create a booking via the API (fast path for lifecycle tests). Returns its id. */
