@@ -12,6 +12,7 @@ import { Button, Card, ErrorBanner, EmptyState, Spinner, PageHeader, Field, Stat
 import { PriceHint } from '@/components/PriceHint';
 import { Reveal } from '@/components/Reveal';
 import { AddressPicker, KANDY, type AddressValue } from '@/components/AddressPicker';
+import { CelebrationOverlay } from '@/components/CelebrationOverlay';
 import { ICONS, HEART_PATH, HEART_OUTLINE_PATH } from '@/components/nav-config';
 
 export default function CategoryBookingPage() {
@@ -28,6 +29,7 @@ export default function CategoryBookingPage() {
   const [when, setWhen] = useState<'asap' | 'scheduled'>('asap');
   const [scheduledFor, setScheduledFor] = useState(''); // datetime-local value
   const [bookingId, setBookingId] = useState<string | null>(null);
+  const [celebrate, setCelebrate] = useState(false);
   const [matches, setMatches] = useState<Match[]>([]);
   const [sort, setSort] = useState<'best' | 'nearest' | 'rating'>('best');
   const [favIds, setFavIds] = useState<Set<string>>(new Set());
@@ -108,8 +110,9 @@ export default function CategoryBookingPage() {
     if (!bookingId) return;
     try {
       await bookingApi.assign(bookingId, providerId);
-      // Hand off to the booking detail page for tracking, chat, pay, review.
-      window.location.href = `/${locale}/bookings/${bookingId}`;
+      // Peak moment: celebrate the confirmation, then hand off to the detail page.
+      setCelebrate(true);
+      setTimeout(() => { window.location.href = `/${locale}/bookings/${bookingId}`; }, 2200);
     } catch (e) { fail(e); }
   }
 
@@ -243,6 +246,13 @@ export default function CategoryBookingPage() {
           ))}
         </div>
       )}
+
+      <CelebrationOverlay
+        open={celebrate}
+        title={t('bookingConfirmedTitle')}
+        sub={t('bookingConfirmedSub')}
+        onClose={() => { if (bookingId) window.location.href = `/${locale}/bookings/${bookingId}`; }}
+      />
     </div>
   );
 }

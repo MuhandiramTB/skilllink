@@ -679,7 +679,11 @@
     "providerReplyLabel": "Provider’s reply",
     "replyToReview": "Reply to this review",
     "replyPlaceholder": "Write a professional reply…",
-    "replySubmit": "Post reply"
+    "replySubmit": "Post reply",
+    "bookingConfirmedTitle": "Booking confirmed!",
+    "bookingConfirmedSub": "Your pro has been notified. Track it next.",
+    "reviewCelebrateTitle": "Thanks for your review!",
+    "reviewCelebrateSub": "You've earned reward points."
   },
   "loc": {
     "yourLocation": "Your location",
@@ -727,5 +731,24 @@
     "callContact": "Call {name}",
     "close": "Close",
     "cancel": "Cancel"
+  },
+  "onboard": {
+    "title": "Welcome to SkillLink",
+    "skip": "Skip",
+    "next": "Next",
+    "start": "Get started",
+    "bookNow": "Book a service now",
+    "s1Title": "Trusted help, in minutes",
+    "s1Body": "Find verified electricians, plumbers, cleaners and more near you — search or use your location.",
+    "s2Title": "Vetted & verified pros",
+    "s2Body": "Every professional is ID-checked and rated by neighbours. See real work photos before you book.",
+    "s3Title": "Book, track, pay — simply",
+    "s3Body": "Get a clear quote, track the job, and pay securely when you're happy. Your home is in safe hands."
+  },
+  "pwa": {
+    "title": "Install SkillLink",
+    "sub": "Add to your home screen for faster access.",
+    "install": "Install",
+    "dismiss": "Dismiss"
   }
 }

@@ -6,6 +6,8 @@ import { useTranslations } from 'next-intl';
 import { bookingApi, type Booking, type Message } from '@/lib/booking-api';
 import { getToken, getSession } from '@/lib/session';
 import { Button, Card, Spinner, ErrorBanner, SuccessBanner, SuccessBurst, StatusBadge, PageHeader, Money, Field, BookingProgress, inputCls } from '@/components/ui';
+import { CelebrationOverlay } from '@/components/CelebrationOverlay';
+import { haptic } from '@/lib/haptics';
 import { useToast } from '@/components/Toast';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { SafetyButton } from '@/components/SafetyButton';
@@ -24,6 +26,7 @@ export default function BookingDetailPage() {
   const [msg, setMsg] = useState('');
   const [settled, setSettled] = useState(false);
   const [reviewed, setReviewed] = useState(false);
+  const [thanksOpen, setThanksOpen] = useState(false);
   const [stars, setStars] = useState('5');
   const [price, setPrice] = useState('');
   // Guards against double-submitting money/state actions (a real double-tap risk on mobile).
@@ -113,7 +116,7 @@ export default function BookingDetailPage() {
   async function leaveReview() {
     if (busy) return;
     setBusy('review');
-    try { await bookingApi.review(id, Number(stars), 'Reviewed via app'); setReviewed(true); toast.show(t('reviewThanks', { stars }), 'success'); } catch (e) { fail(e); toast.show((e as Error).message, 'error'); } finally { setBusy(null); }
+    try { await bookingApi.review(id, Number(stars), 'Reviewed via app'); setReviewed(true); haptic.celebrate(); setThanksOpen(true); toast.show(t('reviewThanks', { stars }), 'success'); } catch (e) { fail(e); haptic.warn(); toast.show((e as Error).message, 'error'); } finally { setBusy(null); }
   }
   async function cancel() {
     if (busy) return;
@@ -449,6 +452,15 @@ export default function BookingDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Peak moment: thanks-for-reviewing celebration. */}
+      <CelebrationOverlay
+        open={thanksOpen}
+        title={t('reviewCelebrateTitle')}
+        sub={t('reviewCelebrateSub')}
+        icon={<svg viewBox="0 0 16 16" fill="currentColor"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.283.95l-3.523 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187z" /></svg>}
+        onClose={() => setThanksOpen(false)}
+      />
     </div>
   );
 }
