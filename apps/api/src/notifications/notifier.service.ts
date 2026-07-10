@@ -11,6 +11,19 @@ import type { NotificationChannel } from './channels/channel';
  * notify() is safe everywhere today and gains real off-app delivery the moment a
  * provider is wired — no call-site changes. (Product analysis gap: off-app reach.)
  */
+/** User notification preferences (per category). Defaults: all on except promos. */
+export interface NotifPrefs { bookings: boolean; messages: boolean; promos: boolean }
+const DEFAULT_PREFS: NotifPrefs = { bookings: true, messages: true, promos: false };
+
+/** Map a notification `type` to the pref category it belongs to. Safety alerts are
+ *  intentionally NOT suppressible — they always send. */
+function prefCategory(type: string): keyof NotifPrefs | 'always' {
+  if (type.startsWith('safety.')) return 'always';
+  if (type.startsWith('chat.') || type.includes('message')) return 'messages';
+  if (type.startsWith('promo') || type.startsWith('reward') || type.startsWith('referral')) return 'promos';
+  return 'bookings'; // booking.* and everything else
+}
+
 @Injectable()
 export class NotifierService {
   private readonly log = new Logger('NotifierService');
@@ -25,9 +38,28 @@ export class NotifierService {
     this.channels = [email, push, sms];
   }
 
+  /** Per-user prefs stored in app_settings under `notif_prefs:<userId>` (no schema
+   *  change needed — app_settings is a global KV). */
+  async getPrefs(userId: string): Promise<NotifPrefs> {
+    const row = await this.prisma.app_settings.findUnique({ where: { key: `notif_prefs:${userId}` } });
+    if (!row) return { ...DEFAULT_PREFS };
+    try { return { ...DEFAULT_PREFS, ...JSON.parse(row.value) }; } catch { return { ...DEFAULT_PREFS }; }
+  }
+
+  async setPrefs(userId: string, prefs: Partial<NotifPrefs>): Promise<NotifPrefs> {
+    const merged = { ...(await this.getPrefs(userId)), ...prefs };
+    await this.prisma.app_settings.upsert({
+      where: { key: `notif_prefs:${userId}` },
+      update: { value: JSON.stringify(merged), updated_at: new Date() },
+      create: { key: `notif_prefs:${userId}`, value: JSON.stringify(merged) },
+    });
+    return merged;
+  }
+
   async notify(params: { userId: string; type: string; title: string; body?: string; link?: string }) {
     if (!params.userId) return;
-    // 1) Always persist the in-app record.
+    // 1) Always persist the in-app record (the notification center shows everything;
+    //    prefs only govern OFF-app delivery so a user never misses in-app history).
     await this.prisma.notifications.create({
       data: {
         user_id: params.userId,
@@ -37,8 +69,13 @@ export class NotifierService {
         link: params.link ?? null,
       },
     });
-    // 2) Fan out to enabled external channels (best-effort; never block/throw the
-    //    core action if a channel fails).
+    // 2) Fan out to enabled external channels — but only if the user allows this
+    //    category (safety always sends). Best-effort; never blocks the core action.
+    const cat = prefCategory(params.type);
+    if (cat !== 'always') {
+      const prefs = await this.getPrefs(params.userId);
+      if (!prefs[cat]) return; // user opted out of this category for off-app delivery
+    }
     const active = this.channels.filter((c) => c.enabled());
     if (active.length === 0) return;
     let contact: { email: string | null; phone: string | null } = { email: null, phone: null };

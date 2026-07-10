@@ -107,4 +107,7 @@ export const bookingApi = {
   noShow: (id: string) => req<{ id: string; status: string }>(`/bookings/${id}/no-show`, { method: 'POST' }),
   // Provider self-reports a job settled in cash (disintermediation defense).
   reportCash: (id: string) => req<{ ok: boolean }>(`/bookings/${id}/report-cash`, { method: 'POST' }),
+  // Customer or provider opens a dispute on a booking they're part of.
+  openDispute: (id: string, reason: string) =>
+    req<{ id: string; status: string }>(`/bookings/${id}/dispute`, { method: 'POST', body: JSON.stringify({ reason }) }),
 };

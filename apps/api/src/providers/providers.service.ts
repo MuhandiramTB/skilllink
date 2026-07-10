@@ -200,6 +200,12 @@ export class ProvidersService {
       ratingAvg: Number(p.rating_avg),
       categories: p.provider_categories.length,
       verifications: p.verifications,
+      // Schedule/details — so the provider can edit them from the dashboard.
+      yearsExperience: p.years_experience ?? null,
+      workingDays: p.working_days ?? null,
+      workingHours: p.working_hours ?? null,
+      emergencyService: p.emergency_service ?? false,
+      busyUntil: p.busy_until ? p.busy_until.toISOString() : null,
     };
   }
 

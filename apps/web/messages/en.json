@@ -158,7 +158,8 @@
     "contactPhone": "Phone",
     "addContact": "Add contact",
     "removeContact": "Remove",
-    "noContacts": "No trusted contacts yet."
+    "noContacts": "No trusted contacts yet.",
+    "saveError": "Could not save. Please try again."
   },
   "errors": {
     "internal": "Something went wrong. Please try again.",
@@ -662,7 +663,17 @@
     "manage": "Manage",
     "revenueGroup": "Revenue & bookings",
     "marketplaceGroup": "Marketplace",
-    "needsReview": "Needs review"
+    "needsReview": "Needs review",
+    "disputeOpened": "Report received — our team will review it.",
+    "reportProblem": "Report a problem",
+    "disputeHelp": "Tell us what went wrong. Our team reviews every report.",
+    "disputeReasonLabel": "What happened?",
+    "disputePlaceholder": "Describe the issue…",
+    "disputeSubmit": "Submit report",
+    "scheduleDetails": "Schedule & details",
+    "emergencyService": "Available for emergencies",
+    "saveDetails": "Save details",
+    "detailsSaved": "Details saved."
   },
   "loc": {
     "yourLocation": "Your location",

@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
   getSession, fetchMe, fetchDistricts, saveProfile, uploadAvatar, removeAvatar,
-  clearToken, logoutAllDevices, type Me, type District, type Role,
+  clearToken, logoutAllDevices, getNotifPrefs, setNotifPrefs, type Me, type District, type Role,
 } from '@/lib/session';
 import { Card, Button, Field, inputCls, Spinner, ErrorBanner, SuccessBanner, EmptyState } from '@/components/ui';
 import { ICONS } from '@/components/nav-config';
@@ -74,10 +74,16 @@ export default function ProfilePage() {
       safetyApi.listContacts().then(setContacts).catch(() => {});
     })();
     setTheme((window.localStorage.getItem(THEME_KEY) as Theme) ?? 'light');
-    try {
-      const saved = window.localStorage.getItem(NOTIF_KEY);
-      if (saved) setNotif({ ...{ bookings: true, messages: true, promos: false }, ...JSON.parse(saved) });
-    } catch { /* ignore */ }
+    // Load notification prefs from the server (source of truth; they govern
+    // real off-app delivery). Fall back to any cached local value on failure.
+    getNotifPrefs()
+      .then(setNotif)
+      .catch(() => {
+        try {
+          const saved = window.localStorage.getItem(NOTIF_KEY);
+          if (saved) setNotif({ ...{ bookings: true, messages: true, promos: false }, ...JSON.parse(saved) });
+        } catch { /* ignore */ }
+      });
   }, [locale]);
 
   function applyTheme(next: Theme) {
@@ -88,8 +94,12 @@ export default function ProfilePage() {
 
   function setNotifPref(key: keyof typeof notif, value: boolean) {
     const updated = { ...notif, [key]: value };
-    setNotif(updated);
-    window.localStorage.setItem(NOTIF_KEY, JSON.stringify(updated));
+    setNotif(updated); // optimistic
+    window.localStorage.setItem(NOTIF_KEY, JSON.stringify(updated)); // cache
+    setNotifPrefs({ [key]: value }).catch(() => {
+      setNotif(notif); // revert on failure
+      setErr(t('saveError'));
+    });
   }
 
   async function addContact(e: React.FormEvent) {

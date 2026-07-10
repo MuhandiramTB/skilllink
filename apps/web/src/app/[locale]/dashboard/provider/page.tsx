@@ -55,6 +55,12 @@ export default function ProviderDashboard() {
   const [walletMsg, setWalletMsg] = useState('');
   const [busyMsg, setBusyMsg] = useState('');
   const [settingBusy, setSettingBusy] = useState(false);
+  // Editable schedule/details (working days/hours/emergency), loaded from `me`.
+  const [days, setDays] = useState('');
+  const [hours, setHours] = useState('');
+  const [emergency, setEmergency] = useState(false);
+  const [savingDetails, setSavingDetails] = useState(false);
+  const [detailsMsg, setDetailsMsg] = useState('');
 
   useEffect(() => {
     const s = getSession();
@@ -67,7 +73,10 @@ export default function ProviderDashboard() {
       return;
     }
     Promise.all([providerApi.me(), providerApi.earnings()])
-      .then(([m, e]) => { setMe(m); setEarnings(e); })
+      .then(([m, e]) => {
+        setMe(m); setEarnings(e);
+        setDays(m.workingDays ?? ''); setHours(m.workingHours ?? ''); setEmergency(!!m.emergencyService);
+      })
       .catch((e) => setErr((e as Error).message));
     bookingApi.providerJobs().then(setJobs).catch((e) => setErr((e as Error).message));
     providerApi.wallet().then(setWallet).catch(() => {});
@@ -103,6 +112,16 @@ export default function ProviderDashboard() {
     } finally {
       setSettingBusy(false);
     }
+  }
+
+  // Edit the static schedule/details after signup (was only settable at register).
+  async function saveDetails() {
+    setErr(''); setSavingDetails(true);
+    try {
+      await providerApi.setDetails({ workingDays: days, workingHours: hours, emergencyService: emergency });
+      setDetailsMsg(t('detailsSaved'));
+    } catch (e) { setErr((e as Error).message); }
+    finally { setSavingDetails(false); }
   }
 
   async function toggleAvailability() {
@@ -314,6 +333,38 @@ export default function ProviderDashboard() {
               )}
             </section>
           </div>
+
+          {/* Schedule & details — editable after signup (product gap fix). */}
+          <Card>
+            <div className="mb-3 flex items-center gap-2.5">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-soft text-primary [&>svg]:h-4 [&>svg]:w-4 dark:bg-primary/15" aria-hidden="true">{ICONS.settings}</span>
+              <h2 className="font-display text-base font-bold text-ink dark:text-gray-50">{t('scheduleDetails')}</h2>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="block">
+                <span className="mb-1 block text-sm font-semibold text-ink dark:text-gray-200">{t('workingDays')}</span>
+                <input value={days} onChange={(e) => setDays(e.target.value)} placeholder="Mon–Sat" className={inputCls} />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-sm font-semibold text-ink dark:text-gray-200">{t('workingHours')}</span>
+                <input value={hours} onChange={(e) => setHours(e.target.value)} placeholder="08:00–18:00" className={inputCls} />
+              </label>
+            </div>
+            <label className="mt-3 flex items-center justify-between">
+              <span className="text-sm font-medium text-ink dark:text-gray-100">{t('emergencyService')}</span>
+              <button
+                type="button" role="switch" aria-checked={emergency}
+                onClick={() => setEmergency((v) => !v)}
+                className={`relative h-6 w-11 rounded-full transition ${emergency ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'}`}
+              >
+                <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-card transition-all ${emergency ? 'left-[22px]' : 'left-0.5'}`} />
+              </button>
+            </label>
+            <div className="mt-4 flex items-center gap-3">
+              <Button disabled={savingDetails} onClick={saveDetails}>{savingDetails ? t('saving') : t('saveDetails')}</Button>
+              {detailsMsg && <span className="text-sm font-medium text-success">{detailsMsg}</span>}
+            </div>
+          </Card>
 
           <WorkPhotosManager />
         </>

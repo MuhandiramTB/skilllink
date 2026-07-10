@@ -26,6 +26,29 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+// SEO + social + PWA metadata. Localised titles/descriptions per locale so shares
+// and search results read right in Sinhala/Tamil/English.
+const META: Record<string, { title: string; description: string }> = {
+  en: { title: 'SkillLink — Trusted home services in Sri Lanka', description: 'Book verified electricians, plumbers, cleaners and more near you. Rated pros, clear pricing, secure booking.' },
+  si: { title: 'SkillLink — ශ්‍රී ලංකාවේ විශ්වාසනීය ගෘහ සේවා', description: 'ඔබ අසල සත්‍යාපිත විදුලි කාර්මික, ජලනල, පිරිසිදු කිරීම් වෘත්තිකයන් වෙන්කරවා ගන්න.' },
+  ta: { title: 'SkillLink — இலங்கையில் நம்பகமான வீட்டு சேவைகள்', description: 'உங்கள் அருகில் சரிபார்க்கப்பட்ட மின்வினைஞர்கள், குழாய் பணியாளர்கள், சுத்தம் செய்பவர்களை பதிவு செய்யுங்கள்.' },
+};
+
+export async function generateMetadata({ params }: { params: { locale: string } }) {
+  const m = META[params.locale] ?? META.en;
+  return {
+    title: { default: m.title, template: '%s · SkillLink' },
+    description: m.description,
+    applicationName: 'SkillLink',
+    manifest: '/manifest.webmanifest',
+    themeColor: '#4F46E5',
+    appleWebApp: { capable: true, statusBarStyle: 'default' as const, title: 'SkillLink' },
+    openGraph: { title: m.title, description: m.description, siteName: 'SkillLink', type: 'website' as const, locale: params.locale },
+    twitter: { card: 'summary_large_image' as const, title: m.title, description: m.description },
+    icons: { icon: '/icon.svg', apple: '/icon.svg' },
+  };
+}
+
 export default async function LocaleLayout({
   children,
   params,

@@ -35,6 +35,9 @@ export default function BookingDetailPage() {
   const [cancelReason, setCancelReason] = useState('');
   const [noShowOpen, setNoShowOpen] = useState(false);
   const [cashReported, setCashReported] = useState(false);
+  const [disputeOpen, setDisputeOpen] = useState(false);
+  const [disputeReason, setDisputeReason] = useState('');
+  const [disputeDone, setDisputeDone] = useState(false);
   // Non-zero when a cancellation resulted in a fee — shown as a banner.
   const [feeCents, setFeeCents] = useState<number | null>(null);
 
@@ -51,10 +54,28 @@ export default function BookingDetailPage() {
     void load();
   }, []);
 
+  // Chat auto-poll: refresh messages every 4s so a conversation feels live without
+  // websockets. Pauses when the tab is hidden; only fetches messages (cheap), never
+  // the whole booking. Cleared on unmount.
+  useEffect(() => {
+    if (!getToken()) return;
+    const tick = () => {
+      if (document.hidden) return;
+      bookingApi.messages(id).then(setMessages).catch(() => {});
+    };
+    const iv = setInterval(tick, 4000);
+    return () => clearInterval(iv);
+  }, [id]);
+
   async function send() {
     if (!chat.trim() || busy) return;
+    const body = chat.trim();
+    const me = getSession()?.userId ?? '';
+    // Optimistic: show the message immediately, then reconcile from the server.
+    setMessages((prev) => [...prev, { sender_id: me, body, created_at: new Date().toISOString() }]);
+    setChat('');
     setBusy('send');
-    try { await bookingApi.sendMessage(id, chat); setChat(''); setMessages(await bookingApi.messages(id)); } catch (e) { fail(e); } finally { setBusy(null); }
+    try { await bookingApi.sendMessage(id, body); setMessages(await bookingApi.messages(id)); } catch (e) { fail(e); } finally { setBusy(null); }
   }
   async function saveQuote() {
     setErr('');
@@ -125,6 +146,15 @@ export default function BookingDetailPage() {
       await load();
     } catch (e) { fail(e); toast.show((e as Error).message, 'error'); } finally { setBusy(null); }
   }
+  async function openDispute() {
+    if (!disputeReason.trim()) return;
+    try {
+      await bookingApi.openDispute(id, disputeReason.trim());
+      setDisputeDone(true);
+      setDisputeOpen(false);
+      toast.show(t('disputeOpened'), 'success');
+    } catch (e) { fail(e); toast.show((e as Error).message, 'error'); }
+  }
 
   if (err && !booking) return <ErrorBanner message={err} />;
   if (!booking) return <Spinner />;
@@ -139,6 +169,9 @@ export default function BookingDetailPage() {
   // Customer safety/policy actions on an active/assigned job.
   const showSos = isCustomer && ['accepted', 'in_progress'].includes(booking.status);
   const canReportNoShow = isCustomer && ['matched', 'accepted'].includes(booking.status);
+  // Either party may raise a dispute once there's something to dispute (a job that
+  // progressed or ended). Hidden once one is filed this session.
+  const canDispute = !disputeDone && ['in_progress', 'completed', 'cancelled', 'no_show'].includes(booking.status);
   // Provider can quote once a job is assigned (matched/accepted) and not yet accepted by the customer.
   const canQuote = isProvider && ['matched', 'accepted'].includes(booking.status) && quoteStatus !== 'accepted';
 
@@ -352,6 +385,46 @@ export default function BookingDetailPage() {
         onConfirm={reportNoShow}
         onCancel={() => { if (busy !== 'cancel') setNoShowOpen(false); }}
       />
+
+      {/* Report a problem / open a dispute — either party, once the job progressed. */}
+      {canDispute && (
+        <div className="border-t border-line-soft pt-4 text-center dark:border-gray-800">
+          <button
+            type="button"
+            onClick={() => setDisputeOpen(true)}
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-slate transition hover:text-danger"
+          >
+            <span className="[&>svg]:h-3.5 [&>svg]:w-3.5" aria-hidden="true">{ICONS.flag}</span>
+            {t('reportProblem')}
+          </button>
+        </div>
+      )}
+      {disputeDone && (
+        <div className="border-t border-line-soft pt-4 dark:border-gray-800">
+          <SuccessBanner message={t('disputeOpened')} />
+        </div>
+      )}
+
+      {/* Dispute modal — collects a reason, then POSTs. */}
+      {disputeOpen && (
+        <div className="fixed inset-0 z-[130] flex items-end justify-center p-4 sm:items-center" role="dialog" aria-modal="true" aria-label={t('reportProblem')}>
+          <button type="button" aria-label={t('keepBooking')} tabIndex={-1} className="absolute inset-0 cursor-default bg-ink/50 backdrop-blur-sm" onClick={() => setDisputeOpen(false)} />
+          <div className="relative z-10 w-full max-w-sm rounded-xl2 border border-line bg-white p-6 shadow-lift dark:border-gray-800 dark:bg-gray-900">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-warn/12 text-warn [&>svg]:h-[18px] [&>svg]:w-[18px]" aria-hidden="true">{ICONS.flag}</span>
+              <h2 className="font-display text-base font-bold text-ink dark:text-gray-50">{t('reportProblem')}</h2>
+            </div>
+            <p className="mt-2 text-sm text-slate">{t('disputeHelp')}</p>
+            <Field label={t('disputeReasonLabel')}>
+              <textarea value={disputeReason} onChange={(e) => setDisputeReason(e.target.value)} rows={3} className={inputCls} placeholder={t('disputePlaceholder')} />
+            </Field>
+            <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row">
+              <button type="button" onClick={() => setDisputeOpen(false)} className="flex-1 rounded-base border border-line bg-white px-5 py-2.5 text-sm font-semibold text-ink transition hover:border-ink hover:bg-surface dark:border-gray-700 dark:bg-transparent dark:text-gray-100">{t('keepBooking')}</button>
+              <Button variant="danger" className="flex-1" disabled={!disputeReason.trim()} onClick={openDispute}>{t('disputeSubmit')}</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

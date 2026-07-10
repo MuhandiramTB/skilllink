@@ -163,6 +163,18 @@ export async function saveProfile(data: Partial<{
   );
 }
 
+export interface NotifPrefs { bookings: boolean; messages: boolean; promos: boolean }
+
+/** Server-persisted notification preferences (govern off-app email/SMS/push). */
+export async function getNotifPrefs(): Promise<NotifPrefs> {
+  return unwrap(await fetch(`${API_URL}/notifications/prefs`, { ...authed() })) as Promise<NotifPrefs>;
+}
+export async function setNotifPrefs(prefs: Partial<NotifPrefs>): Promise<NotifPrefs> {
+  return unwrap(
+    await fetch(`${API_URL}/notifications/prefs`, { method: 'PATCH', ...authed(), body: JSON.stringify(prefs) }),
+  ) as Promise<NotifPrefs>;
+}
+
 /**
  * Downscale + compress a picked image to a small square data URL (cover-cropped).
  * ~160px JPEG keeps it well under a few KB so it stores cleanly in the DB and loads

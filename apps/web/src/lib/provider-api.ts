@@ -82,4 +82,9 @@ export interface ProviderMe {
   ratingAvg: number;
   categories: number;
   verifications: { type: string; status: string }[];
+  yearsExperience?: number | null;
+  workingDays?: string | null;
+  workingHours?: string | null;
+  emergencyService?: boolean;
+  busyUntil?: string | null;
 }

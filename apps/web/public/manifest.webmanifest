@@ -1,0 +1,13 @@
+{
+  "name": "SkillLink",
+  "short_name": "SkillLink",
+  "description": "Trusted home services in Sri Lanka — book verified pros near you.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBFBFD",
+  "theme_color": "#4F46E5",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
