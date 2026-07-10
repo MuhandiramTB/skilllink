@@ -54,14 +54,26 @@ export default function BookingDetailPage() {
     void load();
   }, []);
 
+  // Merge server messages with any still-pending local (optimistic) ones so a
+  // just-sent bubble never flickers away before the server has persisted it. A
+  // local message is "pending" until a server message with the same sender+body
+  // appears; then the server copy (with real timestamp) takes over.
+  function mergeMessages(server: Message[]) {
+    setMessages((local) => {
+      const serverKeys = new Set(server.map((m) => `${m.sender_id}|${m.body}`));
+      const pending = local.filter((m) => m.pending && !serverKeys.has(`${m.sender_id}|${m.body}`));
+      return [...server, ...pending];
+    });
+  }
+
   // Chat auto-poll: refresh messages every 4s so a conversation feels live without
-  // websockets. Pauses when the tab is hidden; only fetches messages (cheap), never
-  // the whole booking. Cleared on unmount.
+  // websockets. Pauses when the tab is hidden; merges (never blindly overwrites)
+  // so optimistic messages survive. Cleared on unmount.
   useEffect(() => {
     if (!getToken()) return;
     const tick = () => {
       if (document.hidden) return;
-      bookingApi.messages(id).then(setMessages).catch(() => {});
+      bookingApi.messages(id).then(mergeMessages).catch(() => {});
     };
     const iv = setInterval(tick, 4000);
     return () => clearInterval(iv);
@@ -71,11 +83,12 @@ export default function BookingDetailPage() {
     if (!chat.trim() || busy) return;
     const body = chat.trim();
     const me = getSession()?.userId ?? '';
-    // Optimistic: show the message immediately, then reconcile from the server.
-    setMessages((prev) => [...prev, { sender_id: me, body, created_at: new Date().toISOString() }]);
+    // Optimistic: flag it `pending` so the poll-merge keeps it until the server
+    // returns the persisted copy.
+    setMessages((prev) => [...prev, { sender_id: me, body, created_at: new Date().toISOString(), pending: true }]);
     setChat('');
     setBusy('send');
-    try { await bookingApi.sendMessage(id, body); setMessages(await bookingApi.messages(id)); } catch (e) { fail(e); } finally { setBusy(null); }
+    try { await bookingApi.sendMessage(id, body); mergeMessages(await bookingApi.messages(id)); } catch (e) { fail(e); } finally { setBusy(null); }
   }
   async function saveQuote() {
     setErr('');

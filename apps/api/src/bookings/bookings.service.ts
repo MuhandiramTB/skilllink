@@ -28,7 +28,7 @@ export class BookingsService {
 
     const rows = await this.prisma.$queryRawUnsafe<{ id: string }[]>(
       `INSERT INTO bookings (customer_id, category_id, district_id, description, location, status, solar_specs, scheduled_for)
-       VALUES ($1::uuid, $2::uuid, $3, $4, ST_SetSRID(ST_MakePoint($5,$6),4326)::geography, 'requested', $7::jsonb, $8::timestamptz)
+       VALUES ($1::uuid, $2::uuid, $3::uuid, $4, ST_SetSRID(ST_MakePoint($5,$6),4326)::geography, 'requested', $7::jsonb, $8::timestamptz)
        RETURNING id`,
       customerId,
       category.id,

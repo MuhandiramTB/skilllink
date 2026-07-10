@@ -58,7 +58,7 @@ export interface Booking {
   completedAt?: string | null;
   scheduledFor?: string | null;
 }
-export interface Message { sender_id: string; body: string; created_at: string }
+export interface Message { sender_id: string; body: string; created_at: string; pending?: boolean }
 
 export interface BookingListItem {
   id: string;
