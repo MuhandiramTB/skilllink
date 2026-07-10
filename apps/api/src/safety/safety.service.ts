@@ -50,6 +50,9 @@ export class SafetyService {
   /** Report a provider. Feeds the admin trust queue; a safety-reason report also
    *  notifies the reporter it's received. */
   async reportProvider(reporterId: string, dto: { providerId: string; bookingId?: string; reason: string; detail?: string }) {
+    // Validate the target exists so a bad id returns a clean 404, not a FK 500.
+    const provider = await this.prisma.providers.findUnique({ where: { user_id: dto.providerId }, select: { user_id: true } });
+    if (!provider) throw new NotFoundException({ code: 'NOT_FOUND', message: 'errors.safety.providerNotFound' });
     const report = await this.prisma.provider_reports.create({
       data: {
         provider_id: dto.providerId,
