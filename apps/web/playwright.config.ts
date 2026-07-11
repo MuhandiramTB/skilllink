@@ -35,11 +35,16 @@ export default defineConfig({
     { name: 'mobile-safari', use: { ...devices['iPhone 13'] } },
   ],
 
-  // Auto-start the web app. Reuses an already-running dev server locally.
+  // Run against a PRODUCTION build on port 3000 (matches the API's default
+  // CORS_ORIGIN so browser fetches aren't blocked) via `next start` (all routes
+  // precompiled — no dev cold-compile race). reuseExistingServer:false so a stale
+  // Docker container on 3000 can't shadow us.
+  // ⚠️ Stop any Docker web container first (it proxies 3000): `docker compose stop web`.
+  // Prereq: API on :4000 with AUTH_VERIFIER=mock and CORS_ORIGIN=http://localhost:3000.
   webServer: {
-    command: 'npm run dev',
+    command: 'npm run start -- -p 3000',
     url: 'http://localhost:3000/en',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    reuseExistingServer: false,
+    timeout: 180_000,
   },
 });

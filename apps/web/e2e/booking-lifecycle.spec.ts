@@ -58,15 +58,10 @@ test.describe('booking lifecycle', () => {
     await request.post(`${API}/bookings/${b.id}/cancel`, { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, data: { reason: 'cleanup' } });
   });
 
-  // Backend returns addressText/addressNotes correctly (asserted below), but the
-  // booking-detail UI does not render the address block — same systemic "later
-  // conditional section not rendering" bug seen on profile + provider profile.
-  // Tracked via fixme; the API-level assertion keeps real coverage.
-  test.fixme('booking detail page shows the address to the user', async ({ page, request }) => {
+  test('booking detail page shows the address to the user', async ({ page, request }) => {
     const b = await newBooking(request);
     await signIn(page);
     await page.goto(`/en/bookings/${b.id}`);
-    await revealAll(page);
     await expect(page.locator('body')).toContainText(/1 Test Rd, Kandy|Red gate/, { timeout: 12000 });
     await request.post(`${API}/bookings/${b.id}/cancel`, { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, data: { reason: 'cleanup' } });
   });

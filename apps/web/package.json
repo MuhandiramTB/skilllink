@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start -p 3000",
     "lint": "node -e \"require('fs').existsSync('.eslintrc.json')||require('fs').existsSync('eslint.config.mjs')?require('child_process').execSync('next lint',{stdio:'inherit'}):console.log('eslint not configured — skipping')\"",
-    "e2e": "playwright test",
+    "e2e": "next build && playwright test",
+    "e2e:fast": "playwright test",
     "e2e:ui": "playwright test --ui",
     "e2e:report": "playwright show-report",
     "e2e:install": "playwright install --with-deps chromium webkit"

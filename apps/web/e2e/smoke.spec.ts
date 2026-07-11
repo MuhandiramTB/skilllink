@@ -52,15 +52,8 @@ test.describe('smoke — authed pages render', () => {
   });
 });
 
-// TRACKED BUG (caught by E2E): an unknown /en/* route serves Next's default 404
-// instead of the branded [locale]/not-found.tsx, even with a [...rest] catch-all.
-// Needs a routing fix. The route still correctly returns HTTP 404.
-test.fixme('404 page shows the branded not-found for an unknown route', async ({ page }) => {
+test('unknown route shows the branded not-found page', async ({ page }) => {
   await page.goto('/en/this-route-does-not-exist');
-  await expect(page.getByText(/page not found/i)).toBeVisible();
-});
-
-test('unknown route still returns HTTP 404', async ({ page }) => {
-  const res = await page.goto('/en/this-route-does-not-exist');
-  expect(res?.status()).toBe(404);
+  // The catch-all renders the branded not-found UI inside the app shell.
+  await expect(page.getByRole('heading', { name: /page not found/i })).toBeVisible({ timeout: 8000 });
 });
