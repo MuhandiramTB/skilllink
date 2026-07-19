@@ -51,10 +51,10 @@ export default function BookPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <header>
-        <h1 className="font-display text-2xl font-bold text-ink dark:text-gray-50">{t('title')}</h1>
-        <p className="text-sm text-slate dark:text-gray-400">{t('subtitle')}</p>
+        <h1 className="font-display text-3xl font-extrabold tracking-tightest text-ink dark:text-gray-50 sm:text-[40px]">{t('title')}</h1>
+        <p className="mt-1 text-sm text-slate dark:text-gray-400">{t('subtitle')}</p>
         {loc && (
-          <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+          <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary dark:bg-primary/20 dark:text-gray-100">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
             {loc} · {t('confirmOnMap')}
           </p>
@@ -71,7 +71,7 @@ export default function BookPage() {
           onChange={(e) => setQ(e.target.value)}
           placeholder={t('searchPlaceholder')}
           aria-label={t('searchPlaceholder')}
-          className="w-full rounded-base border border-line py-3 pl-11 pr-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:border-gray-600 dark:bg-gray-900"
+          className="min-h-12 w-full rounded-base border border-line py-3.5 pl-11 pr-3 text-base focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/25 dark:border-gray-600 dark:bg-gray-900"
         />
       </div>
 
@@ -88,12 +88,12 @@ export default function BookPage() {
               <Reveal delay={Math.min(i, 12) * 40} className="h-full">
                 <a
                   href={`/${locale}/category/${it.key}`}
-                  className="group flex h-full flex-col gap-3 rounded-xl2 border border-line bg-white p-4 shadow-card transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lift dark:border-gray-700 dark:bg-gray-800"
+                  className="group flex h-full min-h-[132px] flex-col gap-3 rounded-xl2 border border-line bg-white p-5 shadow-card transition-all hover:-translate-y-1 hover:border-brand hover:shadow-lift dark:border-gray-700 dark:bg-gray-800"
                 >
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-all group-hover:scale-105 group-hover:bg-brand group-hover:text-brand-ink [&>svg]:h-7 [&>svg]:w-7">
                     <CategoryIcon keyName={it.key} />
                   </span>
-                  <span className="font-medium leading-tight">{it.name}</span>
+                  <span className="font-display text-base font-bold leading-tight tracking-tight text-ink dark:text-gray-50">{it.name}</span>
                   {it.parent && <span className="-mt-1 text-xs text-slate dark:text-gray-400">{it.parent}</span>}
                   {it.price && (
                     <span className="mt-auto pt-1">

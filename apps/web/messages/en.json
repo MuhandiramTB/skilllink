@@ -686,7 +686,17 @@
     "reviewCelebrateSub": "You've earned reward points.",
     "shareLocationTitle": "Share your live location",
     "shareLocationSub": "Let the customer see you approaching while you head over.",
-    "sharingLocationOn": "Sharing your location live"
+    "sharingLocationOn": "Sharing your location live",
+    "allServices": "All services",
+    "providersIn": "Providers in {area}",
+    "change": "Change",
+    "showProviders": "Show providers",
+    "providersFound": "{count} providers available",
+    "tryAnotherArea": "Try another area",
+    "bookWith": "Book with {name}",
+    "bookingWith": "Booking with",
+    "bookingAreaNote": "Service in {area}. You can adjust the exact spot on the map.",
+    "confirmBooking": "Confirm booking"
   },
   "loc": {
     "yourLocation": "Your location",

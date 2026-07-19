@@ -674,7 +674,17 @@
     "reviewCelebrateSub": "ඔබ ත්‍යාග ලකුණු උපයා ඇත.",
     "shareLocationTitle": "ඔබේ සජීවී ස්ථානය බෙදාගන්න",
     "shareLocationSub": "ඔබ එනවිට පැමිණෙනු ගනුදෙනුකරුට පෙනීමට ඉඩ දෙන්න.",
-    "sharingLocationOn": "ඔබේ ස්ථානය සජීවීව බෙදාගනිමින්"
+    "sharingLocationOn": "ඔබේ ස්ථානය සජීවීව බෙදාගනිමින්",
+    "allServices": "සියලු සේවා",
+    "providersIn": "{area} හි සැපයුම්කරුවෝ",
+    "change": "වෙනස් කරන්න",
+    "showProviders": "සැපයුම්කරුවන් පෙන්වන්න",
+    "providersFound": "සැපයුම්කරුවෝ {count} ක් ඇත",
+    "tryAnotherArea": "වෙනත් ප්‍රදේශයක් උත්සාහ කරන්න",
+    "bookWith": "{name} සමඟ වෙන් කරන්න",
+    "bookingWith": "වෙන් කරමින්",
+    "bookingAreaNote": "{area} හි සේවය. සිතියමේ නිශ්චිත ස්ථානය සකසන්න.",
+    "confirmBooking": "වෙන්කිරීම තහවුරු කරන්න"
   },
   "loc": {
     "yourLocation": "ඔබේ ස්ථානය",

@@ -30,12 +30,14 @@ h1, h2, h3, .font-display {
   }
 }
 
-/* Visible keyboard focus — accessible and on-brand (electric indigo ring). */
+/* Visible keyboard focus — near-black outline (readable on any ground; the lime
+   signature is too light to serve as a focus outline on white). */
 :focus-visible {
-  outline: 2px solid #4F46E5;
+  outline: 2px solid #0B0D12;
   outline-offset: 2px;
   border-radius: 6px;
 }
+.dark :focus-visible { outline-color: #C8F02F; } /* lime pops on dark */
 
 /* Dark-aware form controls so we don't repeat dark: on every input. */
 .dark input,

@@ -95,15 +95,15 @@ export default function CustomerDashboard() {
       {/* Welcome header */}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-extrabold tracking-tightest text-ink dark:text-gray-50">{t('customerTitle')}</h1>
+          <h1 className="font-display text-3xl font-extrabold tracking-tightest text-ink dark:text-gray-50 sm:text-[40px]">{t('customerTitle')}</h1>
           <p className="mt-1 text-sm text-slate dark:text-gray-400">
             {active.length > 0 ? t('activeToday', { count: active.length }) : t('customerSubtitle')}
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <a href={`/${locale}/book`}><AccentButton>{t('bookAService')}</AccentButton></a>
+          <a href={`/${locale}/book`}><AccentButton className="min-h-12 px-6 text-base">{t('bookAService')}</AccentButton></a>
           {!hasProvider && (
-            <Button variant="ghost" disabled={becoming} onClick={() => setConfirmProvider(true)}>
+            <Button variant="ghost" className="min-h-12" disabled={becoming} onClick={() => setConfirmProvider(true)}>
               {becoming ? t('settingUp') : t('becomeProvider')}
             </Button>
           )}
@@ -124,8 +124,11 @@ export default function CustomerDashboard() {
         {/* ---- Active bookings (8 cols) ---- */}
         <section className="flex flex-col gap-3 lg:col-span-8">
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-lg font-bold text-ink dark:text-gray-50">{t('activeBookings')}</h2>
-            <a href={`/${locale}/bookings`} className="text-sm font-semibold text-primary hover:underline">{t('viewAll')}</a>
+            <h2 className="flex items-center gap-2 font-display text-xl font-extrabold tracking-tightest text-ink dark:text-gray-50">
+              <span className="h-5 w-1.5 rounded-full bg-brand" aria-hidden="true" />
+              {t('activeBookings')}
+            </h2>
+            <a href={`/${locale}/bookings`} className="text-sm font-semibold text-primary hover:underline dark:text-gray-200">{t('viewAll')}</a>
           </div>
 
           {bookings === null && !err ? (
@@ -137,24 +140,25 @@ export default function CustomerDashboard() {
               {active.map((b, i) => (
                 <Reveal key={b.id} delay={i * 50}>
                 <div className="group relative flex flex-col gap-4 overflow-hidden rounded-xl2 border border-line bg-white p-4 shadow-card transition-all duration-150 hover:-translate-y-0.5 hover:shadow-lift dark:border-gray-800 dark:bg-gray-900 sm:flex-row">
-                  {/* Status ribbon, top-right */}
-                  <span className="absolute right-0 top-0 rounded-bl-xl bg-secondary-container px-4 py-1 text-xs font-semibold capitalize text-white">
+                  {/* Status ribbon, top-right — lime pop, ink text (signature) */}
+                  <span className="absolute right-0 top-0 z-10 flex items-center gap-1 rounded-bl-xl bg-brand px-4 py-1 text-xs font-bold capitalize text-brand-ink shadow-brand">
+                    <span className="h-1.5 w-1.5 rounded-full bg-brand-ink" aria-hidden="true" />
                     {b.status.replace(/_/g, ' ')}
                   </span>
                   {/* Photo thumbnail */}
-                  <div className="h-32 w-full shrink-0 overflow-hidden rounded-lg bg-surface dark:bg-gray-800 sm:w-32">
+                  <div className="h-32 w-full shrink-0 overflow-hidden rounded-xl bg-surface dark:bg-gray-800 sm:w-32">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={catPhoto(b.categoryKey)} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                    <img src={catPhoto(b.categoryKey)} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
                   </div>
                   {/* Details */}
                   <div className="flex flex-1 flex-col justify-between gap-3">
                     <div>
-                      <h3 className="font-display text-lg font-bold capitalize text-ink dark:text-gray-50">{b.categoryKey?.replace(/[._]/g, ' ') ?? t('service')}</h3>
+                      <h3 className="font-display text-xl font-extrabold capitalize tracking-tightest text-ink dark:text-gray-50">{b.categoryKey?.replace(/[._]/g, ' ') ?? t('service')}</h3>
                       <p className="mt-0.5 text-sm text-slate">{b.description || t('noDescription')} · {new Date(b.created_at).toLocaleDateString()}</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      <a href={`/${locale}/bookings/${b.id}`} className="rounded-lg bg-secondary-container px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-primary-700 active:translate-y-px">{t('track')}</a>
-                      <a href={`/${locale}/bookings/${b.id}`} className="rounded-lg border-2 border-secondary-container px-5 py-2 text-sm font-semibold text-secondary-container transition-colors hover:bg-secondary-container/10">{t('message')}</a>
+                      <a href={`/${locale}/bookings/${b.id}`} className="inline-flex min-h-11 items-center rounded-base bg-brand px-6 py-2 text-sm font-bold text-brand-ink shadow-brand transition-all hover:bg-brand-600 active:translate-y-px">{t('track')}</a>
+                      <a href={`/${locale}/bookings/${b.id}`} className="inline-flex min-h-11 items-center rounded-base border-2 border-primary px-6 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary hover:text-white dark:border-gray-600 dark:text-gray-100">{t('message')}</a>
                     </div>
                   </div>
                 </div>
@@ -197,11 +201,11 @@ export default function CustomerDashboard() {
 
           {/* Quick rebook — favourites if any, else popular service shortcuts. */}
           <section>
-            <h2 className="mb-2 font-display text-base font-bold text-ink dark:text-gray-50">{t('quickRebook')}</h2>
+            <h2 className="mb-2 font-display text-lg font-extrabold tracking-tightest text-ink dark:text-gray-50">{t('quickRebook')}</h2>
             <div className="grid grid-cols-2 gap-2">
               {favourites.length > 0
                 ? favourites.slice(0, 4).map((f) => (
-                    <a key={f.providerId} href={`/${locale}/providers/${f.providerId}`} className="flex flex-col items-center gap-2 rounded-xl2 border border-line bg-white p-4 text-center shadow-card transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lift dark:border-gray-800 dark:bg-gray-900">
+                    <a key={f.providerId} href={`/${locale}/providers/${f.providerId}`} className="flex min-h-[104px] flex-col items-center gap-2 rounded-xl2 border border-line bg-white p-4 text-center shadow-card transition-all hover:-translate-y-0.5 hover:border-brand hover:shadow-lift dark:border-gray-800 dark:bg-gray-900">
                       <span className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-primary/10">
                         {f.coverPhoto ? (
                           // eslint-disable-next-line @next/next/no-img-element
@@ -214,8 +218,8 @@ export default function CustomerDashboard() {
                     </a>
                   ))
                 : QUICK_SERVICES.map((s) => (
-                    <a key={s.key} href={`/${locale}/category/${s.key}`} className="flex flex-col items-center gap-2 rounded-xl2 border border-line bg-white p-4 text-center shadow-card transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lift dark:border-gray-800 dark:bg-gray-900">
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <a key={s.key} href={`/${locale}/category/${s.key}`} className="group flex min-h-[104px] flex-col items-center gap-2 rounded-xl2 border border-line bg-white p-4 text-center shadow-card transition-all hover:-translate-y-0.5 hover:border-brand hover:shadow-lift dark:border-gray-800 dark:bg-gray-900">
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors group-hover:bg-brand group-hover:text-brand-ink">
                         <CategoryIcon keyName={s.key} className="h-5 w-5" />
                       </span>
                       <span className="truncate text-xs font-semibold text-ink dark:text-gray-100">{s.label}</span>
@@ -229,18 +233,18 @@ export default function CustomerDashboard() {
       {/* ===== Full-width promo band (Stitch "Protect your home" layout) ===== */}
       <section className="relative overflow-hidden rounded-[20px] bg-secondary-container p-7 text-white sm:p-9">
           <div className="relative z-10 max-w-lg">
-            <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white/80">
+            <p className="inline-flex items-center gap-1.5 rounded-pill bg-brand px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-ink">
               <span className="[&>svg]:h-4 [&>svg]:w-4">{ICONS.star}</span>
               {t('rewards')} · {t('pointsBalance', { points: rewards?.points ?? 0 })}
             </p>
-            <h3 className="mt-2 font-display text-2xl font-extrabold tracking-tightest sm:text-[28px]">{t('promoTitle')}</h3>
+            <h3 className="mt-3 font-display text-3xl font-extrabold tracking-tightest sm:text-4xl">{t('promoTitle')}</h3>
             <p className="mt-3 text-sm leading-relaxed text-white/90">{t('promoSub', { referrer: 50, referee: 30 })}</p>
-            <a href={`/${locale}/profile#referrals`} className="mt-6 inline-block rounded-lg bg-white px-7 py-3 text-sm font-bold text-secondary-container transition-all hover:bg-white/90 active:translate-y-px">
+            <a href={`/${locale}/profile#referrals`} className="mt-6 inline-flex min-h-12 items-center rounded-base bg-brand px-7 py-3 text-sm font-bold text-brand-ink shadow-brand transition-all hover:bg-brand-600 active:translate-y-px">
               {t('referFriends')}
             </a>
           </div>
-          {/* Giant faded decorative icon, like the Stitch HVAC glyph */}
-          <div className="pointer-events-none absolute -bottom-10 -right-8 opacity-15" aria-hidden="true">
+          {/* Giant faded decorative lime glyph */}
+          <div className="pointer-events-none absolute -bottom-10 -right-8 text-brand opacity-20" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="h-56 w-56">
               <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -257,9 +261,9 @@ export default function CustomerDashboard() {
             {bookings?.map((b) => (
               <li key={b.id}>
                 <a href={`/${locale}/bookings/${b.id}`}>
-                  <Card className="transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-lift">
+                  <Card className="group transition-all hover:-translate-y-0.5 hover:border-brand hover:shadow-lift">
                     <div className="flex items-center gap-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface text-slate dark:bg-gray-800" aria-hidden="true">{ICONS.chat}</span>
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface text-slate transition-colors group-hover:bg-brand group-hover:text-brand-ink dark:bg-gray-800" aria-hidden="true">{ICONS.chat}</span>
                       <div className="min-w-0 flex-1">
                         <div className="truncate font-semibold capitalize text-ink dark:text-gray-100">{b.categoryKey?.replace(/[._]/g, ' ') ?? t('service')}</div>
                         <div className="text-xs text-slate dark:text-gray-400">{new Date(b.created_at).toLocaleDateString()}</div>

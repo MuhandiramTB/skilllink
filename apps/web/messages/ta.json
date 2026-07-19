@@ -674,7 +674,17 @@
     "reviewCelebrateSub": "நீங்கள் வெகுமதிப் புள்ளிகளைப் பெற்றுள்ளீர்கள்.",
     "shareLocationTitle": "உங்கள் நேரடி இருப்பிடத்தைப் பகிர்",
     "shareLocationSub": "நீங்கள் வரும்போது வாடிக்கையாளர் பார்க்க அனுமதியுங்கள்.",
-    "sharingLocationOn": "உங்கள் இருப்பிடத்தை நேரலையில் பகிர்கிறீர்கள்"
+    "sharingLocationOn": "உங்கள் இருப்பிடத்தை நேரலையில் பகிர்கிறீர்கள்",
+    "allServices": "அனைத்து சேவைகள்",
+    "providersIn": "{area} இல் வழங்குநர்கள்",
+    "change": "மாற்று",
+    "showProviders": "வழங்குநர்களைக் காட்டு",
+    "providersFound": "{count} வழங்குநர்கள் உள்ளனர்",
+    "tryAnotherArea": "வேறு பகுதியை முயற்சிக்கவும்",
+    "bookWith": "{name} உடன் பதிவு செய்",
+    "bookingWith": "பதிவு செய்கிறது",
+    "bookingAreaNote": "{area} இல் சேவை. வரைபடத்தில் சரியான இடத்தை சரிசெய்யலாம்.",
+    "confirmBooking": "பதிவை உறுதிப்படுத்து"
   },
   "loc": {
     "yourLocation": "உங்கள் இருப்பிடம்",

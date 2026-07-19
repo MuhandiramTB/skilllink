@@ -67,12 +67,12 @@ export default function ProviderJobsPage() {
                     <div className="flex flex-wrap gap-2">
                       {j.status === 'matched' && (
                         <>
-                          <Button variant="success" onClick={() => act(j.id, () => bookingApi.respond(j.id, 'accept'))}>{t('accept')}</Button>
+                          <Button variant="brand" onClick={() => act(j.id, () => bookingApi.respond(j.id, 'accept'))}>{t('accept')}</Button>
                           <Button variant="danger" onClick={() => act(j.id, () => bookingApi.respond(j.id, 'reject'))}>{t('reject')}</Button>
                         </>
                       )}
                       {j.status === 'accepted' && (
-                        <Button onClick={() => act(j.id, () => bookingApi.advance(j.id, 'in_progress'))}>{t('startJob')}</Button>
+                        <Button variant="brand" onClick={() => act(j.id, () => bookingApi.advance(j.id, 'in_progress'))}>{t('startJob')}</Button>
                       )}
                       {j.status === 'in_progress' && (
                         <Button variant="success" onClick={() => act(j.id, () => bookingApi.advance(j.id, 'completed'))}>{t('markComplete')}</Button>

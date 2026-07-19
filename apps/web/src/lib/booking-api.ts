@@ -89,6 +89,10 @@ export const bookingApi = {
   providerJobs: () => req<BookingListItem[]>(`/bookings/provider/jobs`),
   detail: (id: string) => req<Booking>(`/bookings/${id}`),
   matches: (id: string) => req<{ results: Match[]; note: string | null }>(`/bookings/${id}/matches`),
+  /** PUBLIC browse: ranked providers near a point for a category — no auth, no
+   *  booking created. Powers the "see electricians in your area" list (Uber-style). */
+  browseProviders: (categoryKey: string, lat: number, lng: number, limit = 20) =>
+    req<Match[]>(`/match?categoryKey=${encodeURIComponent(categoryKey)}&lat=${lat}&lng=${lng}&limit=${limit}`),
   assign: (id: string, providerId: string) =>
     req<Booking>(`/bookings/${id}/assign`, { method: 'POST', body: JSON.stringify({ providerId }) }),
   messages: (id: string) => req<Message[]>(`/bookings/${id}/messages`),

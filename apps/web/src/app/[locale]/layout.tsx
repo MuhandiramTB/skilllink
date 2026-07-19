@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: { params: { locale: string } 
     description: m.description,
     applicationName: 'SkillLink',
     manifest: '/manifest.webmanifest',
-    themeColor: '#4F46E5',
+    themeColor: '#0B0D12',
     appleWebApp: { capable: true, statusBarStyle: 'default' as const, title: 'SkillLink' },
     openGraph: { title: m.title, description: m.description, siteName: 'SkillLink', type: 'website' as const, locale: params.locale },
     twitter: { card: 'summary_large_image' as const, title: m.title, description: m.description },
@@ -84,7 +84,7 @@ export default async function LocaleLayout({
               <div className="flex min-w-0 items-center gap-2.5">
                 <AppMobileMenu />
                 <a href={`/${locale}`} className="flex shrink-0 items-center gap-2 font-display text-lg font-extrabold tracking-tightest text-ink dark:text-gray-50">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-sm font-black text-white shadow-card">S</span>
+                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-brand text-sm font-black text-brand-ink shadow-brand">S</span>
                   SkillLink
                 </a>
               </div>

@@ -25,8 +25,8 @@ function SettingsCard({ icon, title, children }: { icon: React.ReactNode; title:
   return (
     <Card className="space-y-4">
       <div className="flex items-center gap-2.5">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-soft text-primary [&>svg]:h-4 [&>svg]:w-4 dark:bg-primary/15" aria-hidden="true">{icon}</span>
-        <h2 className="font-display text-sm font-bold text-ink dark:text-gray-50">{title}</h2>
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-brand-ink [&>svg]:h-4 [&>svg]:w-4" aria-hidden="true">{icon}</span>
+        <h2 className="font-display text-base font-extrabold tracking-tight text-ink dark:text-gray-50">{title}</h2>
       </div>
       {children}
     </Card>
@@ -172,8 +172,8 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <header>
-        <h1 className="font-display text-2xl font-extrabold tracking-tightest text-ink dark:text-gray-50">{t('title')}</h1>
-        <p className="mt-0.5 text-sm text-slate dark:text-gray-400">{t('subtitle')}</p>
+        <h1 className="font-display text-3xl font-extrabold tracking-tightest text-ink dark:text-gray-50 sm:text-[40px]">{t('title')}</h1>
+        <p className="mt-1 text-sm text-slate dark:text-gray-400">{t('subtitle')}</p>
       </header>
 
       {ok && <SuccessBanner message={ok} />}
@@ -182,7 +182,7 @@ export default function ProfilePage() {
       {/* ===== Identity hero ===== */}
       <div className="relative overflow-hidden rounded-xl2 border border-line bg-white shadow-card dark:border-gray-800 dark:bg-gray-900">
         <div className="h-20 bg-ink sm:h-24">
-          <div className="pointer-events-none absolute right-0 top-0 h-40 w-40 rounded-full bg-primary/30 blur-3xl" aria-hidden="true" />
+          <div className="pointer-events-none absolute right-0 top-0 h-40 w-40 rounded-full bg-brand/40 blur-3xl" aria-hidden="true" />
         </div>
         <div className="flex flex-col gap-4 px-5 pb-5 sm:flex-row sm:items-end sm:gap-5">
           {/* Avatar overlapping the banner */}
@@ -291,7 +291,7 @@ export default function ProfilePage() {
                 {(['light', 'dark'] as Theme[]).map((m) => (
                   <button key={m} type="button" onClick={() => applyTheme(m)}
                     aria-pressed={theme === m}
-                    className={`rounded-base px-3 py-1 text-sm font-semibold transition ${theme === m ? 'bg-white text-primary shadow-card dark:bg-gray-700' : 'text-slate dark:text-gray-400'}`}>
+                    className={`rounded-base px-3 py-1.5 text-sm font-bold transition ${theme === m ? 'bg-brand text-brand-ink shadow-brand' : 'text-slate dark:text-gray-400'}`}>
                     {m === 'light' ? t('themeLight') : t('themeDark')}
                   </button>
                 ))}
@@ -313,9 +313,9 @@ export default function ProfilePage() {
                     aria-checked={notif[key]}
                     aria-label={label}
                     onClick={() => setNotifPref(key, !notif[key])}
-                    className={`relative h-6 w-11 rounded-full transition ${notif[key] ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'}`}
+                    className={`relative h-6 w-11 rounded-full transition ${notif[key] ? 'bg-brand' : 'bg-gray-300 dark:bg-gray-600'}`}
                   >
-                    <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-card transition-all ${notif[key] ? 'left-[22px]' : 'left-0.5'}`} />
+                    <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-brand-ink shadow-card transition-all ${notif[key] ? 'left-[22px]' : 'left-0.5 bg-white'}`} />
                   </button>
                 </label>
               ))}

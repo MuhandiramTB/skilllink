@@ -50,19 +50,25 @@ export default async function HomePage({ params }: { params: { locale: string } 
     <div className="-mx-4 -my-5 sm:-mx-6 md:-my-7">
       {/* ===== Hero ===== */}
       <section className="relative overflow-hidden px-4 pb-10 pt-12 sm:px-6 md:pb-16 md:pt-20">
-        {/* Ambient accent glows */}
-        <div className="pointer-events-none absolute -right-24 top-0 h-80 w-80 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
-        <div className="pointer-events-none absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-primary/5 blur-3xl" aria-hidden="true" />
+        {/* Ambient accent glows — signature lime haze */}
+        <div className="pointer-events-none absolute -right-24 top-0 h-80 w-80 rounded-full bg-brand/25 blur-3xl" aria-hidden="true" />
+        <div className="pointer-events-none absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-brand/10 blur-3xl" aria-hidden="true" />
 
         <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2">
           {/* Left: copy + search + social proof */}
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-3 py-1 text-xs font-semibold text-slate shadow-card dark:border-gray-800 dark:bg-gray-900">
-              <span className="flex h-1.5 w-1.5 rounded-full bg-success" aria-hidden="true" />
+            <span className="inline-flex items-center gap-2 rounded-full border border-brand-dim/40 bg-brand-soft px-3.5 py-1.5 text-xs font-bold text-brand-ink shadow-card dark:border-brand/30 dark:bg-brand/10 dark:text-brand">
+              <span className="flex h-2 w-2 rounded-full bg-brand ring-2 ring-brand/30" aria-hidden="true" />
               {t('trustLocal')}
             </span>
-            <h1 className="mt-4 font-display text-[34px] font-extrabold leading-[1.05] tracking-tightest text-ink dark:text-gray-50 sm:text-5xl md:text-[56px]" style={{ textWrap: 'balance' } as React.CSSProperties}>
-              {taglineHead} {taglineTail && <span className="text-primary">{taglineTail}</span>}
+            <h1 className="mt-4 font-display text-[38px] font-extrabold leading-[1.02] tracking-tightest text-ink dark:text-gray-50 sm:text-[54px] md:text-[64px]" style={{ textWrap: 'balance' } as React.CSSProperties}>
+              {taglineHead}{' '}
+              {taglineTail && (
+                <span className="relative inline-block">
+                  <span className="relative z-10">{taglineTail}</span>
+                  <span className="absolute inset-x-0 bottom-1 z-0 h-3 -skew-x-6 rounded-sm bg-brand sm:h-4" aria-hidden="true" />
+                </span>
+              )}
             </h1>
             <p className="mt-4 max-w-md text-base leading-relaxed text-slate sm:text-lg">{t('heroSub')}</p>
 
@@ -81,7 +87,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <span className="text-xs font-medium text-slate-2">{t('popularSub')}</span>
                 {top.slice(0, 4).map((c) => (
-                  <a key={c.id} href={`/${locale}/category/${c.key}`} className="inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-3 py-1.5 text-xs font-semibold text-ink transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary hover:shadow-card dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100">
+                  <a key={c.id} href={`/${locale}/category/${c.key}`} className="inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-3 py-1.5 text-xs font-semibold text-ink transition-all hover:-translate-y-0.5 hover:border-brand-dim hover:bg-brand-soft hover:shadow-brand dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-brand/10">
                     <CategoryIcon keyName={c.key} className="h-3.5 w-3.5" />
                     {c.name[locale]}
                   </a>
@@ -93,16 +99,16 @@ export default async function HomePage({ params }: { params: { locale: string } 
             <div className="mt-6 flex items-center gap-3">
               <div className="flex -space-x-3" aria-hidden="true">
                 {[
-                  { c: 'bg-primary', icon: 'bolt' as const },
-                  { c: 'bg-ink', icon: 'tools' as const },
-                  { c: 'bg-success', icon: 'shield' as const },
+                  { c: 'bg-brand text-brand-ink', icon: 'bolt' as const },
+                  { c: 'bg-ink text-white', icon: 'tools' as const },
+                  { c: 'bg-primary text-white', icon: 'shield' as const },
                 ].map((a, n) => (
-                  <span key={n} className={`flex h-9 w-9 items-center justify-center rounded-full border-2 border-white text-white ${a.c} dark:border-gray-900 [&>svg]:h-4 [&>svg]:w-4`}>
+                  <span key={n} className={`flex h-9 w-9 items-center justify-center rounded-full border-2 border-white ${a.c} dark:border-gray-900 [&>svg]:h-4 [&>svg]:w-4`}>
                     {ICONS[a.icon]}
                   </span>
                 ))}
               </div>
-              <p className="text-sm text-slate"><span className="font-bold text-primary">4,500+</span> {t('prosReady')}</p>
+              <p className="text-sm text-slate"><span className="font-extrabold text-ink dark:text-gray-50">4,500+</span> {t('prosReady')}</p>
             </div>
           </div>
 
@@ -115,8 +121,9 @@ export default async function HomePage({ params }: { params: { locale: string } 
         {/* Stats band */}
         <Reveal>
         <div className="mx-auto mt-12 grid max-w-6xl grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-          {stats.map((s) => (
-            <div key={s.label} className="rounded-xl2 border border-line bg-white p-4 text-center shadow-card dark:border-gray-800 dark:bg-gray-900 sm:p-5">
+          {stats.map((s, i) => (
+            <div key={s.label} className="relative overflow-hidden rounded-xl2 border border-line bg-white p-4 text-center shadow-card dark:border-gray-800 dark:bg-gray-900 sm:p-5">
+              <span className={`absolute inset-x-0 top-0 h-1 ${i === 0 ? 'bg-brand' : 'bg-line dark:bg-gray-800'}`} aria-hidden="true" />
               <div className="font-display text-2xl font-extrabold tracking-tightest text-ink dark:text-gray-50 sm:text-3xl">{s.value}</div>
               <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate sm:text-xs">{s.label}</div>
             </div>
@@ -133,7 +140,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
             <h2 className="font-display text-2xl font-extrabold tracking-tightest text-ink dark:text-gray-50 sm:text-[32px]">{t('chooseCategory')}</h2>
             <p className="mt-1 text-sm text-slate">{t('popularSub')}</p>
           </div>
-          <a href={`/${locale}/book`} className="flex shrink-0 items-center gap-1 text-sm font-semibold text-primary hover:underline">
+          <a href={`/${locale}/book`} className="flex shrink-0 items-center gap-1 text-sm font-bold text-ink hover:text-brand-600 dark:text-gray-100">
             {t('viewAll')}
             <span className="[&>svg]:h-4 [&>svg]:w-4" aria-hidden="true">{ICONS.search}</span>
           </a>
@@ -145,9 +152,9 @@ export default async function HomePage({ params }: { params: { locale: string } 
               <Reveal delay={i * 50}>
               <a
                 href={`/${locale}/category/${c.key}`}
-                className="group flex h-full flex-col items-center gap-3 rounded-xl2 border border-line bg-white p-5 text-center shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:shadow-lift dark:border-gray-800 dark:bg-gray-900"
+                className="group flex h-full flex-col items-center gap-3 rounded-xl2 border border-line bg-white p-5 text-center shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-dim hover:shadow-brand dark:border-gray-800 dark:bg-gray-900"
               >
-                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-soft text-brand-ink transition-colors group-hover:bg-brand group-hover:text-brand-ink dark:bg-brand/10 dark:text-brand dark:group-hover:text-brand-ink">
                   <CategoryIcon keyName={c.key} className="h-6 w-6" />
                 </span>
                 <span className="text-sm font-semibold text-ink dark:text-gray-100">{c.name[locale]}</span>
@@ -172,9 +179,9 @@ export default async function HomePage({ params }: { params: { locale: string } 
         <div className="grid gap-4 md:grid-cols-3">
           {how.map((s, i) => (
             <Reveal key={s.n} delay={i * 80}>
-            <div className="relative flex h-full flex-col gap-3 rounded-xl2 border border-line bg-white p-6 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-lift dark:border-gray-800 dark:bg-gray-900">
+            <div className="relative flex h-full flex-col gap-3 rounded-xl2 border border-line bg-white p-6 shadow-card transition-all hover:-translate-y-0.5 hover:border-brand-dim hover:shadow-brand dark:border-gray-800 dark:bg-gray-900">
               <div className="flex items-center justify-between">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-soft text-primary [&>svg]:h-5 [&>svg]:w-5 dark:bg-primary/15" aria-hidden="true">{s.icon}</span>
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-soft text-brand-ink [&>svg]:h-5 [&>svg]:w-5 dark:bg-brand/10 dark:text-brand" aria-hidden="true">{s.icon}</span>
                 <span className="font-display text-3xl font-extrabold tracking-tightest text-line dark:text-gray-800">{s.n}</span>
               </div>
               <h3 className="font-display text-lg font-bold text-ink dark:text-gray-50">{s.title}</h3>
@@ -203,7 +210,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
             ].map((f, i) => (
               <Reveal key={f.title} delay={i * 80}>
               <div className="flex flex-col items-start gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white shadow-card">
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-ink text-brand shadow-card ring-1 ring-brand/25">
                   <svg viewBox="0 0 16 16" fill="currentColor" className="h-6 w-6" aria-hidden="true"><path d={f.d} /></svg>
                 </span>
                 <h3 className="font-display text-xl font-bold text-ink dark:text-gray-50">{f.title}</h3>
@@ -221,17 +228,18 @@ export default async function HomePage({ params }: { params: { locale: string } 
       <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <div className="relative overflow-hidden rounded-3xl bg-ink p-8 sm:p-12 md:p-16">
           <div className="pointer-events-none absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '20px 20px' }} aria-hidden="true" />
-          <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-primary/30 blur-3xl" aria-hidden="true" />
+          <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-brand/30 blur-3xl" aria-hidden="true" />
+          <div className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-brand/10 blur-3xl" aria-hidden="true" />
           <div className="relative z-10 flex flex-col items-start gap-10 md:flex-row md:items-center">
             <div className="md:w-3/5">
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary-fixed-dim">{t('providerEyebrow')}</p>
-              <h2 className="mt-3 font-display text-2xl font-extrabold tracking-tightest text-white sm:text-[32px]">{t('providerCta')}</h2>
+              <p className="inline-flex items-center gap-2 rounded-full bg-brand/15 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-brand ring-1 ring-inset ring-brand/25">{t('providerEyebrow')}</p>
+              <h2 className="mt-4 font-display text-3xl font-extrabold tracking-tightest text-white sm:text-[36px]">{t('providerCta')}</h2>
               <p className="mt-3 max-w-lg text-base leading-relaxed text-white/70">{t('providerCtaSub')}</p>
               <div className="mt-7 flex flex-wrap gap-3">
-                <a href={`/${locale}/login?intent=provider&next=/${locale}/provider/register`} className="rounded-lg bg-white px-6 py-3 text-sm font-bold text-ink transition-all duration-150 hover:bg-white/90 active:scale-95">
+                <a href={`/${locale}/login?intent=provider&next=/${locale}/provider/register`} className="rounded-lg bg-brand px-6 py-3 text-sm font-extrabold text-brand-ink shadow-brand transition-all duration-150 hover:bg-brand-600 active:scale-95">
                   {t('providerButton')}
                 </a>
-                <a href="#services" className="rounded-lg border-2 border-white/30 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10">
+                <a href="#services" className="rounded-lg border-2 border-white/30 px-6 py-3 text-sm font-bold text-white transition-colors hover:border-brand/50 hover:bg-white/10">
                   {t('browseAll')}
                 </a>
               </div>
@@ -240,7 +248,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
             <div className="flex w-full justify-center md:w-2/5">
               <div className="w-full max-w-xs rotate-3 rounded-2xl border border-line bg-white p-4 shadow-2xl">
                 <div className="mb-4 flex items-center gap-3">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white [&>svg]:h-5 [&>svg]:w-5">{ICONS.wallet}</span>
+                  <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand text-brand-ink shadow-brand [&>svg]:h-5 [&>svg]:w-5">{ICONS.wallet}</span>
                   <div>
                     <p className="text-sm font-semibold text-ink">{t('providerBenefit3')}</p>
                     <p className="text-xs tabular-nums text-slate">LKR 124,050</p>
@@ -249,7 +257,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
                 <div className="space-y-2">
                   <div className="h-2 w-full rounded-full bg-surface" />
                   <div className="h-2 w-4/5 rounded-full bg-surface" />
-                  <div className="h-2 w-3/4 rounded-full bg-primary/30" />
+                  <div className="h-2 w-3/4 rounded-full bg-brand" />
                 </div>
               </div>
             </div>
@@ -261,7 +269,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
       {/* ===== Footer with staff entry ===== */}
       <footer className="border-t border-line px-4 py-8 text-center text-xs text-slate dark:border-gray-800">
         <p>© SkillLink · Kandy</p>
-        <a href={`/${locale}/admin/login`} className="mt-2 inline-block text-slate hover:text-primary hover:underline">
+        <a href={`/${locale}/admin/login`} className="mt-2 inline-block text-slate hover:text-brand-600 hover:underline">
           {t('staff')}
         </a>
       </footer>

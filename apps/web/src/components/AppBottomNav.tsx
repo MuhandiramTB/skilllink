@@ -44,11 +44,11 @@ export function AppBottomNav() {
             href={href}
             aria-current={active ? 'page' : undefined}
             className={`group flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 transition-colors active:bg-surface dark:active:bg-gray-800 ${
-              active ? 'text-primary' : 'text-slate hover:text-ink dark:hover:text-gray-200'
+              active ? 'text-ink dark:text-gray-50' : 'text-slate hover:text-ink dark:hover:text-gray-200'
             }`}
           >
-            <span className={`flex h-8 w-14 items-center justify-center rounded-full transition-all ${active ? 'bg-primary/10 dark:bg-primary/15' : 'bg-transparent'}`}>{ICONS[tab.icon]}</span>
-            <span className={`text-[11px] ${active ? 'font-semibold' : 'font-medium'}`}>{t(tab.labelKey)}</span>
+            <span className={`flex h-8 w-14 items-center justify-center rounded-full transition-all ${active ? 'bg-brand text-brand-ink shadow-brand' : 'bg-transparent'}`}>{ICONS[tab.icon]}</span>
+            <span className={`text-[11px] ${active ? 'font-bold' : 'font-medium'}`}>{t(tab.labelKey)}</span>
           </a>
         );
       })}
@@ -57,11 +57,11 @@ export function AppBottomNav() {
         href={profileHref}
         aria-current={profileActive ? 'page' : undefined}
         className={`group flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 transition-colors active:bg-surface dark:active:bg-gray-800 ${
-          profileActive ? 'text-primary' : 'text-slate hover:text-ink dark:hover:text-gray-200'
+          profileActive ? 'text-ink dark:text-gray-50' : 'text-slate hover:text-ink dark:hover:text-gray-200'
         }`}
       >
-        <span className={`flex h-8 w-14 items-center justify-center rounded-full transition-all ${profileActive ? 'bg-primary/10 dark:bg-primary/15' : 'bg-transparent'}`}>{ICONS.user}</span>
-        <span className={`text-[11px] ${profileActive ? 'font-semibold' : 'font-medium'}`}>{t('you')}</span>
+        <span className={`flex h-8 w-14 items-center justify-center rounded-full transition-all ${profileActive ? 'bg-brand text-brand-ink shadow-brand' : 'bg-transparent'}`}>{ICONS.user}</span>
+        <span className={`text-[11px] ${profileActive ? 'font-bold' : 'font-medium'}`}>{t('you')}</span>
       </a>
     </nav>
   );

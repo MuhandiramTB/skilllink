@@ -15,11 +15,13 @@ export function Button({
   className = '',
   onClick,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'ink' | 'success' | 'danger' | 'ghost' }) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'brand' | 'ink' | 'success' | 'danger' | 'ghost' }) {
   const styles: Record<string, string> = {
-    // Primary = the indigo accent, the confident default action.
+    // Primary = confident near-black, the default action (white text stays readable).
     primary: 'bg-primary text-white shadow-card hover:bg-primary-600 focus-visible:shadow-ring active:translate-y-px',
-    // Ink = near-black, for a secondary-but-strong action or on tinted grounds.
+    // Brand = the electric-lime SIGNATURE CTA — text is INK (never white) on lime.
+    brand: 'bg-brand text-brand-ink shadow-brand hover:bg-brand-600 active:translate-y-px',
+    // Ink = near-black, secondary-but-strong / on tinted grounds.
     ink: 'bg-ink text-white hover:bg-black active:translate-y-px',
     success: 'bg-success text-white hover:brightness-110 active:translate-y-px',
     danger: 'bg-danger text-white hover:brightness-110 active:translate-y-px',
@@ -29,18 +31,18 @@ export function Button({
     <button
       {...props}
       onClick={(e) => { haptic.tap(); onClick?.(e); }} // tactile feedback on every CTA
-      className={`inline-flex items-center justify-center gap-1.5 rounded-base px-4 py-2.5 text-sm font-semibold transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-40 ${styles[variant]} ${className}`}
+      className={`inline-flex items-center justify-center gap-1.5 rounded-base px-4 py-2.5 text-sm font-bold transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-40 ${styles[variant]} ${className}`}
     />
   );
 }
 
-/** Accent (indigo) button — alias of the primary button; kept so existing
- *  callers that reached for the "most important CTA" primitive keep working. */
+/** The signature lime CTA — for the single most important action on a view
+ *  (was the indigo accent button; now the Bolt-energy lime). Text is ink on lime. */
 export function AccentButton({ className = '', ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       {...props}
-      className={`inline-flex items-center justify-center gap-1.5 rounded-base bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-card transition-all duration-150 hover:bg-primary-600 focus-visible:shadow-ring active:translate-y-px disabled:opacity-40 ${className}`}
+      className={`inline-flex items-center justify-center gap-1.5 rounded-base bg-brand px-4 py-2.5 text-sm font-bold text-brand-ink shadow-brand transition-all duration-150 hover:bg-brand-600 active:translate-y-px disabled:opacity-40 ${className}`}
     />
   );
 }

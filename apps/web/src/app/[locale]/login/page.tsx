@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { verifyOtp, fetchMe, homeForMode } from '@/lib/session';
-import { Button, ErrorBanner } from '@/components/ui';
+import { AccentButton, ErrorBanner } from '@/components/ui';
 
 // Dev: real Firebase OTP isn't wired yet — verifyOtp sends `mock:<phone>` and any
 // 6-digit code is accepted. The two-step UI mirrors the eventual SMS flow.
@@ -73,14 +73,14 @@ export default function LoginPage() {
       <aside className="relative hidden flex-col justify-between overflow-hidden bg-ink p-12 text-white lg:flex xl:p-16">
         {/* Dotted grid texture. */}
         <div className="pointer-events-none absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '22px 22px' }} aria-hidden="true" />
-        {/* Layered accent glows. */}
-        <div className="pointer-events-none absolute -right-24 top-1/4 h-80 w-80 rounded-full bg-primary/30 blur-3xl" aria-hidden="true" />
-        <div className="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
+        {/* Layered accent glows — signature lime. */}
+        <div className="pointer-events-none absolute -right-24 top-1/4 h-80 w-80 rounded-full bg-brand/25 blur-3xl" aria-hidden="true" />
+        <div className="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-brand/10 blur-3xl" aria-hidden="true" />
         {/* Top fade so the logo sits crisp. */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/[0.06] to-transparent" aria-hidden="true" />
 
         <div className="relative z-10 flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-black text-white shadow-lift">S</span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-sm font-black text-brand-ink shadow-brand">S</span>
           <span className="font-display text-xl font-extrabold tracking-tightest">SkillLink</span>
         </div>
 
@@ -92,7 +92,7 @@ export default function LoginPage() {
           <ul className="mt-9 space-y-4">
             {[t('panelPoint1'), t('panelPoint2'), t('panelPoint3')].map((p) => (
               <li key={p} className="flex items-center gap-3 text-sm font-medium text-white/85">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary-fixed-dim ring-1 ring-inset ring-white/10">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand/20 text-brand ring-1 ring-inset ring-brand/25">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true"><path d="M20 6L9 17l-5-5" /></svg>
                 </span>
                 {p}
@@ -109,7 +109,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Brand mark above the card — anchors the screen on mobile (panel hidden). */}
         <div className="mb-8 text-center">
-          <span className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl2 bg-ink text-lg font-extrabold text-white shadow-lift lg:hidden dark:bg-primary">SL</span>
+          <span className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl2 bg-brand text-lg font-extrabold text-brand-ink shadow-brand lg:hidden">SL</span>
           <h1 className="font-display text-2xl font-extrabold tracking-tightest text-ink dark:text-white sm:text-[28px]">{t('title')}</h1>
           <p className="mt-2 text-sm leading-relaxed text-slate">
             {step === 'phone' ? t('subtitlePhone') : t('subtitleCode', { phone: prettyPhone })}
@@ -147,7 +147,7 @@ export default function LoginPage() {
                   <p id="phone-hint" className="mt-1.5 text-xs text-slate">{t('phoneHint')}</p>
                 )}
               </div>
-              <Button type="submit" className="w-full">{t('sendCode')}</Button>
+              <AccentButton type="submit" className="min-h-12 w-full text-base">{t('sendCode')}</AccentButton>
             </form>
           ) : (
             <form onSubmit={verify} className="space-y-4" noValidate>
@@ -174,10 +174,10 @@ export default function LoginPage() {
                   <p id="code-hint" className="mt-1.5 text-xs text-slate">{t('devHint')}</p>
                 )}
               </div>
-              <Button type="submit" disabled={busy} className="flex w-full items-center justify-center gap-2">
-                {busy && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden />}
+              <AccentButton type="submit" disabled={busy} className="flex min-h-12 w-full items-center justify-center gap-2 text-base">
+                {busy && <span className="h-4 w-4 animate-spin rounded-full border-2 border-brand-ink/30 border-t-brand-ink" aria-hidden />}
                 {busy ? t('verifying') : t('verify')}
-              </Button>
+              </AccentButton>
               <button
                 type="button"
                 onClick={() => { setStep('phone'); setCode(''); setCodeErr(''); setErr(''); }}

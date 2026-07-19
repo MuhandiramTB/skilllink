@@ -116,7 +116,7 @@ export default function ProviderPage() {
                   <p className="mt-2 text-xs text-slate">{t('categoriesSet', { categories: me.categories, documents: me.verifications.length })}</p>
                 </div>
                 <Button
-                  variant={me.isAvailable ? 'success' : 'ghost'}
+                  variant={me.isAvailable ? 'success' : 'brand'}
                   onClick={toggleAvail}
                   className="w-full"
                 >
@@ -205,15 +205,21 @@ export default function ProviderPage() {
         </div>
       )}
 
-      {/* Floating online/offline action (spec: "Go Online"). Only when approved. */}
+      {/* Floating online/offline action (spec: "Go Online") — the signature lime CTA
+          when offline, a live "online" pill when available. Only when approved. */}
       {me && me.status === 'approved' && (
         <button
           onClick={toggleAvail}
-          className={`fixed bottom-20 left-1/2 z-20 -translate-x-1/2 rounded-full px-6 py-3 text-sm font-semibold shadow-lift transition-all active:translate-y-px ${
-            me.isAvailable ? 'bg-success text-white hover:brightness-110' : 'bg-primary text-white hover:bg-primary-600'
+          className={`fixed bottom-20 left-1/2 z-20 -translate-x-1/2 rounded-pill px-6 py-3 text-sm font-bold shadow-lift transition-all active:translate-y-px ${
+            me.isAvailable
+              ? 'bg-success text-white hover:brightness-110'
+              : 'bg-brand text-brand-ink shadow-brand hover:bg-brand-600'
           }`}
         >
-          {me.isAvailable ? t('goOnlineTapOffline') : t('goOnline')}
+          <span className="inline-flex items-center gap-2">
+            <span className={`h-2 w-2 rounded-full ${me.isAvailable ? 'animate-pulse bg-white' : 'bg-brand-ink/60'}`} aria-hidden="true" />
+            {me.isAvailable ? t('goOnlineTapOffline') : t('goOnline')}
+          </span>
         </button>
       )}
 

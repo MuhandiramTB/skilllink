@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { fetchDistricts, saveProfile, getToken, type District } from '@/lib/session';
-import { Button, Card, ErrorBanner, Spinner, Field, inputCls } from '@/components/ui';
+import { AccentButton, Card, ErrorBanner, Spinner, Field, inputCls } from '@/components/ui';
 
 /** Customer registration — simple, under 30 seconds (spec 10, Req 2). */
 export default function RegisterPage() {
@@ -39,7 +39,7 @@ export default function RegisterPage() {
       <div className="mx-auto w-full max-w-md">
         {/* Brand mark + heading — mirrors the login form panel. */}
         <div className="mb-8 text-center">
-          <span className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl2 bg-ink text-lg font-extrabold text-white shadow-lift dark:bg-primary">SL</span>
+          <span className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl2 bg-brand text-lg font-extrabold text-brand-ink shadow-brand">SL</span>
           <h1 className="font-display text-2xl font-extrabold tracking-tightest text-ink dark:text-white sm:text-[28px]">Welcome to SkillLink</h1>
           <p className="mt-2 text-sm leading-relaxed text-slate">Just a few details and you&apos;re ready to book.</p>
         </div>
@@ -66,7 +66,7 @@ export default function RegisterPage() {
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                 className={inputCls} placeholder="you@example.com" />
             </Field>
-            <Button disabled={busy} className="w-full">{busy ? 'Saving…' : 'Start booking'}</Button>
+            <AccentButton disabled={busy} className="min-h-12 w-full text-base">{busy ? 'Saving…' : 'Start booking'}</AccentButton>
             {err && <ErrorBanner message={err} />}
           </form>
         )}

@@ -63,7 +63,7 @@ function NavBody({ onNavigate }: { onNavigate?: () => void }) {
                     aria-current={active ? 'page' : undefined}
                     className={`relative flex min-h-[44px] items-center gap-3 rounded-base px-3 text-sm font-medium transition-colors ${
                       active
-                        ? 'bg-primary/10 font-semibold text-primary before:absolute before:-left-0.5 before:top-1/2 before:h-5 before:w-1 before:-translate-y-1/2 before:rounded-full before:bg-primary dark:bg-primary/15'
+                        ? 'bg-brand-soft font-bold text-ink before:absolute before:-left-0.5 before:top-1/2 before:h-6 before:w-1.5 before:-translate-y-1/2 before:rounded-full before:bg-brand dark:bg-brand/10 dark:text-gray-50'
                         : 'text-slate hover:bg-surface hover:text-ink dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100'
                     }`}
                   >
@@ -80,7 +80,7 @@ function NavBody({ onNavigate }: { onNavigate?: () => void }) {
         <div className="border-t border-line pt-4 dark:border-gray-800">
           <button
             onClick={() => { onNavigate?.(); setConfirmProvider(true); }}
-            className="flex min-h-[44px] w-full items-center gap-3 rounded-base bg-primary/10 px-3 text-sm font-semibold text-primary transition hover:bg-primary/20"
+            className="flex min-h-[44px] w-full items-center gap-3 rounded-base bg-brand px-3 text-sm font-bold text-brand-ink shadow-brand transition hover:bg-brand-600"
           >
             {ICONS.briefcase}
             <span>{t('becomeProvider')}</span>

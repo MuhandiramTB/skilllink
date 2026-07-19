@@ -63,18 +63,20 @@ export default function ProviderProfilePage() {
     <div className="mx-auto max-w-2xl space-y-5">
       <a href={`/${locale}/dashboard/customer`} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">{t('backToMyBookings')}</a>
 
-      {/* Profile header card */}
+      {/* Profile header card — bold, near-black ground with lime pops */}
       <Reveal>
-        <Card className="flex items-start gap-4">
-          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary [&>svg]:h-7 [&>svg]:w-7" aria-hidden="true">{ICONS.user}</span>
+        <Card className="flex items-start gap-4 border-0 bg-secondary-container text-white dark:bg-secondary-container">
+          <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-brand text-brand-ink [&>svg]:h-9 [&>svg]:w-9" aria-hidden="true">{ICONS.user}</span>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="font-display text-xl font-extrabold tracking-tightest text-ink dark:text-gray-50 sm:text-2xl">{provider.businessName ?? t('service')}</h1>
+              <h1 className="font-display text-2xl font-extrabold tracking-tightest text-white sm:text-3xl">{provider.businessName ?? t('service')}</h1>
               {provider.verified && <StatusBadge status="approved" />}
             </div>
-            <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-sm text-slate">
-              <span className="inline-flex items-center text-warn [&>svg]:h-4 [&>svg]:w-4" aria-hidden="true">{ICONS.star}</span>
-              <span className="font-semibold tabular-nums text-ink dark:text-gray-100">{provider.ratingAvg.toFixed(1)}</span>
+            <p className="mt-2 flex flex-wrap items-center gap-1.5 text-sm text-white/80">
+              <span className="inline-flex items-center gap-1 rounded-pill bg-brand px-2 py-0.5 font-bold text-brand-ink [&>svg]:h-3.5 [&>svg]:w-3.5">
+                {ICONS.star}
+                <span className="tabular-nums">{provider.ratingAvg.toFixed(1)}</span>
+              </span>
               {provider.ratingCount > 0 && <span>· {t('photosCount', { count: provider.ratingCount })}</span>}
             </p>
           </div>
@@ -83,7 +85,7 @@ export default function ProviderProfilePage() {
             onClick={toggleFav}
             aria-pressed={fav}
             aria-label={fav ? t('removeFavourite') : t('addFavourite')}
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line transition-all hover:scale-105 ${fav ? 'border-danger/30 bg-danger/10 text-danger' : 'text-slate hover:border-ink hover:text-ink'} dark:border-gray-700`}
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/25 transition-all hover:scale-105 ${fav ? 'border-danger/40 bg-danger/20 text-danger' : 'text-white/80 hover:border-white hover:text-white'}`}
             title={fav ? t('removeFavourite') : t('addFavourite')}
           >
             <svg viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8z" /></svg>
@@ -92,17 +94,17 @@ export default function ProviderProfilePage() {
       </Reveal>
 
       <section>
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate dark:text-gray-400">{t('workPhotos')}</h2>
+        <h2 className="mb-2.5 flex items-center gap-2 font-display text-lg font-extrabold tracking-tight text-ink dark:text-gray-50"><span className="h-4 w-1.5 rounded-full bg-brand" aria-hidden="true" />{t('workPhotos')}</h2>
         {provider.photos.length === 0 ? (
           <EmptyState>{t('noWorkPhotosPublic')}</EmptyState>
         ) : (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
             {provider.photos.map((ph, i) => (
               <Reveal key={ph.id} delay={Math.min(i, 9) * 40}>
                 <button
                   type="button"
                   onClick={() => setLightbox(ph.url)}
-                  className="aspect-square w-full overflow-hidden rounded-base border border-line transition hover:opacity-90 dark:border-gray-700"
+                  className="aspect-square w-full overflow-hidden rounded-xl2 border border-line transition hover:-translate-y-0.5 hover:opacity-95 hover:shadow-lift dark:border-gray-700"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={ph.url} alt={ph.caption ?? t('workPhotos')} className="h-full w-full object-cover" />
@@ -115,7 +117,7 @@ export default function ProviderProfilePage() {
 
       {/* Reviews — the actual comments, a core trust signal before booking. */}
       <section>
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate dark:text-gray-400">{t('reviewsTitle')}</h2>
+        <h2 className="mb-2.5 flex items-center gap-2 font-display text-lg font-extrabold tracking-tight text-ink dark:text-gray-50"><span className="h-4 w-1.5 rounded-full bg-brand" aria-hidden="true" />{t('reviewsTitle')}</h2>
         {reviews === null ? (
           <Spinner inline label={t('loading')} />
         ) : reviews.length === 0 ? (
@@ -144,7 +146,7 @@ export default function ProviderProfilePage() {
       </section>
 
       <a href={`/${locale}/book`} className="block">
-        <Button className="w-full">{t('bookAgain')}</Button>
+        <Button variant="brand" className="min-h-12 w-full text-base">{t('bookAgain')}</Button>
       </a>
 
       {reportDone && <SuccessBanner message={t('reportThanks')} />}

@@ -341,12 +341,12 @@ export default function BookingDetailPage() {
 
       {/* Customer view of the quote — accept it before the provider starts. */}
       {!isProvider && quoteStatus === 'quoted' && booking.status !== 'completed' && (
-        <Card className="space-y-3 rounded-xl2 border-l-4 border-l-primary">
-          <h2 className="font-display font-bold text-ink dark:text-gray-50">{t('quoteSection')}</h2>
+        <Card className="space-y-3 rounded-xl2 border-l-4 border-l-brand">
+          <h2 className="font-display text-lg font-extrabold tracking-tight text-ink dark:text-gray-50">{t('quoteSection')}</h2>
           {booking.priceCents != null && (
-            <p className="text-lg font-semibold"><span className="text-sm font-normal text-slate">{t('quotedPrice')}: </span><Money cents={booking.priceCents} /></p>
+            <p className="text-2xl font-extrabold tracking-tight"><span className="text-sm font-medium text-slate">{t('quotedPrice')}: </span><Money cents={booking.priceCents} /></p>
           )}
-          <Button onClick={acceptQuote} disabled={busy === 'accept'}>{busy === 'accept' ? t('saving') : t('acceptQuote')}</Button>
+          <Button variant="brand" className="min-h-12 text-base" onClick={acceptQuote} disabled={busy === 'accept'}>{busy === 'accept' ? t('saving') : t('acceptQuote')}</Button>
         </Card>
       )}
 
@@ -381,23 +381,23 @@ export default function BookingDetailPage() {
       {/* Pay + review on completion (customer). Settle the agreed price as cash or in-app. */}
       {booking.status === 'completed' && !isProvider && (
         <Card className="space-y-4 rounded-xl2 border-l-4 border-l-success">
-          <h2 className="font-display font-bold text-ink dark:text-gray-50">{t('jobComplete')}</h2>
+          <h2 className="font-display text-lg font-extrabold tracking-tight text-ink dark:text-gray-50">{t('jobComplete')}</h2>
           {booking.priceCents != null && (
-            <p className="text-lg font-semibold"><span className="text-sm font-normal text-slate">{t('agreedPrice')}: </span><Money cents={booking.priceCents} /></p>
+            <p className="text-2xl font-extrabold tracking-tight"><span className="text-sm font-medium text-slate">{t('agreedPrice')}: </span><Money cents={booking.priceCents} /></p>
           )}
           {!settled ? (
             <>
               <p className="text-xs text-slate dark:text-gray-400">{t('payExplainer')}</p>
               <div className="flex flex-wrap gap-2">
-                <Button variant="success" onClick={() => settle('in_app')} disabled={busy === 'pay'}>{busy === 'pay' ? t('saving') : t('payInApp')}</Button>
-                <Button variant="ghost" onClick={() => settle('cash')} disabled={busy === 'pay'}>{busy === 'pay' ? t('saving') : t('payCash')}</Button>
+                <Button variant="brand" className="min-h-12 text-base" onClick={() => settle('in_app')} disabled={busy === 'pay'}>{busy === 'pay' ? t('saving') : t('payInApp')}</Button>
+                <Button variant="ghost" className="min-h-12" onClick={() => settle('cash')} disabled={busy === 'pay'}>{busy === 'pay' ? t('saving') : t('payCash')}</Button>
               </div>
             </>
           ) : <SuccessBurst title={t('jobComplete')} sub={t('pointsEarnedNote')} />}
 
           {settled && !reviewed && (
             <div>
-              <p className="mb-1.5 block text-sm font-medium">{t('rateProvider')}</p>
+              <p className="mb-1.5 flex items-center gap-1.5 text-sm font-bold text-ink dark:text-gray-100"><span className="text-brand [&>svg]:h-4 [&>svg]:w-4" aria-hidden="true">{ICONS.star}</span>{t('rateProvider')}</p>
               <div className="flex items-center gap-2">
                 <select value={stars} onChange={(e) => setStars(e.target.value)} className={`${inputCls} max-w-[7rem]`}>
                   {[5, 4, 3, 2, 1].map((s) => <option key={s} value={s}>{s} ★</option>)}

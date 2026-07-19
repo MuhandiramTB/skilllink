@@ -131,7 +131,7 @@ export default function AdminVerificationsPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <Button variant="success" onClick={() => decide(p.providerId, 'approve')} className="min-h-[44px] flex-1 sm:flex-none">
+                  <Button variant="brand" onClick={() => decide(p.providerId, 'approve')} className="min-h-[44px] flex-1 sm:flex-none">
                     {t('verifications.approve')}
                   </Button>
                   <Button variant="danger" onClick={() => decide(p.providerId, 'reject')} className="min-h-[44px] flex-1 sm:flex-none">

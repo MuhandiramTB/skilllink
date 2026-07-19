@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { getSession, homeForMode } from '@/lib/session';
 import { providerApi, type ProviderMe, type WalletSummary, type WalletLedgerEntry } from '@/lib/provider-api';
 import { bookingApi, type BookingListItem } from '@/lib/booking-api';
-import { Button, Card, Money, StatusBadge, Spinner, EmptyState, ErrorBanner, SuccessBanner, inputCls } from '@/components/ui';
+import { Button, AccentButton, Card, Money, StatusBadge, Spinner, EmptyState, ErrorBanner, SuccessBanner, inputCls } from '@/components/ui';
 import { ICONS } from '@/components/nav-config';
 import { AreaChart, KpiCard, CountUp, Sparkline } from '@/components/charts';
 import { Reveal } from '@/components/Reveal';
@@ -150,21 +150,35 @@ export default function ProviderDashboard() {
 
   return (
     <div className="space-y-5">
-      {/* Header + primary actions */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-extrabold tracking-tightest text-ink dark:text-gray-50">{t('providerTitle')}</h1>
-          <p className="mt-0.5 text-sm text-slate">{me?.businessName ?? t('yourServices')}</p>
+      {/* Bold dark hero — near-black ground with a lime availability CTA (the signature move). */}
+      <div className="relative overflow-hidden rounded-xl2 bg-ink p-5 shadow-lift sm:p-6">
+        <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-brand/20 blur-2xl" aria-hidden="true" />
+        <div className="relative flex flex-wrap items-end justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="font-display text-3xl font-extrabold tracking-tightest text-white sm:text-4xl">{t('providerTitle')}</h1>
+            <p className="mt-1 truncate text-sm font-medium text-white/60">{me?.businessName ?? t('yourServices')}</p>
+          </div>
+          {me?.isAvailable ? (
+            <Button
+              variant="success"
+              disabled={!approved || savingAvail}
+              onClick={toggleAvailability}
+              className="min-w-[9rem] px-5 py-3 text-base"
+            >
+              <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-white" aria-hidden="true" />
+              {savingAvail ? t('saving') : t('available')}
+            </Button>
+          ) : (
+            <AccentButton
+              disabled={!approved || savingAvail}
+              onClick={toggleAvailability}
+              className="min-w-[9rem] px-5 py-3 text-base"
+            >
+              <span className="h-2.5 w-2.5 rounded-full bg-brand-ink/60" aria-hidden="true" />
+              {savingAvail ? t('saving') : t('unavailable')}
+            </AccentButton>
+          )}
         </div>
-        <Button
-          variant={me?.isAvailable ? 'success' : 'primary'}
-          disabled={!approved || savingAvail}
-          onClick={toggleAvailability}
-          className="min-w-[8.5rem]"
-        >
-          <span className={`h-2 w-2 rounded-full ${me?.isAvailable ? 'bg-white' : 'bg-white/70'}`} aria-hidden="true" />
-          {savingAvail ? t('saving') : me?.isAvailable ? t('available') : t('unavailable')}
-        </Button>
       </div>
 
       {err && <ErrorBanner message={err} />}
@@ -208,10 +222,10 @@ export default function ProviderDashboard() {
             <Card className="lg:col-span-2">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="font-display text-base font-bold text-ink dark:text-gray-50">{t('earnings')}</h2>
-                  <p className="text-xs text-slate">{t('last6Weeks')}</p>
+                  <h2 className="font-display text-lg font-extrabold tracking-tight text-ink dark:text-gray-50">{t('earnings')}</h2>
+                  <p className="text-xs font-medium text-slate">{t('last6Weeks')}</p>
                 </div>
-                <span className="font-display text-lg font-extrabold tabular-nums text-ink dark:text-gray-50">
+                <span className="rounded-pill bg-brand px-3 py-1.5 font-display text-lg font-extrabold tabular-nums text-brand-ink shadow-brand">
                   <Money cents={earnings?.totalNetCents ?? 0} />
                 </span>
               </div>
@@ -263,7 +277,7 @@ export default function ProviderDashboard() {
                     <Button variant="ghost" disabled={!approved || settingBusy} onClick={() => setBusy(60 * 60 * 1000, t('busySet'))} className="px-3 py-1.5 text-xs">{t('busy1h')}</Button>
                     <Button variant="ghost" disabled={!approved || settingBusy} onClick={() => setBusy(3 * 60 * 60 * 1000, t('busySet'))} className="px-3 py-1.5 text-xs">{t('busy3h')}</Button>
                     <Button variant="ghost" disabled={!approved || settingBusy} onClick={() => setBusy(endOfDayMs(), t('busySet'))} className="px-3 py-1.5 text-xs">{t('busyRestOfDay')}</Button>
-                    <Button variant="success" disabled={!approved || settingBusy} onClick={() => setBusy(null, t('busySet'))} className="px-3 py-1.5 text-xs">{t('imFree')}</Button>
+                    <Button variant="brand" disabled={!approved || settingBusy} onClick={() => setBusy(null, t('busySet'))} className="px-3 py-1.5 text-xs">{t('imFree')}</Button>
                   </div>
                   {busyMsg && <p className="mt-2 text-xs font-medium text-success">{busyMsg}</p>}
                 </div>
@@ -285,7 +299,7 @@ export default function ProviderDashboard() {
           {/* ===== Job requests + verification, side by side on desktop ===== */}
           <div className="grid gap-4 lg:grid-cols-3">
             <section className="lg:col-span-2">
-              <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-slate">{t('jobRequests')}</h2>
+              <h2 className="mb-2.5 font-display text-sm font-extrabold uppercase tracking-wide text-ink dark:text-gray-100">{t('jobRequests')}</h2>
               {jobs === null && !err ? (
                 <Spinner label={t('loadingJobs')} inline />
               ) : jobs && jobs.length === 0 ? (
@@ -315,7 +329,7 @@ export default function ProviderDashboard() {
             </section>
 
             <section>
-              <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-slate">{t('verification')}</h2>
+              <h2 className="mb-2.5 font-display text-sm font-extrabold uppercase tracking-wide text-ink dark:text-gray-100">{t('verification')}</h2>
               {me && me.verifications.length === 0 ? (
                 <EmptyState>{t('noVerificationDocs')}</EmptyState>
               ) : (

@@ -73,7 +73,15 @@ export class VerificationService {
     const vStatus = decision === 'approve' ? 'approved' : 'rejected';
 
     await this.prisma.$transaction([
-      this.prisma.providers.update({ where: { user_id: providerId }, data: { status: newStatus } }),
+      // On approval, also make the provider AVAILABLE by default. Otherwise an
+      // approved provider stays invisible in search/matching (which requires
+      // is_available=true) until they manually "go online" — a confusing gap where
+      // admins approve someone but customers still can't find them. They can toggle
+      // off anytime from their dashboard.
+      this.prisma.providers.update({
+        where: { user_id: providerId },
+        data: decision === 'approve' ? { status: newStatus, is_available: true } : { status: newStatus },
+      }),
       this.prisma.verifications.updateMany({
         where: { provider_id: providerId, status: 'pending' },
         data: { status: vStatus, reviewed_by: adminId, reason: reason ?? null, reviewed_at: new Date() },

@@ -122,14 +122,14 @@ export default function ProviderRegisterPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-4">
       <div>
-        <h1 className="font-display text-xl font-bold text-ink dark:text-gray-50">{t('registerTitle')}</h1>
-        {/* stepper */}
+        <h1 className="font-display text-2xl font-extrabold tracking-tightest text-ink dark:text-gray-50">{t('registerTitle')}</h1>
+        {/* chunky lime stepper — filled segments show progress in the signature colour */}
         <div className="mt-3 flex gap-1.5">
           {STEP_KEYS.map((s, i) => (
-            <div key={s} className={`h-1.5 flex-1 rounded-full ${i <= step ? 'bg-primary' : 'bg-surface dark:bg-gray-700'}`} />
+            <div key={s} className={`h-2 flex-1 rounded-pill transition-colors ${i <= step ? 'bg-brand' : 'bg-surface-2 dark:bg-gray-700'}`} />
           ))}
         </div>
-        <p className="mt-2 text-xs text-slate">{t('stepOf', { current: step + 1, total: STEP_KEYS.length, name: t(STEP_KEYS[step]) })}</p>
+        <p className="mt-2 text-xs font-semibold text-slate">{t('stepOf', { current: step + 1, total: STEP_KEYS.length, name: t(STEP_KEYS[step]) })}</p>
       </div>
 
       {err && <ErrorBanner message={err} />}
@@ -140,7 +140,7 @@ export default function ProviderRegisterPage() {
               <label className="block"><span className="mb-1 block text-sm font-medium">{t('businessName')}</span>
                 <input autoFocus value={business} onChange={(e) => setBusiness(e.target.value)}
                   className={inputCls} placeholder={t('businessNamePlaceholder')} /></label>
-              <Button className="w-full" onClick={() => guard(() => providerApi.become(business || 'My Service'))}>{t('continue')}</Button>
+              <Button variant="brand" className="w-full" onClick={() => guard(() => providerApi.become(business || 'My Service'))}>{t('continue')}</Button>
             </>
           )}
 
@@ -154,7 +154,7 @@ export default function ProviderRegisterPage() {
               <label className="block"><span className="mb-1 block text-sm font-medium">{t('yearsExperience')}</span>
                 <input inputMode="numeric" value={years} onChange={(e) => setYears(e.target.value)}
                   className={inputCls} placeholder={t('yearsExperiencePlaceholder')} /></label>
-              <Button className="w-full" onClick={() => guard(() => providerApi.setCategories([categoryId]))}>{t('continue')}</Button>
+              <Button variant="brand" className="w-full" onClick={() => guard(() => providerApi.setCategories([categoryId]))}>{t('continue')}</Button>
             </>
           )}
 
@@ -188,7 +188,7 @@ export default function ProviderRegisterPage() {
                             type="button"
                             onClick={() => toggleTown(tn.key)}
                             aria-pressed={on}
-                            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${on ? 'border-primary bg-primary/10 text-primary' : 'border-line text-slate hover:border-ink hover:text-ink dark:border-gray-700'}`}
+                            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-semibold transition-all ${on ? 'border-brand-dim bg-brand-soft text-brand-ink dark:bg-brand/20 dark:text-brand' : 'border-line text-slate hover:border-ink hover:text-ink dark:border-gray-700'}`}
                           >
                             {on && (
                               <svg viewBox="0 0 16 16" fill="currentColor" className="h-3 w-3" aria-hidden="true"><path d="M13.485 1.929a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 1 1 1.06-1.06L5.5 8.94l6.97-6.97a.75.75 0 0 1 1.015-.04z" /></svg>
@@ -207,7 +207,7 @@ export default function ProviderRegisterPage() {
                 <div className="mt-1.5 grid grid-cols-3 gap-2">
                   {RADII.map((r) => (
                     <button key={r.m} type="button" onClick={() => setRadius(r.m)}
-                      className={`rounded-base border p-3 text-sm font-medium transition-all ${radius === r.m ? 'border-primary bg-primary/10 text-primary' : 'border-line text-slate dark:border-gray-700'}`}>{t(r.labelKey)}</button>
+                      className={`rounded-base border p-3 text-sm font-semibold transition-all ${radius === r.m ? 'border-brand-dim bg-brand-soft text-brand-ink dark:bg-brand/20 dark:text-brand' : 'border-line text-slate dark:border-gray-700'}`}>{t(r.labelKey)}</button>
                   ))}
                 </div>
               </div>
@@ -221,7 +221,7 @@ export default function ProviderRegisterPage() {
               )}
 
               <p className="text-xs text-slate">{t('townsSelected', { count: towns.size })}</p>
-              <Button className="w-full" disabled={towns.size === 0} onClick={() => guard(saveAreas)}>{t('continue')}</Button>
+              <Button variant="brand" className="w-full" disabled={towns.size === 0} onClick={() => guard(saveAreas)}>{t('continue')}</Button>
             </>
           )}
 
@@ -234,7 +234,7 @@ export default function ProviderRegisterPage() {
                 uploaded={docs['selfie']} onPicked={(file) => uploadDoc('selfie', file)} />
               <FileUpload label={t('certificateLabel')}
                 uploaded={docs['certificate']} onPicked={(file) => uploadDoc('certificate', file)} />
-              <Button className="w-full" disabled={!docs['nic'] || !docs['selfie']}
+              <Button variant="brand" className="w-full" disabled={!docs['nic'] || !docs['selfie']}
                 onClick={() => setStep(4)}>{t('continue')}</Button>
               {(!docs['nic'] || !docs['selfie']) && <p className="text-xs text-slate">{t('nicSelfieRequired')}</p>}
             </>
@@ -252,7 +252,7 @@ export default function ProviderRegisterPage() {
                 <input type="checkbox" checked={emergency} onChange={(e) => setEmergency(e.target.checked)} />
                 {t('emergencyCalls')}
               </label>
-              <Button className="w-full" onClick={submitAll}>{t('submitForVerification')}</Button>
+              <Button variant="brand" className="w-full" onClick={submitAll}>{t('submitForVerification')}</Button>
             </>
           )}
         </Card>
