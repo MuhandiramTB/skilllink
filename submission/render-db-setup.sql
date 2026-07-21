@@ -674,3 +674,22 @@ WHERE NOT EXISTS (SELECT 1 FROM users WHERE phone = '+94770000000');
 -- If the user already existed as a customer, promote to admin (dev convenience).
 UPDATE users SET role = 'admin' WHERE phone = '+94770000000' AND role <> 'admin';
 
+
+-- ============================================================================
+-- ===== migrations/015_kyc_checks.sql =====
+-- ============================================================================
+DO $$ BEGIN
+  CREATE TYPE kyc_status AS ENUM ('pending', 'verified', 'rejected');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+CREATE TABLE IF NOT EXISTS kyc_checks (
+    id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    provider_id    uuid NOT NULL REFERENCES providers(user_id) ON DELETE CASCADE,
+    vendor         text NOT NULL DEFAULT 'mock',
+    vendor_check_id text,
+    status         kyc_status NOT NULL DEFAULT 'pending',
+    document_ok    boolean, face_match boolean, liveness_ok boolean,
+    score          numeric(4,3), reason text, raw jsonb,
+    created_at     timestamptz NOT NULL DEFAULT now(),
+    updated_at     timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_kyc_checks_provider ON kyc_checks (provider_id, created_at DESC);

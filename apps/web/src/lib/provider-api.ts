@@ -70,6 +70,33 @@ export const providerApi = {
     req<{ ok: boolean }>(`/providers/me/photos/${photoId}`, { method: 'DELETE' }),
 };
 
+/** Spec 18: identity verification (KYC) — NIC front/back + guided liveness selfie. */
+export interface KycSubmitInput {
+  fullName?: string;
+  documentNumber?: string;
+  nicFrontUrl: string;
+  nicBackUrl: string;
+  selfieUrl: string;
+  livenessChallenges?: string[];
+}
+export interface KycStatus {
+  status: 'none' | 'pending' | 'verified' | 'rejected';
+  vendor?: string;
+  documentOk?: boolean | null;
+  faceMatch?: boolean | null;
+  livenessOk?: boolean | null;
+  reason?: string | null;
+  submittedAt?: string;
+}
+export const kycApi = {
+  submit: (input: KycSubmitInput) =>
+    req<{ id: string; status: KycStatus['status']; reason: string | null }>(`/kyc/submit`, {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
+  status: () => req<KycStatus>(`/kyc/me`),
+};
+
 export interface WorkPhoto { id: string; url: string; caption: string | null; created_at?: string }
 
 export interface WalletLedgerEntry { id: string; type: string; amount_cents: number; booking_id: string | null; note: string | null; created_at: string }

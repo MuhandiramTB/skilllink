@@ -17,6 +17,7 @@ import { FavouritesModule } from './favourites/favourites.module';
 import { ReferralsModule } from './referrals/referrals.module';
 import { SettingsModule } from './settings/settings.module';
 import { SafetyModule } from './safety/safety.module';
+import { KycModule } from './kyc/kyc.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 
@@ -41,6 +42,7 @@ import { APP_GUARD } from '@nestjs/core';
     ReferralsModule,
     SettingsModule,
     SafetyModule,
+    KycModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
   controllers: [HealthController],

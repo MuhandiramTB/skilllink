@@ -3,13 +3,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { providerApi } from '@/lib/provider-api';
+import { providerApi, kycApi, type KycStatus } from '@/lib/provider-api';
 import { getToken } from '@/lib/session';
 import { Button, Card, ErrorBanner, Spinner, StatusBadge, inputCls } from '@/components/ui';
-import { FileUpload } from '@/components/FileUpload';
-import { fileToDataUrl } from '@/lib/image';
 import { TOWNS, townsByDistrict } from '@/lib/towns';
 import { CoverageMap } from '@/components/CoverageMap';
+import { KycCapture, type KycCaptureResult } from '@/components/KycCapture';
 
 interface Cat { id: string; key: string; name: { en: string }; children: Cat[] }
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
@@ -58,10 +57,16 @@ export default function ProviderRegisterPage() {
     const areas = TOWNS.filter((tn) => towns.has(tn.key)).map((tn) => ({ lat: tn.lat, lng: tn.lng, radiusMeters: radius, label: tn.name }));
     await providerApi.setServiceAreas(areas);
   }
-  const [docs, setDocs] = useState<Record<string, boolean>>({});
   const [days, setDays] = useState('Mon–Sat');
   const [hours, setHours] = useState('08:00–18:00');
   const [emergency, setEmergency] = useState(false);
+
+  // KYC (identity verification) state.
+  const [fullName, setFullName] = useState('');
+  const [nic, setNic] = useState('');
+  const [kycBusy, setKycBusy] = useState(false);
+  const [kycResult, setKycResult] = useState<KycStatus['status'] | null>(null);
+  const [kycReason, setKycReason] = useState<string | null>(null);
 
   useEffect(() => {
     if (!getToken()) { window.location.href = `/${locale}/login?intent=provider&next=/${locale}/provider/register`; return; }
@@ -80,38 +85,52 @@ export default function ProviderRegisterPage() {
     try { await fn(); if (advance) setStep((s) => s + 1); } catch (e) { fail(e); }
   }
 
-  // Validate the picked image (type + size), compress to a data URL, and store it as
-  // the verification document so the admin can actually view it.
-  async function uploadDoc(type: string, file?: File) {
+  // Identity verification: hand the captured NIC + liveness selfie to the KYC
+  // provider. A `verified` result auto-approves the provider; `rejected` shows why
+  // and lets them retake; `pending` (async vendor) sends them to the review screen.
+  async function submitKyc(r: KycCaptureResult) {
     setErr('');
-    if (!file) return;
+    setKycBusy(true);
     try {
-      const dataUrl = await fileToDataUrl(file, 1000); // keep readable for NIC/certs
-      await providerApi.addVerification(type, dataUrl);
-      setDocs((d) => ({ ...d, [type]: true }));
+      const res = await kycApi.submit({
+        fullName: fullName || business || undefined,
+        documentNumber: nic || undefined,
+        nicFrontUrl: r.nicFront,
+        nicBackUrl: r.nicBack,
+        selfieUrl: r.selfie,
+        livenessChallenges: r.challenges,
+      });
+      setKycResult(res.status);
+      setKycReason(res.reason);
+      if (res.status !== 'rejected') setStep(4);
     } catch (e) { fail(e); }
+    finally { setKycBusy(false); }
   }
 
   async function submitAll() {
     setErr('');
     try {
-      await providerApi.setAvailability(false); // stays offline until approved
       await providerApi.setDetails({
         yearsExperience: years ? Number(years) : undefined,
         workingDays: days, workingHours: hours, emergencyService: emergency,
       });
+      // Verified providers go online immediately; everyone else waits for review.
+      await providerApi.setAvailability(kycResult === 'verified');
       setDone(true);
     } catch (e) { fail(e); }
   }
 
   if (done) {
+    const verified = kycResult === 'verified';
     return (
       <div className="mx-auto max-w-2xl text-center">
         <Card className="space-y-3">
-          <StatusBadge status="pending" />
-          <h1 className="font-display text-xl font-bold text-ink dark:text-gray-50">{t('submittedForReview')}</h1>
+          <StatusBadge status={verified ? 'approved' : 'pending'} />
+          <h1 className="font-display text-xl font-bold text-ink dark:text-gray-50">
+            {verified ? t('verifiedTitle') : t('submittedForReview')}
+          </h1>
           <p className="text-sm text-slate">
-            {t('submittedForReviewBody')}
+            {verified ? t('verifiedBody') : t('submittedForReviewBody')}
           </p>
           <Button onClick={() => (window.location.href = `/${locale}/provider`)}>{t('goToDashboard')}</Button>
         </Card>
@@ -227,16 +246,30 @@ export default function ProviderRegisterPage() {
 
           {step === 3 && (
             <>
-              <p className="text-sm font-medium">{t('uploadDocuments')}</p>
-              <FileUpload label={t('nicLabel')} capture="environment"
-                uploaded={docs['nic']} onPicked={(file) => uploadDoc('nic', file)} />
-              <FileUpload label={t('selfieLabel')} capture="user"
-                uploaded={docs['selfie']} onPicked={(file) => uploadDoc('selfie', file)} />
-              <FileUpload label={t('certificateLabel')}
-                uploaded={docs['certificate']} onPicked={(file) => uploadDoc('certificate', file)} />
-              <Button variant="brand" className="w-full" disabled={!docs['nic'] || !docs['selfie']}
-                onClick={() => setStep(4)}>{t('continue')}</Button>
-              {(!docs['nic'] || !docs['selfie']) && <p className="text-xs text-slate">{t('nicSelfieRequired')}</p>}
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="block"><span className="mb-1 block text-sm font-medium">{t('fullNameLabel')}</span>
+                  <input value={fullName} onChange={(e) => setFullName(e.target.value)}
+                    className={inputCls} placeholder={t('fullNamePlaceholder')} /></label>
+                <label className="block"><span className="mb-1 block text-sm font-medium">{t('nicNumberLabel')}</span>
+                  <input value={nic} onChange={(e) => setNic(e.target.value)}
+                    className={inputCls} placeholder={t('nicNumberPlaceholder')} /></label>
+              </div>
+
+              {kycBusy ? (
+                <div className="flex flex-col items-center gap-2 py-6">
+                  <Spinner />
+                  <p className="text-sm font-semibold text-slate">{t('verifyingIdentity')}</p>
+                </div>
+              ) : (
+                <KycCapture onComplete={submitKyc} />
+              )}
+
+              {kycResult === 'rejected' && (
+                <div className="rounded-xl2 border border-danger/30 bg-danger/5 p-3">
+                  <p className="text-sm font-semibold text-danger">{t('verificationFailed')}</p>
+                  <p className="mt-0.5 text-xs text-slate">{t('verificationFailedHint')}</p>
+                </div>
+              )}
             </>
           )}
 

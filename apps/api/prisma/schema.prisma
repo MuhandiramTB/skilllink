@@ -127,6 +127,7 @@ model providers {
   strikes              Int                       @default(0)
   bookings             bookings[]
   favourited_by        favourites[]              @relation("provider_favourites")
+  kyc_checks           kyc_checks[]
   payouts              payouts[]
   provider_categories  provider_categories[]
   photos               provider_photos[]
@@ -541,4 +542,32 @@ enum dispute_status {
 enum payout_status {
   pending
   paid
+}
+
+enum kyc_status {
+  pending
+  verified
+  rejected
+}
+
+// Spec 18: provider identity verification via a pluggable KYC provider (mock in
+// dev; Onfido/Persona in prod). One row per attempt with the individual signals.
+model kyc_checks {
+  id              String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider_id     String     @db.Uuid
+  vendor          String     @default("mock")
+  vendor_check_id String?
+  status          kyc_status @default(pending)
+  document_ok     Boolean?
+  face_match      Boolean?
+  liveness_ok     Boolean?
+  score           Decimal?   @db.Decimal(4, 3)
+  reason          String?
+  raw             Json?
+  created_at      DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime   @default(now()) @db.Timestamptz(6)
+
+  provider providers @relation(fields: [provider_id], references: [user_id], onDelete: Cascade)
+
+  @@index([provider_id])
 }

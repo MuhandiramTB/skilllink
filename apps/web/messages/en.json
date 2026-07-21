@@ -171,6 +171,13 @@
       "noToken": "Please sign in.",
       "tokenInvalid": "Your session expired. Please sign in again.",
       "forbidden": "You don't have access to this."
+    },
+    "kyc": {
+      "incompleteEvidence": "Some photos are missing or unclear. Please provide the NIC front, back and a selfie.",
+      "livenessFailed": "We couldn't confirm a live person. Please complete the on-screen prompts.",
+      "vendorUnavailable": "Identity verification is temporarily unavailable. Please try again later.",
+      "vendorError": "Identity verification failed to run. Please try again.",
+      "checksFailed": "Your identity checks didn't pass. Please retry with clearer photos."
     }
   },
   "admin": {
@@ -696,7 +703,16 @@
     "bookWith": "Book with {name}",
     "bookingWith": "Booking with",
     "bookingAreaNote": "Service in {area}. You can adjust the exact spot on the map.",
-    "confirmBooking": "Confirm booking"
+    "confirmBooking": "Confirm booking",
+    "fullNameLabel": "Full name (as on NIC)",
+    "fullNamePlaceholder": "e.g. Nimal Perera",
+    "nicNumberLabel": "NIC number",
+    "nicNumberPlaceholder": "e.g. 199012345678",
+    "verifyingIdentity": "Verifying your identity…",
+    "verificationFailed": "We couldn't verify your identity",
+    "verificationFailedHint": "Please retake clearer photos in good lighting and try again.",
+    "verifiedTitle": "You're verified!",
+    "verifiedBody": "Your identity was confirmed. You can start receiving jobs right away."
   },
   "loc": {
     "yourLocation": "Your location",
@@ -769,5 +785,35 @@
     "onTheWay": "Your pro is on the way",
     "etaMinutes": "Arriving in about {min} min",
     "lastSeen": "Location paused"
+  },
+  "kyc": {
+    "introTitle": "Verify your identity",
+    "introSubtitle": "A quick, secure ID check — about 2 minutes.",
+    "stepNicFront": "Photo of your NIC — front",
+    "stepNicBack": "Photo of your NIC — back",
+    "stepSelfie": "A short selfie to confirm it's you",
+    "privacyNote": "Your documents are used only to verify your identity and are handled securely.",
+    "start": "Start verification",
+    "nicFrontTitle": "NIC — front side",
+    "nicBackTitle": "NIC — back side",
+    "selfieTitle": "Liveness selfie",
+    "nicHint": "Fit your NIC inside the frame — keep it flat and readable.",
+    "capture": "Capture",
+    "nextPrompt": "Next",
+    "finishSelfie": "Finish",
+    "holdSteady": "Hold steady and make sure the details are clear.",
+    "reviewTitle": "Review your photos",
+    "retake": "Retake",
+    "submit": "Submit for verification",
+    "nicFront": "NIC front",
+    "nicBack": "NIC back",
+    "selfie": "Selfie",
+    "cameraUnavailable": "Camera unavailable. You can upload a photo instead.",
+    "captureFailed": "Couldn't capture — please try again.",
+    "uploadInstead": "Upload a photo",
+    "challenge_lookStraight": "Look straight at the camera",
+    "challenge_turnLeft": "Slowly turn your head left",
+    "challenge_turnRight": "Slowly turn your head right",
+    "challenge_blink": "Blink twice"
   }
 }
